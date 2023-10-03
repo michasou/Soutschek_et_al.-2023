@@ -1,0 +1,315 @@
+---
+title: "Neurite_Figures"
+author: "Michael"
+date: "6 12 2020"
+output: html_document
+---
+
+
+```{r}
+library(ggplot2)
+library(ggsci)
+library(scales)
+library(MASS)
+library(emmeans)
+library(rstatix)
+```
+
+
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
+col <- pal_uchicago("default")(9)[2]
+```
+
+
+# get data
+```{r}
+res <- readRDS("../R/Neurite_Result.rds")
+res$smooth <- "sm1"
+res$Length_um <- res$Mean_TotalObjectSkeletonLength / 1.7065
+```
+
+
+# Length
+```{r}
+ag_le <- aggregate(log(res$Length_um),res[,c("Day","Replicate")], FUN=mean)
+
+
+mod_s1 <- MASS::rlm(x ~ as.factor(Day) + Replicate ,ag_le,psi = psi.huber)
+summary(mod_s1)
+s1 <- emmeans(mod_s1, pairwise ~ Day)
+
+
+st_df1 <- as.data.frame(s1$contrasts)
+st_df1$group1 <- sapply(strsplit(st_df1$contrast," - "),"[",1)
+st_df1$group2 <- sapply(strsplit(st_df1$contrast," - "),"[",2)
+st_df1$group1 <- gsub("Day","",st_df1$group1)
+st_df1$group2 <- gsub("Day","",st_df1$group2)
+st_df1 <- add_significance(st_df1,p.col = "p.value")
+
+#show only statistical comparisons between neighboring time points
+st_df_plot <- st_df1[c(1,5,8,10),]
+st_df_plot$p.value.signif[4] <- round(st_df_plot$p.value[4],2)
+
+
+#add y_position
+y_pos <- log(max(res[,"Length_um"]))
+st_df_plot $y_pos <- y_pos*1.05
+st_df_plot$y_adj <- rep(c(0,0.25,0,0.25))
+st_df_plot$y_pos2 <- st_df_plot$y_pos + st_df_plot$y_adj
+
+
+ggplot(res,aes(x = as.factor(Day),y =log(Length_um))) +
+   geom_smooth(stat="smooth",method = "loess", aes(group = smooth), color = col,
+              alpha = 0.1, size = 0, show.legend = FALSE) +
+  geom_line(stat="smooth",method = "loess", aes(group = smooth), color = col,
+              alpha = 0.3, size = 1.5) +
+  geom_violin(show.legend = FALSE,adjust = 0.75) +
+  stat_summary(
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  stat_summary(aes(color = Replicate),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(
+    data = st_df_plot,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  ylab("Neurite Length (per cell in µm) (log)") +
+  xlab("Day") +
+  theme_classic(base_size = 13) +
+  scale_color_manual(values = col_vec)
+
+ggsave("../Figures/Length.png", width = 7, height = 5)
+```
+
+
+
+# BranchEnds
+```{r}
+ag_br <- aggregate(sqrt(res$Mean_NumberBranchEnds),res[,c("Day","Replicate")], FUN=mean)
+
+
+mod_s1 <- MASS::rlm(x ~ as.factor(Day) + Replicate ,ag_br,psi = psi.huber)
+summary(mod_s1)
+s1 <- emmeans(mod_s1, pairwise ~ Day)
+
+
+st_df1 <- as.data.frame(s1$contrasts)
+st_df1$group1 <- sapply(strsplit(st_df1$contrast," - "),"[",1)
+st_df1$group2 <- sapply(strsplit(st_df1$contrast," - "),"[",2)
+st_df1$group1 <- gsub("Day","",st_df1$group1)
+st_df1$group2 <- gsub("Day","",st_df1$group2)
+st_df1 <- add_significance(st_df1,p.col = "p.value")
+
+#show only statistical comparisons between neighboring time points
+st_df_plot <- st_df1[c(1,5,8,10),]
+st_df_plot$p.value.signif[2] <- round(st_df_plot$p.value[2],2)
+
+
+#add y_position
+y_pos <- sqrt(max(res[,"Mean_NumberBranchEnds"]))
+st_df_plot $y_pos <- y_pos*1.05
+st_df_plot$y_adj <- rep(c(0,0.25,0,0.25))
+st_df_plot$y_pos2 <- st_df_plot$y_pos + st_df_plot$y_adj
+
+
+ggplot(res,aes(x = as.factor(Day),y = sqrt(Mean_NumberBranchEnds))) +
+    geom_smooth(stat="smooth",method = "loess", aes(group = smooth), color = col,
+              alpha = 0.1, size = 0, show.legend = FALSE) +
+  geom_line(stat="smooth",method = "loess", aes(group = smooth), color = col,
+              alpha = 0.3, size = 1.5) +
+  geom_violin(show.legend = FALSE,adjust = 0.75) +
+  stat_summary(
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  stat_summary(aes(color = Replicate),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(
+    data = st_df_plot,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  ylab("Branch ends (per cell) (sqrt)") +
+  xlab("Day") +
+  theme_classic(base_size = 13) +
+  scale_color_manual(values = col_vec)
+
+ggsave("../Figures/BranchEnds.png", width = 7, height = 5)
+```
+
+
+
+
+
+# Trunks
+
+```{r}
+ag_tr <- aggregate(res$Mean_NumberTrunks,res[,c("Day","Replicate")], FUN=mean)
+
+
+mod_s1 <- MASS::rlm(x ~ as.factor(Day) + Replicate ,ag_tr,psi = psi.huber)
+summary(mod_s1)
+s1 <- emmeans(mod_s1, pairwise ~ Day)
+
+
+st_df1 <- as.data.frame(s1$contrasts)
+st_df1$group1 <- sapply(strsplit(st_df1$contrast," - "),"[",1)
+st_df1$group2 <- sapply(strsplit(st_df1$contrast," - "),"[",2)
+st_df1$group1 <- gsub("Day","",st_df1$group1)
+st_df1$group2 <- gsub("Day","",st_df1$group2)
+st_df1 <- add_significance(st_df1,p.col = "p.value")
+
+#show only statistical comparisons between neighboring time points
+st_df_plot <- st_df1[c(1,5,8,10),]
+#st_df_plot$p.value.signif[2] <- round(st_df_plot$p.value[2],2)
+
+
+#add y_position
+y_pos <- max(res[,"Mean_NumberTrunks"])
+st_df_plot $y_pos <- y_pos*1.05
+st_df_plot$y_adj <- rep(c(0,0.25,0,0.25))
+st_df_plot$y_pos2 <- st_df_plot$y_pos + st_df_plot$y_adj
+
+
+ggplot(res,aes(x = as.factor(Day),y = Mean_NumberTrunks)) +
+   geom_smooth(stat="smooth",method = "loess", aes(group = smooth), color = col,
+              alpha = 0.1, size = 0, show.legend = FALSE) +
+  geom_line(stat="smooth",method = "loess", aes(group = smooth), color = col,
+              alpha = 0.3, size = 1.5) +
+  geom_violin(show.legend = FALSE,adjust = 0.75) +
+  stat_summary(
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  stat_summary(aes(color = Replicate),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(
+    data = st_df_plot,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  ylab("Trunk-Branches per cell") +
+  xlab("Day") +
+  theme_classic(base_size = 13) +
+  scale_color_manual(values = col_vec)
+
+ggsave("../Figures/Trunks.png", width = 7, height = 5)
+```
+
+
+
+# Branches
+```{r}
+ag_sb <- aggregate(sqrt(res$Mean_NumberNonTrunkBranches),res[,c("Day","Replicate")], FUN=mean)
+
+
+mod_s1 <- MASS::rlm(x ~ as.factor(Day) + Replicate ,ag_sb,psi = psi.huber)
+summary(mod_s1)
+s1 <- emmeans(mod_s1, pairwise ~ Day)
+
+
+st_df1 <- as.data.frame(s1$contrasts)
+st_df1$group1 <- sapply(strsplit(st_df1$contrast," - "),"[",1)
+st_df1$group2 <- sapply(strsplit(st_df1$contrast," - "),"[",2)
+st_df1$group1 <- gsub("Day","",st_df1$group1)
+st_df1$group2 <- gsub("Day","",st_df1$group2)
+st_df1 <- add_significance(st_df1,p.col = "p.value")
+
+#show only statistical comparisons between neighboring time points
+st_df_plot <- st_df1[c(1,5,8,10),]
+st_df_plot$p.value.signif[2] <- round(st_df_plot$p.value[2],2)
+
+
+#add y_position
+y_pos <- sqrt(max(res[,"Mean_NumberNonTrunkBranches"]))
+st_df_plot $y_pos <- y_pos*1.05
+st_df_plot$y_adj <- rep(c(0,0.3,0,0.3))
+st_df_plot$y_pos2 <- st_df_plot$y_pos + st_df_plot$y_adj
+
+ggplot(res,aes(x = as.factor(Day),y = sqrt(Mean_NumberNonTrunkBranches))) +
+    geom_smooth(stat="smooth",method = "loess", aes(group = smooth), color = col,
+              alpha = 0.1, size = 0, show.legend = FALSE) +
+  geom_line(stat="smooth",method = "loess", aes(group = smooth), color = col,
+              alpha = 0.3, size = 1.5) +
+  geom_violin(show.legend = FALSE,adjust = 0.75) +
+  stat_summary(
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  stat_summary(aes(color = Replicate),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(
+    data = st_df_plot,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  ylab("Secondary Branches per cell (sqrt)") +
+  xlab("Day") +
+  theme_classic(base_size = 13) +
+  scale_color_manual(values = col_vec)
+
+ggsave("../Figures/SecBranches.png", width = 7, height = 5)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

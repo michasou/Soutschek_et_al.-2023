@@ -1,0 +1,149 @@
+---
+title: "Whipple_2020_SmallRNA_Analysis"
+author: "Michael Soutschek"
+date: "7 1 2021"
+output: html_document
+---
+
+
+
+```{r libraries}
+suppressPackageStartupMessages({
+  library(edgeR)
+  library(SummarizedExperiment)
+  library(SEtools)
+})
+```
+
+
+## Allocation
+
+```{r allocation}
+
+# allocation
+## input/output files
+folder <- "Whipple_2020_Oasis/data/counts/"
+output.raw <- "smallRNA_oasis.raw.SE.rds"
+```
+
+
+```{r import raw}
+# import raw data
+filelist = list.files(path = folder, pattern = ".*.txt")
+file_names <- sapply(strsplit(filelist,"_"), FUN = function(x) as.character(x[1]))
+
+
+oa_list <- lapply(filelist, function(x) read.table(paste(folder, x, sep=''), header = FALSE))
+names(oa_list) <- file_names
+for(i in file_names){
+  colnames(oa_list[[i]]) <- c("name",i)
+}
+
+
+oa_table <- Reduce(function(dtf1, dtf2) merge(dtf1, dtf2, by = "name", all = TRUE),
+              oa_list)
+oa_table <- tibble::column_to_rownames(oa_table, var = "name")
+oa_table <- oa_table[-c(1:5),]
+# filter out all with "0" counts to reduce size
+oa_table <- oa_table[which(rowSums(oa_table)!=0),]
+
+```
+
+# Create the SE-object
+
+```{r}
+# Get the experiment info
+SRA <- fread("../SraRunTable.txt")
+ds <- SRA[,c("Run","differentiation_day","Genotype","replicate")]
+ds <- ds[ds$Run %in% file_names,]
+ds$differentiation_day <- gsub("Day ","",ds$differentiation_day,fixed = TRUE)
+ds$day <- as.factor(ds$differentiation_day)
+ds$genotype <- as.factor(ds$Genotype)
+ds <- ds[,-c("differentiation_day","Genotype")]
+ds <- ds[order(ds$Run),]
+```
+
+```{r}
+# generate the SE
+se <- SummarizedExperiment(list(counts=as.matrix(oa_table)), colData=ds)
+se <- se[,order(se$day, se$genotype, se$replicate)]
+saveRDS(se,"Whipple_2020_SmallRNA_SE.raw.rds")
+```
+
+
+# DEA analysis
+```{r create raw se}
+se <- readRDS("Whipple_2020_SmallRNA_SE.raw.rds")
+
+# filter: AT LEAST how many counts in AT LEAST how many samples? e.g. counts >= 20, samples >= 1
+se <- se[rowSums(assay(se)>=20)>=1,]
+
+# data preparation
+dds <- DGEList(assays(se)$counts)
+dds <- calcNormFactors(dds)
+
+# Model Matrix and Fitting, and logcPMs
+mm <- model.matrix(~day*genotype, data=as.data.frame(colData(se)))
+dds <- estimateDisp(dds,mm)
+fit <- glmFit(dds, mm)
+se <- se[row.names(dds),]
+se$sample <- paste(se$day,se$genotype, sep = "_")
+assays(se)$logcpm <- log1p(cpm(dds))
+```
+
+# Statistical comparison Day0 vs Day10
+```{r}
+lrt <- glmLRT(fit, coef= 2)
+res <- as.data.frame(topTags(lrt, Inf))
+rowData(se)[["Day10vs0"]] <- DataFrame(res)
+saveRDS(se,"Whipple_2020_SmallRNA_SE.DEA.rds")
+```
+
+
+# Some exploratory figures
+
+
+```{r}
+g0 <- "mmu-miR-125b-5p"
+g1 <- "mmu-miR-181a-5p"
+g2 <- "mmu-miR-134-5p"
+g3 <- "mmu-miR-410-3p"
+
+p1 <- ggplot(meltSE(se, g0, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free")
+
+p3 <- ggplot(meltSE(se, g1, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free")
+
+p5 <- ggplot(meltSE(se, g2, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free")
+
+ggplot(meltSE(se, g3, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free")
+```
+
+```{r}
+se_ipsc <- readRDS("~/iPSC_Screen/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+
+g4 <- "hsa-miR-410-3p"
+g5 <- "hsa-miR-181a-5p"
+g6 <- "hsa-miR-134-5p"
+g7 <- "hsa-miR-125b-5p"
+
+ggplot(meltSE(se_ipsc, g4, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free")
+
+p4 <- ggplot(meltSE(se_ipsc, g5, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free")
+
+p6 <- ggplot(meltSE(se_ipsc, g6, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free")
+
+p2 <- ggplot(meltSE(se_ipsc, g7, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free")
+```
+
+
+```{r}
+library(cowplot)
+plot_grid(p1,p2,p3,p4,p5,p6, ncol = 2, )
+```
+
+
+
+
+
+
+

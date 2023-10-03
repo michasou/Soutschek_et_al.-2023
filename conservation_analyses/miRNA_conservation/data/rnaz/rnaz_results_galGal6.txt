@@ -1,0 +1,4170 @@
+>>hsa-let-7a-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 80
+ Reading direction: forward
+ Mean pairwise identity:  96.25
+ Shannon entropy: 0.03750
+ G+C content: 0.41875
+ Mean single sequence MFE: -35.10
+ Consensus MFE: -34.70
+ Energy contribution: -34.45
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -4.78
+ Structure conservation index:   0.99
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.50
+ SVM RNA-class probability: 0.998806
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGGGAUGAGGUAGUAGGUUGUAUAGUUUUAGGGUCACACCCACCACUGGGAGAUAACUAUACAAUCUACUGUCUUUCCUA
+(((((.(((..((((((((((((((((...(((.....))).((....))....))))))))))))))))..)))))))) ( -36.10, z-score =  -4.71, R)
+>chicken
+UGGGAUGAGGUAGUAGGUUGUAUAGUUUUAGGGUCAUACCCGCAACUGGGAGAUAACUAUACAAUCUACUGUCUUUCCUA
+(((((.(((..((((((((((((((((.....(((...((((....)))).)))))))))))))))))))..)))))))) ( -34.10, z-score =  -4.85, R)
+>consensus
+UGGGAUGAGGUAGUAGGUUGUAUAGUUUUAGGGUCACACCCACAACUGGGAGAUAACUAUACAAUCUACUGUCUUUCCUA
+(((((.(((..((((((((((((((((.....(((...((((....)))).)))))))))))))))))))..)))))))) (-34.70 = -34.45 +  -0.25) 
+
+>>hsa-let-7a-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 72
+ Reading direction: forward
+ Mean pairwise identity:  97.22
+ Shannon entropy: 0.02778
+ G+C content: 0.40278
+ Mean single sequence MFE: -25.20
+ Consensus MFE: -25.45
+ Energy contribution: -25.20
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.04
+ Mean z-score:  -3.23
+ Structure conservation index:   1.01
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.14
+ SVM RNA-class probability: 0.997606
+ Prediction: RNA
+
+######################################################################
+
+>human
+AGGUUGAGGUAGUAGGUUGUAUAGUUUAGAAUUACAUCAAGGGAGAUAACUGUACAGCCUCCUAGCUUUCCU
+(((..(((.(((.(((((((((((((.....(..(.....)..)...))))))))))))).))).))).))) ( -25.20, z-score =  -3.32, R)
+>chicken
+AGGUUGAGGUAGUAGGUUGUAUAGUUUAGAAUUACACCAAGGGAGAUAACUGUACAACCUCCUAGCUUUCCU
+(((..(((.(((.(((((((((((((.....(..(.....)..)...))))))))))))).))).))).))) ( -25.20, z-score =  -3.13, R)
+>consensus
+AGGUUGAGGUAGUAGGUUGUAUAGUUUAGAAUUACACCAAGGGAGAUAACUGUACAACCUCCUAGCUUUCCU
+(((..(((.(((.(((((((((((((.....(..(.....)..)...))))))))))))).))).))).))) (-25.45 = -25.20 +  -0.25) 
+
+>>hsa-let-7a-3
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 76
+ Reading direction: forward
+ Mean pairwise identity:  89.47
+ Shannon entropy: 0.10526
+ G+C content: 0.44026
+ Mean single sequence MFE: -34.25
+ Consensus MFE: -34.17
+ Energy contribution: -33.67
+ Covariance contribution:  -0.50
+ Combinations/Pair:   1.07
+ Mean z-score:  -5.20
+ Structure conservation index:   1.00
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.48
+ SVM RNA-class probability: 0.998761
+ Prediction: RNA
+
+######################################################################
+
+>human
+GGGUGAGGUAGUAGGUUGUAUAGUUU-GGGGCUCUGCCCUGC-UAUGGGAUAACUAUACAAUCUACUGUCUUUCCU
+(((.(((..(((((((((((((((((-(((((...)))))).-........))))))))))))))))..))).))) ( -34.40, z-score =  -4.99, R)
+>chicken
+GGGUGAGGUAGUAGGUUGUAUAGUUUUAGGGUUAUGCCCUGCCUGUCAGAUAACUAUACAAUCUACUGUCUUUCCU
+(((.(((..((((((((((((((((.(((((.....)))))..........))))))))))))))))..))).))) ( -34.10, z-score =  -5.41, R)
+>consensus
+GGGUGAGGUAGUAGGUUGUAUAGUUU_AGGGCUAUGCCCUGC_UAUCAGAUAACUAUACAAUCUACUGUCUUUCCU
+(((.(((..((((((((((((((((..(((((...)))))...........))))))))))))))))..))).))) (-34.17 = -33.67 +  -0.50) 
+
+>>hsa-let-7b
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 85
+ Reading direction: forward
+ Mean pairwise identity:  89.41
+ Shannon entropy: 0.10588
+ G+C content: 0.50000
+ Mean single sequence MFE: -45.95
+ Consensus MFE: -43.50
+ Energy contribution: -43.75
+ Covariance contribution:   0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -7.13
+ Structure conservation index:   0.95
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.46
+ SVM RNA-class probability: 0.991235
+ Prediction: RNA
+
+######################################################################
+
+>human
+CGGGGUGAGGUAGUAGGUUGUGUGGUUUCAGGGCAGUGAUGUUGCCCC--UCGGAAGAUAACUAUACAACCUACUGCCUUCCCUG
+(((((.(((((((((((((((((((((...((((((.....)))))).--((....)).)))))))))))))))))))))))))) ( -50.90, z-score =  -8.17, R)
+>chicken
+--GGAUGAGGUAGUAGGUUGUGUGGUUUCAGGGUAGUGAUUUUGCCCCAAUCAGGAGAUAACUAUACAACCUACUGCCUUCCCUG
+--((..(((((((((((((((((((((...((((((.....))))))..(((....)))))))))))))))))))))))).)).. ( -41.00, z-score =  -6.09, R)
+>consensus
+__GGAUGAGGUAGUAGGUUGUGUGGUUUCAGGGCAGUGAUGUUGCCCC__UCAGAAGAUAACUAUACAACCUACUGCCUUCCCUG
+..(((.(((((((((((((((((((((...((((((.....))))))...((....)).)))))))))))))))))))))))).. (-43.50 = -43.75 +   0.25) 
+
+>>hsa-let-7d
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 87
+ Reading direction: forward
+ Mean pairwise identity:  96.55
+ Shannon entropy: 0.03448
+ G+C content: 0.47701
+ Mean single sequence MFE: -42.15
+ Consensus MFE: -42.85
+ Energy contribution: -42.10
+ Covariance contribution:  -0.75
+ Combinations/Pair:   1.09
+ Mean z-score:  -6.00
+ Structure conservation index:   1.02
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.02
+ SVM RNA-class probability: 0.997030
+ Prediction: RNA
+
+######################################################################
+
+>human
+CCUAGGAAGAGGUAGUAGGUUGCAUAGUUUUAGGGCAGGGAUUUUGCCCACAAGGAGGUAACUAUACGACCUGCUGCCUUUCUUAGG
+(((((((.((((((((((((((.((((((...((((((.....))))))((......)))))))).))))))))))))))))))))) ( -44.10, z-score =  -6.49, R)
+>chicken
+CCUAGGAAGAGGUAGUGGGUUGCAUAGUUUUAGGGCAGGGAUUUUGCUCACAAGGAGGUAACUAUACAACCUGCUGCCUUUCUUAGG
+(((((((.(((((((..(((((.((((((...((((((.....))))))((......)))))))).)))))..)))))))))))))) ( -40.20, z-score =  -5.52, R)
+>consensus
+CCUAGGAAGAGGUAGUAGGUUGCAUAGUUUUAGGGCAGGGAUUUUGCCCACAAGGAGGUAACUAUACAACCUGCUGCCUUUCUUAGG
+(((((((.((((((((((((((.((((((...((((((.....))))))((......)))))))).))))))))))))))))))))) (-42.85 = -42.10 +  -0.75) 
+
+>>hsa-let-7f-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 87
+ Reading direction: forward
+ Mean pairwise identity:  97.70
+ Shannon entropy: 0.02299
+ G+C content: 0.39080
+ Mean single sequence MFE: -43.35
+ Consensus MFE: -43.55
+ Energy contribution: -43.30
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -8.06
+ Structure conservation index:   1.00
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   1.48
+ SVM RNA-class probability: 0.944794
+ Prediction: RNA
+
+######################################################################
+
+>human
+UCAGAGUGAGGUAGUAGAUUGUAUAGUUGUGGGGUAGUGAUUUUACCCUGUUCAGGAGAUAACUAUACAAUCUAUUGCCUUCCCUGA
+((((.(..(((((((((((((((((((((((((((((.....))))))).........))))))))))))))))))))))..))))) ( -43.30, z-score =  -7.75, R)
+>chicken
+UCAGAGUGAGGUAGUAGAUUGUAUAGUUGUAGGGUAGUUAUUUUACCCUGUUCAGGAGAUAACUAUACAAUCUAUUGCCUUCCCUGA
+((((.(..(((((((((((((((((((((((((((((.....)))))))).((....)))))))))))))))))))))))..))))) ( -43.40, z-score =  -8.38, R)
+>consensus
+UCAGAGUGAGGUAGUAGAUUGUAUAGUUGUAGGGUAGUGAUUUUACCCUGUUCAGGAGAUAACUAUACAAUCUAUUGCCUUCCCUGA
+((((.(..(((((((((((((((((((((((((((((.....))))))).........))))))))))))))))))))))..))))) (-43.55 = -43.30 +  -0.25) 
+
+>>hsa-mir-1-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 85
+ Reading direction: forward
+ Mean pairwise identity:  96.47
+ Shannon entropy: 0.03529
+ G+C content: 0.35882
+ Mean single sequence MFE: -34.44
+ Consensus MFE: -35.29
+ Energy contribution: -35.29
+ Covariance contribution:  -0.00
+ Combinations/Pair:   1.03
+ Mean z-score:  -6.47
+ Structure conservation index:   1.02
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.71
+ SVM RNA-class probability: 0.994554
+ Prediction: RNA
+
+######################################################################
+
+>human
+ACCUACUCAGAGUACAUACUUCUUUAUGUACCCAUAUGAACAUACAAUGCUAUGGAAUGUAAAGAAGUAUGUAUUUUUGGUAGGC
+.((((((.(((((((((((((((((((((..(((((..............))))).))))))))))))))))))))).)))))). ( -35.64, z-score =  -7.11, R)
+>chicken
+ACCUGCUCAGAGCACAUACUUCUUUAUGUACCCAUAUGAACAUACAAUGCUAUGGAAUGUAAAGAAGUAUGUAUUUUUGGCAGGC
+.((((((.((((.((((((((((((((((..(((((..............))))).)))))))))))))))).)))).)))))). ( -33.24, z-score =  -5.83, R)
+>consensus
+ACCUACUCAGAGCACAUACUUCUUUAUGUACCCAUAUGAACAUACAAUGCUAUGGAAUGUAAAGAAGUAUGUAUUUUUGGCAGGC
+.((((((.(((((((((((((((((((((..(((((..............))))).))))))))))))))))))))).)))))). (-35.29 = -35.29 +  -0.00) 
+
+>>hsa-mir-100
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 80
+ Reading direction: forward
+ Mean pairwise identity:  90.00
+ Shannon entropy: 0.10000
+ G+C content: 0.45493
+ Mean single sequence MFE: -25.50
+ Consensus MFE: -23.70
+ Energy contribution: -23.70
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -3.60
+ Structure conservation index:   0.93
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.18
+ SVM RNA-class probability: 0.997795
+ Prediction: RNA
+
+######################################################################
+
+>human
+CCUGUUGCCACAAACCCGUAGAUCCGAACUUGUGGUAUUAGUCCGCACAAGCUUGUAUCUAUAGGUAUGUGUCUGUUAGG
+((((..(.((((.(((..(((((.(((.(((((((........).)))))).))).)))))..))).)))).)...)))) ( -26.80, z-score =  -3.61, R)
+>chicken
+CCUGUUGCCACAAACCCGUAGAUCCGAACUUGUGGUCAUAUUCCACACAAGCUUGUAUCUAUAGGUAUGUGUCUGU----
+........((((.(((..(((((.(((.((((((...........)))))).))).)))))..))).)))).....---- ( -24.20, z-score =  -3.59, R)
+>consensus
+CCUGUUGCCACAAACCCGUAGAUCCGAACUUGUGGUAAUAGUCCACACAAGCUUGUAUCUAUAGGUAUGUGUCUGU____
+........((((.(((..(((((.(((.((((((...........)))))).))).)))))..))).))))......... (-23.70 = -23.70 +   0.00) 
+
+>>hsa-mir-101-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 75
+ Reading direction: forward
+ Mean pairwise identity:  97.33
+ Shannon entropy: 0.02667
+ G+C content: 0.46000
+ Mean single sequence MFE: -36.40
+ Consensus MFE: -36.20
+ Energy contribution: -36.20
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -5.71
+ Structure conservation index:   0.99
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.22
+ SVM RNA-class probability: 0.997958
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGCCCUGGCUCAGUUAUCACAGUGCUGAUGCUGUCUAUUCUAAAGGUACAGUACUGUGAUAACUGAAGGAUGGCA
+.(((.....((((((((((((((((((.((((............)))))))))))))))))))))).....))). ( -36.20, z-score =  -5.78, R)
+>chicken
+UGCCCUGGCUCAGUUAUCACAGUGCUGAUGCUGUCUCUUGUAAAGGUACAGUACUGUGAUAACUGAAGGAUGGCA
+.(((.....((((((((((((((((((.((((..(....)....)))))))))))))))))))))).....))). ( -36.60, z-score =  -5.65, R)
+>consensus
+UGCCCUGGCUCAGUUAUCACAGUGCUGAUGCUGUCUAUUCUAAAGGUACAGUACUGUGAUAACUGAAGGAUGGCA
+.(((.....((((((((((((((((((.((((............)))))))))))))))))))))).....))). (-36.20 = -36.20 +   0.00) 
+
+>>hsa-mir-101-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 79
+ Reading direction: forward
+ Mean pairwise identity:  94.94
+ Shannon entropy: 0.05063
+ G+C content: 0.41139
+ Mean single sequence MFE: -33.40
+ Consensus MFE: -31.05
+ Energy contribution: -30.80
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -5.83
+ Structure conservation index:   0.93
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.29
+ SVM RNA-class probability: 0.998213
+ Prediction: RNA
+
+######################################################################
+
+>human
+ACUGUCCUUUUUCGGUUAUCAUGGUACCGAUGCUGUAUAUCUGAAAGGUACAGUACUGUGAUAACUGAAGAAUGGUGGU
+((..((.((((((((((((((((((((.(.((((............))))).)))))))))))))))))))).))..)) ( -31.40, z-score =  -5.37, R)
+>chicken
+ACUAUCCUUUUUCGGUUAUCAUGGUACCGGUGCUGUAUACGUGAAAGGUACAGUACUGUGAUAACUGAAGAAUGGUGGU
+((((((.((((((((((((((((((((..(((((............))))).)))))))))))))))))))).)))))) ( -35.40, z-score =  -6.29, R)
+>consensus
+ACUAUCCUUUUUCGGUUAUCAUGGUACCGAUGCUGUAUACCUGAAAGGUACAGUACUGUGAUAACUGAAGAAUGGUGGU
+((((((.((((((((((((((((((((.(.((((............))))).)))))))))))))))))))).)))))) (-31.05 = -30.80 +  -0.25) 
+
+>>hsa-mir-103a-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 78
+ Reading direction: forward
+ Mean pairwise identity:  92.31
+ Shannon entropy: 0.07692
+ G+C content: 0.49017
+ Mean single sequence MFE: -32.65
+ Consensus MFE: -32.70
+ Energy contribution: -33.20
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.00
+ Mean z-score:  -3.70
+ Structure conservation index:   1.00
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.45
+ SVM RNA-class probability: 0.998686
+ Prediction: RNA
+
+######################################################################
+
+>human
+UACUGCCCUCGGCUUCUUUACAGUGCUGCCUUGUUGCAUAUGGAUCAAGCAGCAUUGUACAGGGCUAUGAAGGCAUUG
+...((((.((((((.((.(((((((((((.(((.(.(....).).)))))))))))))).))))))..)).))))... ( -30.90, z-score =  -2.95, R)
+>chicken
+--CUGCCUUCGGCUUCUUUACAGUGCUGCCUUGUUGCAUAUGGAUCAAGCAGCAUUGUACAGGGCUAUGAAGGCA---
+--..((((((((((.((.(((((((((((.(((.(.(....).).)))))))))))))).))))))..)))))).--- ( -34.40, z-score =  -4.45, R)
+>consensus
+__CUGCCCUCGGCUUCUUUACAGUGCUGCCUUGUUGCAUAUGGAUCAAGCAGCAUUGUACAGGGCUAUGAAGGCA___
+...(((((((((((.((.(((((((((((.(((.(.(....).).)))))))))))))).))))))..)))))))... (-32.70 = -33.20 +   0.50) 
+
+>>hsa-mir-103a-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 78
+ Reading direction: forward
+ Mean pairwise identity:  92.31
+ Shannon entropy: 0.07692
+ G+C content: 0.45103
+ Mean single sequence MFE: -27.70
+ Consensus MFE: -27.25
+ Energy contribution: -27.25
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -2.57
+ Structure conservation index:   0.98
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.53
+ SVM RNA-class probability: 0.992261
+ Prediction: RNA
+
+######################################################################
+
+>human
+UUGUGCUUUCAGCUUCUUUACAGUGCUGCCUUGUAGCAUUCAGGUCAAGCAGCAUUGUACAGGGCUAUGAAAGAACCA
+..((.(((((((((.((.(((((((((((((((.......))))....))))))))))).)))))..)))))).)).. ( -28.10, z-score =  -2.52, R)
+>chicken
+-UGUGCUUUCAGCUUCUUUACAGUGCUGCCUUGUUGCGUUCAUGUCAAGCAGCAUUGUACAGGGCUAUGAAAGAAC--
+-....(((((((((.((.(((((((((((.(((..(((....))))))))))))))))).)))))..))))))...-- ( -27.30, z-score =  -2.62, R)
+>consensus
+_UGUGCUUUCAGCUUCUUUACAGUGCUGCCUUGUAGCAUUCAGGUCAAGCAGCAUUGUACAGGGCUAUGAAAGAAC__
+..((.(((((((((.((.(((((((((((.(((..((......)))))))))))))))).)))))..)))))).)).. (-27.25 = -27.25 +   0.00) 
+
+>>hsa-mir-107
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 81
+ Reading direction: forward
+ Mean pairwise identity:  93.83
+ Shannon entropy: 0.06173
+ G+C content: 0.46184
+ Mean single sequence MFE: -28.25
+ Consensus MFE: -27.10
+ Energy contribution: -27.10
+ Covariance contribution:  -0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -2.43
+ Structure conservation index:   0.96
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.15
+ SVM RNA-class probability: 0.984269
+ Prediction: RNA
+
+######################################################################
+
+>human
+CUCUCUGCUUUCAGCUUCUUUACAGUGUUGCCUUGUGGCAUGGAGUUCAAGCAGCAUUGUACAGGGCUAUCAAAGCACAGA
+.(((.((((((.((((.((.(((((((((((.(((.(((.....))))))))))))))))).))))))...)))))).))) ( -29.60, z-score =  -2.51, R)
+>chicken
+CUCUUUGCUUUCAGCUUCUUUACAGUGUUGCCUUGUGGCAUGGAGUUCAAGCAGCAUUGUACAGGGCUAUCAAAGCA----
+.....((((((.((((.((.(((((((((((.(((.(((.....))))))))))))))))).))))))...))))))---- ( -26.90, z-score =  -2.36, R)
+>consensus
+CUCUCUGCUUUCAGCUUCUUUACAGUGUUGCCUUGUGGCAUGGAGUUCAAGCAGCAUUGUACAGGGCUAUCAAAGCA____
+.....((((((.((((.((.(((((((((((.(((.(((.....))))))))))))))))).))))))...)))))).... (-27.10 = -27.10 +  -0.00) 
+
+>>hsa-mir-10a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  80.91
+ Shannon entropy: 0.19091
+ G+C content: 0.38816
+ Mean single sequence MFE: -33.82
+ Consensus MFE: -34.24
+ Energy contribution: -33.74
+ Covariance contribution:  -0.50
+ Combinations/Pair:   1.06
+ Mean z-score:  -4.00
+ Structure conservation index:   1.01
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.63
+ SVM RNA-class probability: 0.999075
+ Prediction: RNA
+
+######################################################################
+
+>human
+GAUCUGUCUGUCUUCUGUAUAUACCCUGUAGAUCCGAAUUUGUGUAAGGAAUUUUGUGGUCACAAAUUCGUAUCUAGGGGAAUAUGUAGUUGACAUAAACACUCCGCUCU
+....(((.((((..((((((((.((((.(((((.((((((((((................)))))))))).))))))))).))))))))..))))...)))......... ( -32.39, z-score =  -3.17, R)
+>chicken
+------UCUGUCUUCUAUAUGUACCCUGUAGAUCCGAAUUUGUGUAAAGGAAGUUG-GGUCACAAAUUCGUAUCUAGGGGAAUAUGUAGUUGACACAAACACU-------
+------..((((..((((((((.((((.(((((.((((((((((............-...)))))))))).))))))))).))))))))..))))........------- ( -35.26, z-score =  -4.82, R)
+>consensus
+______UCUGUCUUCUAUAUAUACCCUGUAGAUCCGAAUUUGUGUAAAGAAAGUUG_GGUCACAAAUUCGUAUCUAGGGGAAUAUGUAGUUGACACAAACACU_______
+........((((..((((((((.((((.(((((.((((((((((................)))))))))).))))))))).))))))))..))))............... (-34.24 = -33.74 +  -0.50) 
+
+>>hsa-mir-10b
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  86.36
+ Shannon entropy: 0.13636
+ G+C content: 0.37857
+ Mean single sequence MFE: -41.30
+ Consensus MFE: -37.65
+ Energy contribution: -37.40
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -6.18
+ Structure conservation index:   0.91
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.26
+ SVM RNA-class probability: 0.998097
+ Prediction: RNA
+
+######################################################################
+
+>human
+CCAGAGGUUGUAACGUUGUCUAUAUAUACCCUGUAGAACCGAAUUUGUGUGGUAUCCGUAUAGUCACAGAUUCGAUUCUAGGGGAAUAUAUGGUCGAUGCAAAAACUUCA
+...((((((....(((((.((((((((.((((.(((((.((((((((((..(((....)))...)))))))))).))))))))).)))))))).)))))....)))))). ( -45.00, z-score =  -6.34, R)
+>chicken
+------------ACGUUGUCUAUAUAUACCCUGUAGAACCGAAUUUGUGUGAUAUUCAUAUAGUCACAGAUUCGAUUCUAGGGGAAUAUAUGGUCGAUGCAAAAACUUCA
+------------.(((((.((((((((.((((.(((((.((((((((((...(((....)))..)))))))))).))))))))).)))))))).)))))........... ( -37.60, z-score =  -6.02, R)
+>consensus
+____________ACGUUGUCUAUAUAUACCCUGUAGAACCGAAUUUGUGUGAUAUCCAUAUAGUCACAGAUUCGAUUCUAGGGGAAUAUAUGGUCGAUGCAAAAACUUCA
+.............(((((.((((((((.((((.(((((.((((((((((..(((....)))...)))))))))).))))))))).)))))))).)))))........... (-37.65 = -37.40 +  -0.25) 
+
+>>hsa-mir-122
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 85
+ Reading direction: forward
+ Mean pairwise identity:  87.06
+ Shannon entropy: 0.12941
+ G+C content: 0.43193
+ Mean single sequence MFE: -41.80
+ Consensus MFE: -38.62
+ Energy contribution: -40.75
+ Covariance contribution:   2.12
+ Combinations/Pair:   1.00
+ Mean z-score:  -8.05
+ Structure conservation index:   0.92
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   1.82
+ SVM RNA-class probability: 0.970642
+ Prediction: RNA
+
+######################################################################
+
+>human
+CCUUAGCAGAGCUGUGGAGUGUGACAAUGGUGUUUGUGUCUAAACUAUCAAACGCCAUUAUCACACUAAAUAGCUACUGCUAGGC
+.((((((((((((((..(((((((.(((((((((((.((....))...))))))))))).)))))))..)))))).)))))))). ( -46.60, z-score =  -9.02, R)
+>chicken
+------CAGAGCUGUGGAGUGUGACAAUGGUGUUUGUGUCCAAUCUAUCAAACGCCAUUAUCACACUAAAUAGCUACUGGUAG--
+------(((((((((..(((((((.(((((((((((............))))))))))).)))))))..)))))).)))....-- ( -37.00, z-score =  -7.09, R)
+>consensus
+______CAGAGCUGUGGAGUGUGACAAUGGUGUUUGUGUCCAAACUAUCAAACGCCAUUAUCACACUAAAUAGCUACUGCUAG__
+.((((((((((((((..(((((((.(((((((((((.(......)...))))))))))).)))))))..)))))).)))))))). (-38.62 = -40.75 +   2.12) 
+
+>>hsa-mir-122b
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 73
+ Reading direction: forward
+ Mean pairwise identity:  97.26
+ Shannon entropy: 0.02740
+ G+C content: 0.41781
+ Mean single sequence MFE: -30.50
+ Consensus MFE: -30.50
+ Energy contribution: -30.50
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -6.10
+ Structure conservation index:   1.00
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.00
+ SVM RNA-class probability: 0.996879
+ Prediction: RNA
+
+######################################################################
+
+>human
+CAGUAGCUAUUUAGUGUGAUAAUGGCGUUUGAUAGUUUAGACACAAACACCAUUGUCACACUCCACAGCUCUG
+(((.((((....(((((((((((((.(((((............))))).)))))))))))))....))))))) ( -30.50, z-score =  -6.34, R)
+>chicken
+CAGUAGCUAUUUAGUGUGAUAAUGGCGUUUGAUAGAUUGGACACAAACACCAUUGUCACACUCCACAGCUCUG
+(((.((((....(((((((((((((.(((((............))))).)))))))))))))....))))))) ( -30.50, z-score =  -5.86, R)
+>consensus
+CAGUAGCUAUUUAGUGUGAUAAUGGCGUUUGAUAGAUUAGACACAAACACCAUUGUCACACUCCACAGCUCUG
+(((.((((....(((((((((((((.(((((............))))).)))))))))))))....))))))) (-30.50 = -30.50 +   0.00) 
+
+>>hsa-mir-124-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 85
+ Reading direction: forward
+ Mean pairwise identity:  96.47
+ Shannon entropy: 0.03529
+ G+C content: 0.51176
+ Mean single sequence MFE: -33.52
+ Consensus MFE: -33.17
+ Energy contribution: -33.67
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.00
+ Mean z-score:  -4.00
+ Structure conservation index:   0.99
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.42
+ SVM RNA-class probability: 0.998603
+ Prediction: RNA
+
+######################################################################
+
+>human
+AGGCCUCUCUCUCCGUGUUCACAGCGGACCUUGAUUUAAAUGUCCAUACAAUUAAGGCACGCGGUGAAUGCCAAGAAUGGGGCUG
+.((((((..(((..((((((((.(((..((((((((.............))))))))..))).))))))))..)))..)))))). ( -35.92, z-score =  -4.56, R)
+>chicken
+AGGCCCCUCUCUCCGUGUUCACAGCGGACCUUGAUUUAAAUGUCCAUACAAUUAAGGCACGCGGUGAAUGCCAAGAACGAGGCUG
+.((((.(..(((..((((((((.(((..((((((((.............))))))))..))).))))))))..)))..).)))). ( -31.12, z-score =  -3.44, R)
+>consensus
+AGGCCCCUCUCUCCGUGUUCACAGCGGACCUUGAUUUAAAUGUCCAUACAAUUAAGGCACGCGGUGAAUGCCAAGAACGAGGCUG
+.((((((..(((..((((((((.(((..((((((((.............))))))))..))).))))))))..)))..)))))). (-33.17 = -33.67 +   0.50) 
+
+>>hsa-mir-124-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 111
+ Reading direction: forward
+ Mean pairwise identity:  80.18
+ Shannon entropy: 0.19820
+ G+C content: 0.51898
+ Mean single sequence MFE: -43.45
+ Consensus MFE: -39.55
+ Energy contribution: -40.05
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.00
+ Mean z-score:  -4.33
+ Structure conservation index:   0.91
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.66
+ SVM RNA-class probability: 0.999123
+ Prediction: RNA
+
+######################################################################
+
+>human
+AUCAAGAUUAGAGGCUCUGC-UCUCCGUGUUCACAGCGGACCUUGAUUUAAUGUCAUACAAUUAAGGCACGCGGUGAAUGCCAAGAGCGGAGCCUAC-GGCUGCACUUGAA
+.(((((..((((((((((((-(((..((((((((.(((..((((((((...........))))))))..))).))))))))..))))))))))))..-..)))..))))). ( -51.20, z-score =  -6.30, R)
+>chicken
+-----------AGGCUCUGCCUCUCCGUGUUCACAGCGGACCUUGAUUUAAUGUCAUACAAUUAAGGCACGCGGUGAAUGCCAAGAGCGGAUCCUCCAGGCGGCA------
+-----------(((.(((((.(((..((((((((.(((..((((((((...........))))))))..))).))))))))..)))))))).)))..........------ ( -35.70, z-score =  -2.36, R)
+>consensus
+___________AGGCUCUGC_UCUCCGUGUUCACAGCGGACCUUGAUUUAAUGUCAUACAAUUAAGGCACGCGGUGAAUGCCAAGAGCGGAGCCUAC_GGCGGCA______
+...........(((((((((.(((..((((((((.(((..((((((((...........))))))))..))).))))))))..))))))))))))................ (-39.55 = -40.05 +   0.50) 
+
+>>hsa-mir-124-3
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 87
+ Reading direction: forward
+ Mean pairwise identity:  86.21
+ Shannon entropy: 0.13793
+ G+C content: 0.52336
+ Mean single sequence MFE: -33.60
+ Consensus MFE: -27.55
+ Energy contribution: -29.05
+ Covariance contribution:   1.50
+ Combinations/Pair:   1.00
+ Mean z-score:  -3.89
+ Structure conservation index:   0.82
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.13
+ SVM RNA-class probability: 0.997561
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGAGGGCCCCUCUGCGUGUUCACAGCGGACCUUGAUUUAAUGUCUAUACAAUUAAGGCACGCGGUGAAUGCCAAGAGAGGCGCCUCC
+.(((((((.(((((.((((((((.(((..((((((((............))))))))..))).))))))))).)))).))).)))). ( -40.30, z-score =  -5.01, R)
+>chicken
+---------CUCUGCGUGUUCACAGCGGACCUUGAUUUAAUGUCCAUACAAUUAAGGCACGCGGUGAAUGCCAAGAGAGGAGCCUC-
+---------(((((.((((((((.(((..((((((((............))))))))..))).))))))))).)))).........- ( -26.90, z-score =  -2.78, R)
+>consensus
+_________CUCUGCGUGUUCACAGCGGACCUUGAUUUAAUGUCCAUACAAUUAAGGCACGCGGUGAAUGCCAAGAGAGGAGCCUC_
+.....(((.(((((.((((((((.(((..((((((((............))))))))..))).))))))))).)))).)))...... (-27.55 = -29.05 +   1.50) 
+
+>>hsa-mir-125b-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 88
+ Reading direction: forward
+ Mean pairwise identity:  93.18
+ Shannon entropy: 0.06818
+ G+C content: 0.51705
+ Mean single sequence MFE: -40.15
+ Consensus MFE: -39.20
+ Energy contribution: -39.70
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.00
+ Mean z-score:  -5.73
+ Structure conservation index:   0.98
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.27
+ SVM RNA-class probability: 0.998149
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGCGCUCCUCUCAGUCCCUGAGACCCUAACUUGUGAUGUUUACCGUUUAAAUCCACGGGUUAGGCUCUUGGGAGCUGCGAGUCGUGCU
+.((((..(((.(((..((..(((.(((((((((((..(((((.....))))).))))))))))).)))..))..))).)))..)))). ( -43.40, z-score =  -6.39, R)
+>chicken
+UGCGCCCCUCUCAAUCCCUGAGACCCUAACUUGUGAUGUUUAGCUUUUAAAUCCACGGGUUAGGCUCUUGGGAGCUGUGAGUUGUGCU
+.((((..(((.((.((((.((((.(((((((((((..((((((...)))))).))))))))))).))))))))..)).)))..)))). ( -36.90, z-score =  -5.07, R)
+>consensus
+UGCGCCCCUCUCAAUCCCUGAGACCCUAACUUGUGAUGUUUACCGUUUAAAUCCACGGGUUAGGCUCUUGGGAGCUGCGAGUCGUGCU
+.((((..(((.((((.((..(((.(((((((((((..(((((.....))))).))))))))))).)))..)).)))).)))..)))). (-39.20 = -39.70 +   0.50) 
+
+>>hsa-mir-125b-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 90
+ Reading direction: forward
+ Mean pairwise identity:  93.33
+ Shannon entropy: 0.06667
+ G+C content: 0.50287
+ Mean single sequence MFE: -39.10
+ Consensus MFE: -35.34
+ Energy contribution: -35.34
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -3.70
+ Structure conservation index:   0.90
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.00
+ SVM RNA-class probability: 0.996896
+ Prediction: RNA
+
+######################################################################
+
+>human
+ACCAGACUUUUCCUAGUCCCUGAGACCCUAACUUGUGAGGUAUUUUAGUAACA-UCACAAGUCAGGCUCUUGGGACCUAGGCGGAGGGGA
+.((...(((..(((((..((..(((.(((.((((((((..(((....)))...-)))))))).))).)))..))..)))))..))).)). ( -40.60, z-score =  -4.19, R)
+>chicken
+--CAGACUUUUCCUAGUCCCUGAGACCCUAACUUGUGAGGUUUUGUAGCAACAAUCACAAGUCAGGCUCUUGGGACCUAGGCGGAGGGGA
+--....(((..(((((..((..(((.(((.((((((((.(((....))).....)))))))).))).)))..))..)))))..))).... ( -37.60, z-score =  -3.20, R)
+>consensus
+__CAGACUUUUCCUAGUCCCUGAGACCCUAACUUGUGAGGUAUUGUAGCAACA_UCACAAGUCAGGCUCUUGGGACCUAGGCGGAGGGGA
+......(((..(((((..((..(((.(((.((((((((................)))))))).))).)))..))..)))))..))).... (-35.34 = -35.34 +   0.00) 
+
+>>hsa-mir-126
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 85
+ Reading direction: forward
+ Mean pairwise identity:  84.71
+ Shannon entropy: 0.15294
+ G+C content: 0.50813
+ Mean single sequence MFE: -35.65
+ Consensus MFE: -31.05
+ Energy contribution: -31.80
+ Covariance contribution:   0.75
+ Combinations/Pair:   1.04
+ Mean z-score:  -5.13
+ Structure conservation index:   0.87
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.67
+ SVM RNA-class probability: 0.999152
+ Prediction: RNA
+
+######################################################################
+
+>human
+CGCUGGCGACGGGACAUUAUUACUUUUGGUACGCGCUGUGACACUUCAAACUCGUACCGUGAGUAAUAAUGCGCCGUCCACGGCA
+.((((..((((((.(((((((((((.(((((((.(...(((....)))..).))))))).)))))))))))).)))))..)))). ( -40.20, z-score =  -5.64, R)
+>chicken
+-GCUGGUGACGGCCCAUUAUUACUUUUGGUACGCGCUGUGACACUUCAAACUCGUACCGUGAGUAAUAAUGCGCUGU--------
+-.......(((((.(((((((((((.(((((((.(...(((....)))..).))))))).))))))))))).)))))-------- ( -31.10, z-score =  -4.62, R)
+>consensus
+_GCUGGCGACGGCACAUUAUUACUUUUGGUACGCGCUGUGACACUUCAAACUCGUACCGUGAGUAAUAAUGCGCCGU________
+.......((((((.(((((((((((.(((((((.(...(((....)))..).))))))).))))))))))).))))))....... (-31.05 = -31.80 +   0.75) 
+
+>>hsa-mir-128-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 82
+ Reading direction: forward
+ Mean pairwise identity:  96.34
+ Shannon entropy: 0.03659
+ G+C content: 0.48171
+ Mean single sequence MFE: -35.95
+ Consensus MFE: -36.20
+ Energy contribution: -35.95
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -5.11
+ Structure conservation index:   1.01
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.45
+ SVM RNA-class probability: 0.998680
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGAGCUGUUGGAUUCGGGGCCGUAGCACUGUCUGAGAGGUUUACAUUUCUCACAGUGAACCGGUCUCUUUUUCAGCUGCUUC
+.((((.((((((...(((((((...((((((..(((((((....)))))))))))))...)))))))...)))))).)))). ( -35.90, z-score =  -4.59, R)
+>chicken
+UGAGCUGUUGAAUUCGGGGCCGUAACACUGUCUGAGAGGUUUAUAUUUCUCACAGUGAACCGGUCUCUUUUUCAGCUGCUUC
+.((((.((((((...(((((((...((((((..(((((((....)))))))))))))...)))))))...)))))).)))). ( -36.00, z-score =  -5.63, R)
+>consensus
+UGAGCUGUUGAAUUCGGGGCCGUAACACUGUCUGAGAGGUUUACAUUUCUCACAGUGAACCGGUCUCUUUUUCAGCUGCUUC
+.((((.((((((...(((((((...((((((..(((((((....)))))))))))))...)))))))...)))))).)))). (-36.20 = -35.95 +  -0.25) 
+
+>>hsa-mir-128-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 84
+ Reading direction: forward
+ Mean pairwise identity:  91.67
+ Shannon entropy: 0.08333
+ G+C content: 0.55357
+ Mean single sequence MFE: -39.25
+ Consensus MFE: -39.20
+ Energy contribution: -39.70
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.03
+ Mean z-score:  -3.80
+ Structure conservation index:   1.00
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.50
+ SVM RNA-class probability: 0.998801
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGUGCAGUGGGAAGGGGGGCCGAUACACUGUACGAGAGUGAGUAGCAGGUCUCACAGUGAACCGGUCUCUUUCCCUACUGUGUC
+.(..(((((((.((((((((((...((((((..((((.(........).))))))))))...)))))))))).)))))))..). ( -39.40, z-score =  -3.70, R)
+>chicken
+UGUCCAGCUGGAAGGGGGGCCGUUACACUGUAAGAGAGUGAGUAGCAGGUCUCACAGUGAACCGGUCUCUUUUCCUGCUGUGUC
+....((((.(((((((((((((...((((((..((((.(........).))))))))))...))))))))))))).)))).... ( -39.10, z-score =  -3.90, R)
+>consensus
+UGUCCAGCGGGAAGGGGGGCCGAUACACUGUAAGAGAGUGAGUAGCAGGUCUCACAGUGAACCGGUCUCUUUCCCUACUGUGUC
+.(..((((((((((((((((((...((((((..((((.(........).))))))))))...))))))))))))))))))..). (-39.20 = -39.70 +   0.50) 
+
+>>hsa-mir-129-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 91
+ Reading direction: forward
+ Mean pairwise identity:  92.31
+ Shannon entropy: 0.07692
+ G+C content: 0.54139
+ Mean single sequence MFE: -48.65
+ Consensus MFE: -48.24
+ Energy contribution: -47.74
+ Covariance contribution:  -0.50
+ Combinations/Pair:   1.06
+ Mean z-score:  -7.37
+ Structure conservation index:   0.99
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.10
+ SVM RNA-class probability: 0.982599
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGCCCUUCGCGAAUCUUUUUGCGGUCUGGGCUUGCUGUACAUAACUCAAUAGCCGG-AAGCCCUUACCCCAAAAAGCAUUUGCGGAGGGCG
+.((((((((((((((((((((.(((..(((((((((((..........)))))...-))))))..))).))))))).))))))))))))). ( -48.80, z-score =  -7.33, R)
+>chicken
+UGUCCUUCGCGAAUCUUUUUGCGGUCUGGGCUUGCUGUACAUAACUACCUACCCGGGAAGCCCUUACCCCAAAAAGCAUUCGCGGAGGGCG
+.((((((((((((((((((((.(((..((((((.(((................))).))))))..))).))))))).))))))))))))). ( -48.49, z-score =  -7.41, R)
+>consensus
+UGCCCUUCGCGAAUCUUUUUGCGGUCUGGGCUUGCUGUACAUAACUAAAUACCCGG_AAGCCCUUACCCCAAAAAGCAUUCGCGGAGGGCG
+.((((((((((((((((((((.(((..((((((.(((................))).))))))..))).))))))).))))))))))))). (-48.24 = -47.74 +  -0.50) 
+
+>>hsa-mir-1306
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 85
+ Reading direction: forward
+ Mean pairwise identity:  90.59
+ Shannon entropy: 0.09412
+ G+C content: 0.58424
+ Mean single sequence MFE: -32.90
+ Consensus MFE: -29.65
+ Energy contribution: -30.15
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.00
+ Mean z-score:  -1.73
+ Structure conservation index:   0.90
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   0.73
+ SVM RNA-class probability: 0.799759
+ Prediction: RNA
+
+######################################################################
+
+>human
+GUGAGCAGUCUCCACCACCUCCCCUGCAAACGUCCAGUGGUGCAGAGGUAAUGGACGUUGGCUCUGGUGGUGAUGGACAGUCCGA
+.((..(.((((.(((((((......((.((((((((....(((....))).)))))))).))...)))))))..)))).)..)). ( -33.80, z-score =  -1.42, R)
+>chicken
+-UGAACAGCCUCCACCACCUCCCCUGCAAACGUCCAGUGACGCAGAGGUAAUGGACGUUGGCUCUGGUGGUGAUGGACAGUC---
+-.((....((..(((((((......((.((((((((...((......))..)))))))).))...)))))))..))....))--- ( -32.00, z-score =  -2.05, R)
+>consensus
+_UGAACAGCCUCCACCACCUCCCCUGCAAACGUCCAGUGACGCAGAGGUAAUGGACGUUGGCUCUGGUGGUGAUGGACAGUC___
+..........((((.((((.((...((.((((((((....(((....))).)))))))).))...)).)))).))))........ (-29.65 = -30.15 +   0.50) 
+
+>>hsa-mir-133a-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 88
+ Reading direction: forward
+ Mean pairwise identity:  96.59
+ Shannon entropy: 0.03409
+ G+C content: 0.43423
+ Mean single sequence MFE: -39.10
+ Consensus MFE: -39.10
+ Energy contribution: -39.10
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -7.11
+ Structure conservation index:   1.00
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.28
+ SVM RNA-class probability: 0.987698
+ Prediction: RNA
+
+######################################################################
+
+>human
+ACAAUGCUUUGCUAGAGCUGGUAAAAUGGAACCAAAUCGCCUCUUCAAUGGAUUUGGUCCCCUUCAACCAGCUGUAGCUAUGCAUUGA
+.((((((...((((.(((((((..((.((.((((((((............)))))))).)).))..))))))).))))...)))))). ( -40.50, z-score =  -7.18, R)
+>chicken
+-CAAUGCUUUGCUAAAGCUGGUAAAAUGGAACCAAAUCACCUCUUCAAUGGAUUUGGUCCCCUUCAACCAGCUGUAGCUAUGCAUUGA
+-((((((...((((.(((((((..((.((.((((((((............)))))))).)).))..))))))).))))...)))))). ( -37.70, z-score =  -7.03, R)
+>consensus
+_CAAUGCUUUGCUAAAGCUGGUAAAAUGGAACCAAAUCACCUCUUCAAUGGAUUUGGUCCCCUUCAACCAGCUGUAGCUAUGCAUUGA
+.((((((...((((.(((((((..((.((.((((((((............)))))))).)).))..))))))).))))...)))))). (-39.10 = -39.10 +   0.00) 
+
+>>hsa-mir-133a-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 102
+ Reading direction: forward
+ Mean pairwise identity:  86.27
+ Shannon entropy: 0.13725
+ G+C content: 0.46919
+ Mean single sequence MFE: -41.25
+ Consensus MFE: -36.67
+ Energy contribution: -39.05
+ Covariance contribution:   2.38
+ Combinations/Pair:   0.97
+ Mean z-score:  -5.54
+ Structure conservation index:   0.89
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.56
+ SVM RNA-class probability: 0.998950
+ Prediction: RNA
+
+######################################################################
+
+>human
+GGGAGCCAAAUGCUUUGCUAGAGCUGGUAAAAUGGAACCAAAUCGACUGUCCAAUGGAUUUGGUCCCCUUCAACCAGCUGUAGCUGUGCAUUGAUGGCGCCG
+.((.(((((((((...((((.(((((((..((.((.((((((((.(........).)))))))).)).))..))))))).))))...)))))..)))).)). ( -47.50, z-score =  -5.91, R)
+>chicken
+----GCCAAAUGCUUUGCUAAAGCUGGUAAAAUGGAACCAAAUCAACUGUUCAAUGGAUUUGGUCCCCUUCAACCAGCUGUAGCUGUGCAUUGAU-------
+----....(((((...((((.(((((((..((.((.((((((((............)))))))).)).))..))))))).))))...)))))...------- ( -35.00, z-score =  -5.16, R)
+>consensus
+____GCCAAAUGCUUUGCUAAAGCUGGUAAAAUGGAACCAAAUCAACUGUCCAAUGGAUUUGGUCCCCUUCAACCAGCUGUAGCUGUGCAUUGAU_______
+.((((((.(((((...((((.(((((((..((.((.((((((((............)))))))).)).))..))))))).))))...)))))...)))))). (-36.67 = -39.05 +   2.38) 
+
+>>hsa-mir-133b
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 119
+ Reading direction: forward
+ Mean pairwise identity:  57.14
+ Shannon entropy: 0.42857
+ G+C content: 0.56654
+ Mean single sequence MFE: -42.35
+ Consensus MFE: -36.85
+ Energy contribution: -37.35
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.03
+ Mean z-score:  -4.20
+ Structure conservation index:   0.87
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.89
+ SVM RNA-class probability: 0.999444
+ Prediction: RNA
+
+######################################################################
+
+>human
+CCUCAGAAGAAAGAUGCCCCCUGCUCUGGCUGGUCAAACGGAACCAAGUCCGUCUUCCUGAGAGGUUUGGUCCCCUUCAACCAGCUACAGCAGGGCUGGCAAUGCCCAGUCCUUGGAGA
+.(((.((.((..(.(((((((((((.((((((((..((.((.((((((.((.((((...)))))))))))).)).))..)))))))).)))))))..))))...)....)).)).))). ( -48.40, z-score =  -2.39, R)
+>chicken
+--------------------CUGCUCUGGCUGGUCAAACGGAACCAAGCCCGUCUUCUUCGGAGGUUUGGUCCCCUUCAACCAGCUAUAGCAG--------------------------
+--------------------(((((.((((((((..((.((.((((((((.....((....)))))))))).)).))..)))))))).)))))-------------------------- ( -36.30, z-score =  -6.00, R)
+>consensus
+____________________CUGCUCUGGCUGGUCAAACGGAACCAAGCCCGUCUUCCUCAGAGGUUUGGUCCCCUUCAACCAGCUACAGCAG__________________________
+..............(((((((((((.((((((((..((.((.((((((.((.(((.....))))))))))).)).))..)))))))).)))))))..)))).................. (-36.85 = -37.35 +   0.50) 
+
+>>hsa-mir-135a-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 100
+ Reading direction: forward
+ Mean pairwise identity:  99.00
+ Shannon entropy: 0.01000
+ G+C content: 0.31500
+ Mean single sequence MFE: -37.10
+ Consensus MFE: -37.45
+ Energy contribution: -37.95
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.00
+ Mean z-score:  -6.48
+ Structure conservation index:   1.01
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.71
+ SVM RNA-class probability: 0.994594
+ Prediction: RNA
+
+######################################################################
+
+>human
+AGAUAAAUUCACUCUAGUGCUUUAUGGCUUUUUAUUCCUAUGUGAUAGUAAUAAAGUCUCAUGUAGGGAUGGAAGCCAUGAAAUACAUUGUGAAAAAUCA
+.(((...(((((....(((.((((((((((((.((((((((((((.(.(.....).).)))))))))))))))))))))))).)))...)))))..))). ( -35.10, z-score =  -5.69, R)
+>chicken
+AGAUAAAUUCACUCUAGUGUUUUAUGGCUUUUUAUUCCUAUGUGAUAGUAAUAAAGUCUCAUGUAGGGAUGGAAGCCAUGAAAUACAUUGUGAAAAAUCA
+.(((...(((((....((((((((((((((((.((((((((((((.(.(.....).).))))))))))))))))))))))))))))...)))))..))). ( -39.10, z-score =  -7.28, R)
+>consensus
+AGAUAAAUUCACUCUAGUGCUUUAUGGCUUUUUAUUCCUAUGUGAUAGUAAUAAAGUCUCAUGUAGGGAUGGAAGCCAUGAAAUACAUUGUGAAAAAUCA
+.(((...(((((....((((((((((((((((.((((((((((((.(.(.....).).))))))))))))))))))))))))))))...)))))..))). (-37.45 = -37.95 +   0.50) 
+
+>>hsa-mir-137
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 102
+ Reading direction: forward
+ Mean pairwise identity:  93.14
+ Shannon entropy: 0.06863
+ G+C content: 0.48989
+ Mean single sequence MFE: -46.70
+ Consensus MFE: -44.90
+ Energy contribution: -44.65
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -6.26
+ Structure conservation index:   0.96
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.03
+ SVM RNA-class probability: 0.997079
+ Prediction: RNA
+
+######################################################################
+
+>human
+GGUCCUCUGACUCUCUUCGGUGACGGGUAUUCUUGGGUGGAUAAUACGGAUUACGUUGUUAUUGCUUAAGAAUACGCGUAGUCGAGGAGAGUACCAGCGGCA
+.(.((.((((((((((((((..(((.(((((((((((..(.(((((((.....)).))))))..))))))))))).)))..)))))))))))..))).))). ( -49.10, z-score =  -6.38, R)
+>chicken
+-----UCUGACUCUCUUCGGUGACGGGUAUUCUUGGGUGGAUAAUACGGAUUACGUUGUUAUUGCUUAAGAAUACGCGUAGUCGAGGAGAGUACCGGCGGC-
+-----.((((((((((((((..(((.(((((((((((..(.(((((((.....)).))))))..))))))))))).)))..)))))))))))..)))....- ( -44.30, z-score =  -6.14, R)
+>consensus
+_____UCUGACUCUCUUCGGUGACGGGUAUUCUUGGGUGGAUAAUACGGAUUACGUUGUUAUUGCUUAAGAAUACGCGUAGUCGAGGAGAGUACCAGCGGC_
+......((((((((((((((..(((.(((((((((((..(.(((((((.....)).))))))..))))))))))).)))..)))))))))))..)))..... (-44.90 = -44.65 +  -0.25) 
+
+>>hsa-mir-138-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 84
+ Reading direction: forward
+ Mean pairwise identity:  89.29
+ Shannon entropy: 0.10714
+ G+C content: 0.55680
+ Mean single sequence MFE: -33.25
+ Consensus MFE: -32.15
+ Energy contribution: -32.65
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.03
+ Mean z-score:  -2.58
+ Structure conservation index:   0.97
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.56
+ SVM RNA-class probability: 0.992694
+ Prediction: RNA
+
+######################################################################
+
+>human
+CGUUGCUGCAGCUGGUGUUGUGAAUCAGGCCGACGAGCAGCGCAUCCUCUUACCCGGCUAUUUCACGACACCAGGGUUGCAUCA
+.(.(((.((..(((((((((((((...(((((..(((.((......)))))...)))))..))))))))))))).)).))).). ( -36.00, z-score =  -3.20, R)
+>chicken
+-GUUGCUGCAGCUGGUGUUGUGAAUCAGGCCGACGGCAAGCGCUUCCUACUAUCCGGCUAUUUCACUACACCAGGGUUGCAUCA
+-(.(((.((..(((((((.(((((...(((((..(((....)))..........)))))..))))).))))))).)).))).). ( -30.50, z-score =  -1.96, R)
+>consensus
+_GUUGCUGCAGCUGGUGUUGUGAAUCAGGCCGACGACAAGCGCAUCCUACUACCCGGCUAUUUCACGACACCAGGGUUGCAUCA
+.(.(((.((..(((((((((((((...(((((..(((.((......)))))...)))))..))))))))))))).)).))).). (-32.15 = -32.65 +   0.50) 
+
+>>hsa-mir-140
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 100
+ Reading direction: forward
+ Mean pairwise identity:  88.00
+ Shannon entropy: 0.12000
+ G+C content: 0.55571
+ Mean single sequence MFE: -52.80
+ Consensus MFE: -51.10
+ Energy contribution: -50.35
+ Covariance contribution:  -0.75
+ Combinations/Pair:   1.08
+ Mean z-score:  -6.13
+ Structure conservation index:   0.97
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.09
+ SVM RNA-class probability: 0.997377
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGUGUCUCUCUCUGUGUCCUGCCAGUGGUUUUACCCUAUGGUAGGUUACGUCAUGCUGUUCUACCACAGGGUAGAACCACGGACAGGAUACCGGGGCACC
+.(((((((.....((((((((((.(((((((((((((.(((((((..(((......)))))))))).))))))))))))))).)))))))).))))))). ( -55.00, z-score =  -6.42, R)
+>chicken
+------UCUCUCCGUGUCCUGCCAGUGGUUUUACCCUAUGGUAGGUUACGUCAUGCUGUUCUACCACAGGGUAGAACCACGGACGGGAUGCCGGGGC---
+------...((((((((((((((.(((((((((((((.(((((((..(((......)))))))))).))))))))))))))).))))))).))))).--- ( -50.60, z-score =  -5.85, R)
+>consensus
+______UCUCUCCGUGUCCUGCCAGUGGUUUUACCCUAUGGUAGGUUACGUCAUGCUGUUCUACCACAGGGUAGAACCACGGACAGGAUACCGGGGC___
+.........((((((((((((((.(((((((((((((.(((((((..(((......)))))))))).))))))))))))))).))))))).))))).... (-51.10 = -50.35 +  -0.75) 
+
+>>hsa-mir-142
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 88
+ Reading direction: forward
+ Mean pairwise identity:  97.73
+ Shannon entropy: 0.02273
+ G+C content: 0.44573
+ Mean single sequence MFE: -44.70
+ Consensus MFE: -43.60
+ Energy contribution: -43.60
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -7.02
+ Structure conservation index:   0.98
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.42
+ SVM RNA-class probability: 0.990558
+ Prediction: RNA
+
+######################################################################
+
+>human
+GACAGUGCAGUCACCCAUAAAGUAGAAAGCACUACUAA-CAGCACUGGAGGGUGUAGUGUUUCCUACUUUAUGGAUGAGUGUACUGUG
+.((((((((.(((.(((((((((((.(((((((((...-(..(....)..)..))))))))).))))))))))).))).)))))))). ( -44.70, z-score =  -7.02, R)
+>chicken
+GACAGUGCAGUCACCCAUAAAGUAGAAAGCACUACUAAACAGCACUGCAGGGUGUAGUGUUUCCUACUUUAUGGAUGAGUGUACUGUG
+.((((((((.(((.(((((((((((.(((((((((.(..(.((...)).)..)))))))))).))))))))))).))).)))))))). ( -44.70, z-score =  -7.03, R)
+>consensus
+GACAGUGCAGUCACCCAUAAAGUAGAAAGCACUACUAA_CAGCACUGCAGGGUGUAGUGUUUCCUACUUUAUGGAUGAGUGUACUGUG
+.((((((((.(((.(((((((((((.(((((((((....((....))......))))))))).))))))))))).))).)))))))). (-43.60 = -43.60 +   0.00) 
+
+>>hsa-mir-143
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 106
+ Reading direction: forward
+ Mean pairwise identity:  70.75
+ Shannon entropy: 0.29245
+ G+C content: 0.56899
+ Mean single sequence MFE: -47.45
+ Consensus MFE: -43.97
+ Energy contribution: -46.35
+ Covariance contribution:   2.38
+ Combinations/Pair:   1.00
+ Mean z-score:  -4.39
+ Structure conservation index:   0.93
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.69
+ SVM RNA-class probability: 0.999176
+ Prediction: RNA
+
+######################################################################
+
+>human
+GCGCAGCGCCCUGUCUCCCAGCCUGAGGUGCAGUGCUGCAUCUCUGGUCAGUUGGGAGUCUGAGAUGAAGCACUGUAGCUCAGGAAGAGAGAAGUUGUUCUGCAGC
+..((((.((....((((.(..((((((.(((((((((.((((((.((((......)).)).)))))).))))))))).))))))..).))))....)).))))... ( -51.90, z-score =  -3.60, R)
+>chicken
+-----------UGUCUCCCAGCCCAAGGUGCAGUGCUGCAUCUCUGGUCAAUUGGGAGUCUGAGAUGAAGCACUGUAGCUCGGGAAGGGAG---------------
+-----------...(((((..(((.((.(((((((((.((((((.((((......)).)).)))))).))))))))).)).)))..)))))--------------- ( -43.00, z-score =  -5.18, R)
+>consensus
+___________UGUCUCCCAGCCCAAGGUGCAGUGCUGCAUCUCUGGUCAAUUGGGAGUCUGAGAUGAAGCACUGUAGCUCAGGAAGAGAG_______________
+..(((((((....((((((..((((((.(((((((((.((((((.((((......)).)).)))))).))))))))).))))))..))))))....)))))))... (-43.97 = -46.35 +   2.38) 
+
+>>hsa-mir-144
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 86
+ Reading direction: forward
+ Mean pairwise identity:  70.93
+ Shannon entropy: 0.29070
+ G+C content: 0.45149
+ Mean single sequence MFE: -33.25
+ Consensus MFE: -22.58
+ Energy contribution: -27.95
+ Covariance contribution:   5.37
+ Combinations/Pair:   0.97
+ Mean z-score:  -4.54
+ Structure conservation index:   0.68
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.98
+ SVM RNA-class probability: 0.999530
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGGGGCCCUGGCUGGGAUAUCAUCAUAUACUGUAAGUUUGCGAUGAGACACUACAGUAUAGAUGAUGUACUAGUCCGGGCACCCCC
+.(((((((.((((((.((((((((.(((((((((.((((......))))..))))))))))))))))).)))))).)))).))).. ( -44.40, z-score =  -6.19, R)
+>chicken
+----GCCCUGGGCUGGAUAUCAUCAUAUACUGUAAGUUCACUAUGAGACACUACAGUAUAGAUGAUGUACU---------------
+----(((...)))...((((((((.(((((((((..(((.....)))....)))))))))))))))))...--------------- ( -22.10, z-score =  -2.89, R)
+>consensus
+____GCCCUGGCCGGGAUAUCAUCAUAUACUGUAAGUUCACGAUGAGACACUACAGUAUAGAUGAUGUACU_______________
+.(((((((.((((((.((((((((.(((((((((.(((........)))..))))))))))))))))).)))))).)))))))... (-22.58 = -27.95 +   5.37) 
+
+>>hsa-mir-146a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 106
+ Reading direction: forward
+ Mean pairwise identity:  74.53
+ Shannon entropy: 0.25472
+ G+C content: 0.44444
+ Mean single sequence MFE: -39.85
+ Consensus MFE: -37.26
+ Energy contribution: -38.51
+ Covariance contribution:   1.25
+ Combinations/Pair:   1.09
+ Mean z-score:  -5.16
+ Structure conservation index:   0.94
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.56
+ SVM RNA-class probability: 0.998934
+ Prediction: RNA
+
+######################################################################
+
+>human
+CCGAUGUGUAUCCUCAGCUUUGAGAACUGAAUUCCAUGGGUUGUGUCAG-------UGUCAGACCUCUGAAAUUCAGUUCUUCAGCUGGGAUAUCUCUGUCAUCGU
+.(((((.((((((.(((((..((((((((((((.((.(((((.((....-------...))))))).)).)))))))))))).)))))))))))......))))). ( -40.30, z-score =  -5.13, R)
+>chicken
+-----GUGUAUCCUCAGCUUUGAGAACUGAAUUCCAUGGGUUGUAAUUGAAUCCUUUGUCAGACCCAUGGGGCUCAGUUCUUCAGCUUGGAUAUUUCUGUCUUC--
+-----..((((((..((((..(((((((((.(((((((((((.....(((........)))))))))))))).))))))))).)))).))))))..........-- ( -39.40, z-score =  -5.18, R)
+>consensus
+_____GUGUAUCCUCAGCUUUGAGAACUGAAUUCCAUGGGUUGUAACAG_______UGUCAGACCCAUGAAACUCAGUUCUUCAGCUGGGAUAUCUCUGUCAUC__
+.......((((((.(((((..(((((((((((((((((((((...................))))))))))))))))))))).)))))))))))............ (-37.26 = -38.51 +   1.25) 
+
+>>hsa-mir-147b
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 80
+ Reading direction: forward
+ Mean pairwise identity:  87.50
+ Shannon entropy: 0.12500
+ G+C content: 0.38750
+ Mean single sequence MFE: -26.20
+ Consensus MFE: -23.99
+ Energy contribution: -23.99
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.08
+ Mean z-score:  -4.76
+ Structure conservation index:   0.92
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.61
+ SVM RNA-class probability: 0.999034
+ Prediction: RNA
+
+######################################################################
+
+>human
+UAUAAAUCUAGUGGAAACAUUUCUGCACAAACUAGAUUCUGGACACCAGUGUGCGGAAAUGCUUCUGCUACAUUUUUAGG
+((.((((.(((..(((.((((((((((((.........((((...)))))))))))))))).)))..))).)))).)).. ( -28.50, z-score =  -5.46, R)
+>chicken
+UAUGAAUCUAGUGGAAUCACUUCUGCACAAACUUGACUACUGAAAUCAGUGUGCGGAAAUGCUUCUGCUACAUUUUUAGG
+((.((((.(((..(((.((.((((((((..........((((....)))))))))))).)).)))..))).)))).)).. ( -23.90, z-score =  -4.07, R)
+>consensus
+UAUAAAUCUAGUGGAAACACUUCUGCACAAACUAGACUACGGAAACCAGUGUGCGGAAAUGCUUCUGCUACAUUUUUAGG
+((.((((.(((..(((.((((((((((((.......(....).......)))))))))))).)))..))).)))).)).. (-23.99 = -23.99 +   0.00) 
+
+>>hsa-mir-153-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 90
+ Reading direction: forward
+ Mean pairwise identity:  83.33
+ Shannon entropy: 0.16667
+ G+C content: 0.48032
+ Mean single sequence MFE: -45.15
+ Consensus MFE: -42.75
+ Energy contribution: -44.25
+ Covariance contribution:   1.50
+ Combinations/Pair:   1.08
+ Mean z-score:  -7.62
+ Structure conservation index:   0.95
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   1.99
+ SVM RNA-class probability: 0.978467
+ Prediction: RNA
+
+######################################################################
+
+>human
+CUCACAGCUGCCAGUGUCAUUUUUGUGAUCUGCAGCUAGUAUUCUCACUCCAGUUGCAUAGUCACAAAAGUGAUCAUUGGCAGGUGUGGC
+.(((((.((((((((((((((((((((((.((((((((((......)))..)))))))..))))))))))))).))))))))).))))). ( -48.10, z-score =  -8.17, R)
+>chicken
+CUCGCAGCUGCCGGCGUCAUUUUUGUGAUUUGCAGCUAGUAAUCUGGCUCCAGUUGCAUAGUCACAAAAGUGAUCGUUGGCAG-------
+.......(((((((((((((((((((((((((((((((((......)))..))))))).)))))))))))))).)))))))))------- ( -42.20, z-score =  -7.07, R)
+>consensus
+CUCACAGCUGCCAGCGUCAUUUUUGUGAUCUGCAGCUAGUAAUCUCACUCCAGUUGCAUAGUCACAAAAGUGAUCAUUGGCAG_______
+..((((.(((((((((((((((((((((((((((((((((......)))..))))))).)))))))))))))).))))))))).)))).. (-42.75 = -44.25 +   1.50) 
+
+>>hsa-mir-153-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 87
+ Reading direction: forward
+ Mean pairwise identity:  98.85
+ Shannon entropy: 0.01149
+ G+C content: 0.43103
+ Mean single sequence MFE: -41.05
+ Consensus MFE: -40.15
+ Energy contribution: -40.15
+ Covariance contribution:  -0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -7.17
+ Structure conservation index:   0.98
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.30
+ SVM RNA-class probability: 0.988067
+ Prediction: RNA
+
+######################################################################
+
+>human
+AGCGGUGGCCAGUGUCAUUUUUGUGAUGUUGCAGCUAGUAAUAUGAGCCCAGUUGCAUAGUCACAAAAGUGAUCAUUGGAAACUGUG
+.(((((..(((((((((((((((((((..(((((((.((.......))..)))))))..))))))))))))).))))))..))))). ( -41.30, z-score =  -7.06, R)
+>chicken
+AGCGGUUGCCAGUGUCAUUUUUGUGAUGUUGCAGCUAGUAAUAUGAGCCCAGUUGCAUAGUCACAAAAGUGAUCAUUGGAAACUGUG
+.((((((.(((((((((((((((((((..(((((((.((.......))..)))))))..))))))))))))).)))))).)))))). ( -40.80, z-score =  -7.27, R)
+>consensus
+AGCGGUGGCCAGUGUCAUUUUUGUGAUGUUGCAGCUAGUAAUAUGAGCCCAGUUGCAUAGUCACAAAAGUGAUCAUUGGAAACUGUG
+.(((((..(((((((((((((((((((..(((((((.((.......))..)))))))..))))))))))))).))))))..))))). (-40.15 = -40.15 +  -0.00) 
+
+>>hsa-mir-155
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 65
+ Reading direction: forward
+ Mean pairwise identity:  89.23
+ Shannon entropy: 0.10769
+ G+C content: 0.38254
+ Mean single sequence MFE: -28.85
+ Consensus MFE: -27.42
+ Energy contribution: -27.05
+ Covariance contribution:  -0.37
+ Combinations/Pair:   1.10
+ Mean z-score:  -7.62
+ Structure conservation index:   0.95
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.06
+ SVM RNA-class probability: 0.981073
+ Prediction: RNA
+
+######################################################################
+
+>human
+CUGUUAAUGCUAAUCGUGAUAGGGGUUUUUGCCUCCAACUGACUCCUACAUAUUAGCAUUAACAG
+((((((((((((((.(((.((((((((.(((....)))..))))))))))))))))))))))))) ( -29.70, z-score =  -7.89, R)
+>chicken
+-UGUUAAUGCUAAUCGUGAUAGGGGUUUUUACCUCUGAAUGACUCCUACAUGUUAGCAUUAACA-
+-.(((((((((((.((((.((((((((((((....)))).))))))))))))))))))))))).- ( -28.00, z-score =  -7.35, R)
+>consensus
+_UGUUAAUGCUAAUCGUGAUAGGGGUUUUUACCUCCAAAUGACUCCUACAUAUUAGCAUUAACA_
+((((((((((((((.(((.((((((((((((....)))).))))))))))))))))))))))))) (-27.42 = -27.05 +  -0.37) 
+
+>>hsa-mir-15a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 83
+ Reading direction: forward
+ Mean pairwise identity:  95.18
+ Shannon entropy: 0.04819
+ G+C content: 0.43373
+ Mean single sequence MFE: -30.69
+ Consensus MFE: -30.44
+ Energy contribution: -30.44
+ Covariance contribution:  -0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -3.57
+ Structure conservation index:   0.99
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.28
+ SVM RNA-class probability: 0.998184
+ Prediction: RNA
+
+######################################################################
+
+>human
+CCUUGGAGUAAAGUAGCAGCACAUAAUGGUUUGUGGAUUUUGAAAAGGUGCAGGCCAUAUUGUGCUGCCUCAAAAAUACAAGG
+(((((.......(..((((((((..((((((((((..((.....))..))))))))))..))))))))..).......))))) ( -30.74, z-score =  -4.01, R)
+>chicken
+CCUUGGCAUAACGUAGCAGCACAUAAUGGUUUGUGGGUUUUGAAAAGGUGCAGGCCAUAUUGUGCUGCCUCAAAAAUACAAGG
+(((((.......(..((((((((..(((((((((....(((....))).)))))))))..))))))))..).......))))) ( -30.64, z-score =  -3.13, R)
+>consensus
+CCUUGGAAUAAAGUAGCAGCACAUAAUGGUUUGUGGAUUUUGAAAAGGUGCAGGCCAUAUUGUGCUGCCUCAAAAAUACAAGG
+(((((.......(..((((((((..((((((((((..((.....))..))))))))))..))))))))..).......))))) (-30.44 = -30.44 +  -0.00) 
+
+>>hsa-mir-16-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 89
+ Reading direction: forward
+ Mean pairwise identity:  73.03
+ Shannon entropy: 0.26966
+ G+C content: 0.38341
+ Mean single sequence MFE: -30.50
+ Consensus MFE: -23.65
+ Energy contribution: -26.77
+ Covariance contribution:   3.12
+ Combinations/Pair:   1.00
+ Mean z-score:  -5.47
+ Structure conservation index:   0.78
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.99
+ SVM RNA-class probability: 0.999540
+ Prediction: RNA
+
+######################################################################
+
+>human
+GUCAGCAGUGCCUUAGCAGCACGUAAAUAUUGGCGUUAAGAUUCUAAAAUUAUCUCCAGUAUUAACUGUGCUGCUGAAGUAAGGUUGAC
+((((((..(((.((((((((((((.((((((((.(.(((..........))).).)))))))).)).)))))))))).)))..)))))) ( -37.70, z-score =  -6.48, R)
+>chicken
+-------------UAGCAGCACGUAAAUAUUGGUGUUAAAACUGUAAA--UAUCUCCAGUAUUAACUGUGCUGCUGAAGUAAGG-----
+-------------(((((((((((.((((((((.(.............--...).)))))))).)).)))))))))........----- ( -23.29, z-score =  -4.45, R)
+>consensus
+_____________UAGCAGCACGUAAAUAUUGGCGUUAAAACUCUAAA__UAUCUCCAGUAUUAACUGUGCUGCUGAAGUAAGG_____
+((((((..(((.((((((((((((.((((((((.(..................).)))))))).)).)))))))))).)))..)))))) (-23.65 = -26.77 +   3.12) 
+
+>>hsa-mir-17
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 85
+ Reading direction: forward
+ Mean pairwise identity:  92.94
+ Shannon entropy: 0.07059
+ G+C content: 0.42017
+ Mean single sequence MFE: -33.65
+ Consensus MFE: -32.85
+ Energy contribution: -32.85
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.07
+ Mean z-score:  -4.37
+ Structure conservation index:   0.98
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.54
+ SVM RNA-class probability: 0.998907
+ Prediction: RNA
+
+######################################################################
+
+>human
+GUCAGAAUAAUGUCAAAGUGCUUACAGUGCAGGUAGUGAUAUGU-GCAUCUACUGCAGUGAAGGCACUUGUAGCAUUAUGGUGAC
+((((..(((((((..((((((((.((.(((((.(((((......-.)).)))))))).)).))))))))...)))))))..)))) ( -34.30, z-score =  -4.28, R)
+>chicken
+GUCAGAGUAAUGUCAAAGUGCUUACAGUGCAGGUAGUGAUAUAUAGAACCUACUGCAGUGAAGGCACUUGUAGCAUUAUGUUGAC
+(((((.(((((((..((((((((.((.(((((...((..........))...))))).)).))))))))...))))))).))))) ( -33.00, z-score =  -4.46, R)
+>consensus
+GUCAGAAUAAUGUCAAAGUGCUUACAGUGCAGGUAGUGAUAUAU_GAACCUACUGCAGUGAAGGCACUUGUAGCAUUAUGGUGAC
+((((..(((((((..((((((((.((.(((((...(((........)))...))))).)).))))))))...)))))))..)))) (-32.85 = -32.85 +   0.00) 
+
+>>hsa-mir-181a-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  76.36
+ Shannon entropy: 0.23636
+ G+C content: 0.43687
+ Mean single sequence MFE: -34.30
+ Consensus MFE: -30.82
+ Energy contribution: -30.57
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -4.20
+ Structure conservation index:   0.90
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.68
+ SVM RNA-class probability: 0.999154
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGAGUUUUGAGGUUGCUUCAGUGAACAUUCAACGCUGUCGGUGAGUUUGGAAUUAAAAUCAAAACCAUCGACCGUUGAUUGUACCCUAUGGCUAACCAUCAUCUACUCCA
+.((((..((((((((((..((.(.(((.((((((..(((((((.((((.((.......)).))))))))))))))))).))).).))..))).)))).)))...)))).. ( -38.30, z-score =  -4.67, R)
+>chicken
+----------GGUUGCUUCAGUGAACAUUCAACGCUGUCGGUGAGUUUGGAAUUUAAGUGAAAACCAUCGACCGUUGAUUGUACCCUCCAGCUAACCAUC----------
+----------(((((((..((.(.(((.((((((..(((((((.((((...((....))..))))))))))))))))).))).).))..))).))))...---------- ( -30.30, z-score =  -3.72, R)
+>consensus
+__________GGUUGCUUCAGUGAACAUUCAACGCUGUCGGUGAGUUUGGAAUUAAAAUCAAAACCAUCGACCGUUGAUUGUACCCUACAGCUAACCAUC__________
+..........(((((((..((.(.(((.((((((..(((((((.((((.............))))))))))))))))).))).).))..))).))))............. (-30.82 = -30.57 +  -0.25) 
+
+>>hsa-mir-181b-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  75.45
+ Shannon entropy: 0.24545
+ G+C content: 0.44626
+ Mean single sequence MFE: -35.00
+ Consensus MFE: -33.35
+ Energy contribution: -33.35
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -3.64
+ Structure conservation index:   0.95
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.51
+ SVM RNA-class probability: 0.998839
+ Prediction: RNA
+
+######################################################################
+
+>human
+CCUGUGCAGAGAUUAUUUUUUAAAAGGUCACAAUCAACAUUCAUUGCUGUCGGUGGGUUGAACUGUGUGGACAAGCUCACUGAACAAUGAAUGCAACUGUGGCCCCGCUU
+.....(((((((....)))))....(((((((.....(((((((((...((((((((((...((....))...)))))))))).)))))))))....)))))))..)).. ( -35.80, z-score =  -2.34, R)
+>chicken
+---------------------AAAAGGUCACAAUCAACAUUCAUUGCUGUCGGUGGGUUUAACUAUGUGGACAAGCUCACUGAACAAUGAAUGCAACUGUGGCCCC----
+---------------------....(((((((.....(((((((((...(((((((((((..((....))..))))))))))).)))))))))....)))))))..---- ( -34.20, z-score =  -4.94, R)
+>consensus
+_____________________AAAAGGUCACAAUCAACAUUCAUUGCUGUCGGUGGGUUGAACUAUGUGGACAAGCUCACUGAACAAUGAAUGCAACUGUGGCCCC____
+.........................(((((((.....(((((((((...((((((((((...((....))...)))))))))).)))))))))....)))))))...... (-33.35 = -33.35 +   0.00) 
+
+>>hsa-mir-181b-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 89
+ Reading direction: forward
+ Mean pairwise identity:  85.39
+ Shannon entropy: 0.14607
+ G+C content: 0.44798
+ Mean single sequence MFE: -33.35
+ Consensus MFE: -32.10
+ Energy contribution: -32.10
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -5.16
+ Structure conservation index:   0.96
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.55
+ SVM RNA-class probability: 0.998922
+ Prediction: RNA
+
+######################################################################
+
+>human
+CUGAUGGCUGCACUCAACAUUCAUUGCUGUCGGUGGGUUUGAGUCUGAAUCAACUCACUGAUCAAUGAAUGCAAACUGCGGACCAAACA
+....((((((((.....(((((((((..(((((((((((.((.......)))))))))))))))))))))).....))))).))).... ( -35.00, z-score =  -5.09, R)
+>chicken
+CUAAUGGCUGCAAUCAACAUUCAUUGCUGUCGGUGGGUUUUCAUUGCUAUCAACUCACUGAUCAAUGAAUGCAAACUGCGGACCA----
+....((((((((.....(((((((((..(((((((((((............)))))))))))))))))))).....))))).)))---- ( -31.70, z-score =  -5.23, R)
+>consensus
+CUAAUGGCUGCAAUCAACAUUCAUUGCUGUCGGUGGGUUUGAAUCGCAAUCAACUCACUGAUCAAUGAAUGCAAACUGCGGACCA____
+....((((((((.....(((((((((..(((((((((((............)))))))))))))))))))).....))))).))).... (-32.10 = -32.10 +   0.00) 
+
+>>hsa-mir-183
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  78.18
+ Shannon entropy: 0.21818
+ G+C content: 0.50056
+ Mean single sequence MFE: -41.40
+ Consensus MFE: -40.90
+ Energy contribution: -39.90
+ Covariance contribution:  -1.00
+ Combinations/Pair:   1.09
+ Mean z-score:  -4.13
+ Structure conservation index:   0.99
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.63
+ SVM RNA-class probability: 0.999071
+ Prediction: RNA
+
+######################################################################
+
+>human
+CCGCAGAGUGUGACUCCUGUUCUGUGUAUGGCACUGGUAGAAUUCACUGUGAACAGUCUCAGUCAGUGAAUUACCGAAGGGCCAUAAACAGAGCAGAGACAGAUCCACGA
+.......(((.((.(((((((((((.((((((..(((((..(((((((((((......)))..)))))))))))))....)))))).))))))))).))....))))).. ( -41.90, z-score =  -3.45, R)
+>chicken
+------------ACUCCUGUUCUGUGUAUGGCACUGGUAGAAUUCACUGUGCAACCCCGCGGUCAGUGAAUUACCAUAGGGCCAUAAACAGAGCAGAGAAAGACCCGCGA
+------------.(((.((((((((.((((((..(((((..(((((((((((......)))..)))))))))))))....)))))).)))))))))))............ ( -40.90, z-score =  -4.80, R)
+>consensus
+____________ACUCCUGUUCUGUGUAUGGCACUGGUAGAAUUCACUGUGAAAACCCGCAGUCAGUGAAUUACCAAAGGGCCAUAAACAGAGCAGAGAAAGACCCACGA
+.............(((.((((((((.((((((..(((((..(((((((((((......)))..)))))))))))))....)))))).)))))))))))............ (-40.90 = -39.90 +  -1.00) 
+
+>>hsa-mir-18a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 71
+ Reading direction: forward
+ Mean pairwise identity:  98.59
+ Shannon entropy: 0.01408
+ G+C content: 0.45070
+ Mean single sequence MFE: -21.70
+ Consensus MFE: -20.85
+ Energy contribution: -20.85
+ Covariance contribution:  -0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -1.22
+ Structure conservation index:   0.96
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   0.18
+ SVM RNA-class probability: 0.582965
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGUUCUAAGGUGCAUCUAGUGCAGAUAGUGAAGUAGAUUAGCAUCUACUGCCCUAAGUGCUCCUUCUGGCA
+.(((..((((.(((..(((.((((.(((((..(.....)..)).))))))).)))..))).))))..))). ( -22.00, z-score =  -1.42, R)
+>chicken
+UGUACUAAGGUGCAUCUAGUGCAGAUAGUGAAGUAGAUUAGCAUCUACUGCCCUAAGUGCUCCUUCUGGCA
+.((...((((.(((..(((.((((.(((((..(.....)..)).))))))).)))..))).))))...)). ( -21.40, z-score =  -1.03, R)
+>consensus
+UGUACUAAGGUGCAUCUAGUGCAGAUAGUGAAGUAGAUUAGCAUCUACUGCCCUAAGUGCUCCUUCUGGCA
+.((...((((.(((..(((.((((.(((((..(.....)..)).))))))).)))..))).))))...)). (-20.85 = -20.85 +  -0.00) 
+
+>>hsa-mir-18b
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 71
+ Reading direction: forward
+ Mean pairwise identity:  94.37
+ Shannon entropy: 0.05634
+ G+C content: 0.46479
+ Mean single sequence MFE: -21.00
+ Consensus MFE: -21.50
+ Energy contribution: -21.00
+ Covariance contribution:  -0.50
+ Combinations/Pair:   1.04
+ Mean z-score:  -1.37
+ Structure conservation index:   1.02
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   1.33
+ SVM RNA-class probability: 0.926785
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGUGUUAAGGUGCAUCUAGUGCAGUUAGUGAAGCAGCUUAGAAUCUACUGCCCUAAAUGCCCCUUCUGGCA
+..((((((((.((((.(((.(((((..((.(((...)))...))..))))).))).)))).)))..))))) ( -19.80, z-score =  -0.88, R)
+>chicken
+UGUGUUAAGGUGCAUCUAGUGCAGUUAGUGACGUAGCGUAGAAUCUACUGCCCUAAAUGCUCCUUCUGGCA
+..((((((((.((((.(((.(((((..((.(((...)))...))..))))).))).)))).)))..))))) ( -22.20, z-score =  -1.86, R)
+>consensus
+UGUGUUAAGGUGCAUCUAGUGCAGUUAGUGAAGCAGCGUAGAAUCUACUGCCCUAAAUGCCCCUUCUGGCA
+..((((((((.((((.(((.(((((..((.(((...)))...))..))))).))).)))).)))..))))) (-21.50 = -21.00 +  -0.50) 
+
+>>hsa-mir-190a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 85
+ Reading direction: forward
+ Mean pairwise identity:  97.65
+ Shannon entropy: 0.02353
+ G+C content: 0.34118
+ Mean single sequence MFE: -36.35
+ Consensus MFE: -36.30
+ Energy contribution: -36.55
+ Covariance contribution:   0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -8.02
+ Structure conservation index:   1.00
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   1.52
+ SVM RNA-class probability: 0.948157
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGCAGGCCUCUGUGUGAUAUGUUUGAUAUAUUAGGUUGUUAUUUAAUCCAACUAUAUAUCAAACAUAUUCCUACAGUGUCUUGCC
+.(((((.(.(((((..(((((((((((((((..(((((..........))))))))))))))))))))..).)))).).))))). ( -32.50, z-score =  -6.72, R)
+>chicken
+UGCAGGACUCUGUGUGAUAUGUUUGAUAUAUUAGGUUGUUAUUUAAUCCAACUAUAUAUCAAACAUAUUCCUACAGUGUCCUGCC
+.(((((((.(((((..(((((((((((((((..(((((..........))))))))))))))))))))..).)))).))))))). ( -40.20, z-score =  -9.32, R)
+>consensus
+UGCAGGACUCUGUGUGAUAUGUUUGAUAUAUUAGGUUGUUAUUUAAUCCAACUAUAUAUCAAACAUAUUCCUACAGUGUCCUGCC
+.(((((((.(((((..(((((((((((((((..(((((..........))))))))))))))))))))..).)))).))))))). (-36.30 = -36.55 +   0.25) 
+
+>>hsa-mir-191
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 92
+ Reading direction: forward
+ Mean pairwise identity:  57.61
+ Shannon entropy: 0.42391
+ G+C content: 0.62391
+ Mean single sequence MFE: -38.25
+ Consensus MFE: -29.55
+ Energy contribution: -34.30
+ Covariance contribution:   4.75
+ Combinations/Pair:   1.00
+ Mean z-score:  -4.32
+ Structure conservation index:   0.77
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   4.25
+ SVM RNA-class probability: 0.999723
+ Prediction: RNA
+
+######################################################################
+
+>human
+CGGCUGGACAGCGGGCAACGGAAUCCCAAAAGCAGCUGUUGUCUCCAGAGCAUUCCAGCUGCGCUUGGAUUUCGUCCCCUGCUCUCCUGCCU
+.(((.(((.((((((..(((((((((.((..(((((((..((((....)).))..)))))))..)))))))))))..)))))).))).))). ( -49.00, z-score =  -5.77, R)
+>chicken
+-----------CGGGCAACGGAAUCCCAAAAGCAGCU---GUCCCCGCAGCGC-CCAGCUGCCCUGGGAUUUCGU-----------------
+-----------......(((((((((((...((((((---(..(.......).-.)))))))..)))))))))))----------------- ( -27.50, z-score =  -2.87, R)
+>consensus
+___________CGGGCAACGGAAUCCCAAAAGCAGCU___GUCCCCACAGCAC_CCAGCUGCCCUGGGAUUUCGU_________________
+.((((((((((((((..(((((((((((...(((((((..(((......).))..)))))))..)))))))))))..)))))))))))))). (-29.55 = -34.30 +   4.75) 
+
+>>hsa-mir-193a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 91
+ Reading direction: forward
+ Mean pairwise identity:  79.12
+ Shannon entropy: 0.20879
+ G+C content: 0.61448
+ Mean single sequence MFE: -50.10
+ Consensus MFE: -44.60
+ Energy contribution: -48.60
+ Covariance contribution:   4.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -5.63
+ Structure conservation index:   0.89
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.58
+ SVM RNA-class probability: 0.998972
+ Prediction: RNA
+
+######################################################################
+
+>human
+CGAGGAUGGGAGCUGAGGGCUGGGUCUUUGCGGGCGAGAUGAGGGUGUCGGAUC---AACUGGCCUACAAAGUCCCAGUUCUCGGCCCCCG
+.......(((.(((((((((((((.(((((..(((.((.(((..........))---).)).)))..))))).))))))))))))).))). ( -50.80, z-score =  -4.90, R)
+>chicken
+---------GAGCUGAGGGCUGGGUCUUUGCGGGCGAGAUGAGAGGUUCGUGUCUUCAACUGGCCUACAAAGUCCCAGUUCUCGGCUCCC-
+---------(((((((((((((((.(((((..(((.((.(((((.(....).)).))).)).)))..))))).)))))))))))))))..- ( -49.40, z-score =  -6.36, R)
+>consensus
+_________GAGCUGAGGGCUGGGUCUUUGCGGGCGAGAUGAGAGGGUCGGAUC___AACUGGCCUACAAAGUCCCAGUUCUCGGCCCCC_
+.......(((((((((((((((((.(((((..(((.((.(((((((.....))))))).)).)))..))))).))))))))))))))))). (-44.60 = -48.60 +   4.00) 
+
+>>hsa-mir-194-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 85
+ Reading direction: forward
+ Mean pairwise identity:  75.29
+ Shannon entropy: 0.24706
+ G+C content: 0.42506
+ Mean single sequence MFE: -33.20
+ Consensus MFE: -28.72
+ Energy contribution: -28.97
+ Covariance contribution:   0.25
+ Combinations/Pair:   1.04
+ Mean z-score:  -5.04
+ Structure conservation index:   0.87
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.78
+ SVM RNA-class probability: 0.999314
+ Prediction: RNA
+
+######################################################################
+
+>human
+AUGGUGUUAUCAAGUGUAACAGCAACUCCAUGUGGACUGUGUACCAAUUUCCAGUGGAGAUGCUGUUACUUUUGAUGGUUACCAA
+.(((((..((((((.(((((((((.((((((.((((..((......)).)))))))))).))))))))).))))))..).)))). ( -38.30, z-score =  -5.87, R)
+>chicken
+-UGGUGCUCUCAUAUGUAACAGCAACUCCAUGUGGACUAC--ACUGACUUCCAGUGGAGAUGCUGUUACUUUUGAU---------
+-........(((...(((((((((.((((((.((((....--.......)))))))))).)))))))))...))).--------- ( -28.10, z-score =  -4.21, R)
+>consensus
+_UGGUGCUAUCAAAUGUAACAGCAACUCCAUGUGGACUAC__ACCAACUUCCAGUGGAGAUGCUGUUACUUUUGAU_________
+.........(((((.(((((((((.((((((.((((.............)))))))))).))))))))).))))).......... (-28.72 = -28.97 +   0.25) 
+
+>>hsa-mir-196a-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 70
+ Reading direction: forward
+ Mean pairwise identity:  80.00
+ Shannon entropy: 0.20000
+ G+C content: 0.37100
+ Mean single sequence MFE: -24.45
+ Consensus MFE: -21.30
+ Energy contribution: -23.80
+ Covariance contribution:   2.50
+ Combinations/Pair:   1.04
+ Mean z-score:  -4.54
+ Structure conservation index:   0.87
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.71
+ SVM RNA-class probability: 0.999203
+ Prediction: RNA
+
+######################################################################
+
+>human
+GUGAAUUAGGUAGUUUCAUGUUGUUGGGCCUGGGUUUCUGAACACAACAACAUUAAACCACCCGAUUCAC
+((((((..(((.((((.((((((((((..(.........)..).))))))))).)))).)))..)))))) ( -25.80, z-score =  -3.76, R)
+>chicken
+GUGAAUUAGGUAGUUUCAUGUUGUUGGGCUUUAAAUUUUAAACACAAGAACAUCAAACUACCUGAUU---
+...(((((((((((((.(((((.(((...((((.....))))..))).))))).)))))))))))))--- ( -23.10, z-score =  -5.32, R)
+>consensus
+GUGAAUUAGGUAGUUUCAUGUUGUUGGGCCUGAAAUUCUAAACACAACAACAUCAAACCACCCGAUU___
+((((((((((((((((.((((((((((..(.........)..).))))))))).)))))))))))))))) (-21.30 = -23.80 +   2.50) 
+
+>>hsa-mir-199a-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 71
+ Reading direction: forward
+ Mean pairwise identity:  81.69
+ Shannon entropy: 0.18310
+ G+C content: 0.49571
+ Mean single sequence MFE: -26.85
+ Consensus MFE: -23.05
+ Energy contribution: -23.55
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.00
+ Mean z-score:  -3.44
+ Structure conservation index:   0.86
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.07
+ SVM RNA-class probability: 0.997260
+ Prediction: RNA
+
+######################################################################
+
+>human
+GCCAACCCAGUGUUCAGACUACCUGUUCAGGAGGCUCUCAAUGUGUACAGUAGUCUGCACAUUGGUUAGGC
+(((...(((((((.((((((((.(((.((.(((...)))....)).))))))))))).)))))))...))) ( -29.20, z-score =  -3.60, R)
+>chicken
+-----CCCAGUGUUCAGACUACCUGUUCAGGA--CUACGAGAUUGUACAGUAGUCUGCACAUUGGUUAGGC
+-----.(((((((.((((((((.(((.(((..--........))).))))))))))).)))))))...... ( -24.50, z-score =  -3.29, R)
+>consensus
+_____CCCAGUGUUCAGACUACCUGUUCAGGA__CUACCAAAGUGUACAGUAGUCUGCACAUUGGUUAGGC
+......(((((((.((((((((.(((.(((............))).))))))))))).)))))))...... (-23.05 = -23.55 +   0.50) 
+
+>>hsa-mir-199a-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  94.55
+ Shannon entropy: 0.05455
+ G+C content: 0.53670
+ Mean single sequence MFE: -44.20
+ Consensus MFE: -42.30
+ Energy contribution: -42.30
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.05
+ Mean z-score:  -2.75
+ Structure conservation index:   0.96
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.48
+ SVM RNA-class probability: 0.991591
+ Prediction: RNA
+
+######################################################################
+
+>human
+AGGAAGCUUCUGGAGAUCCUGCUCCGUCGCCCCAGUGUUCAGACUACCUGUUCAGGACAAUGCCGUUGUACAGUAGUCUGCACAUUGGUUAGACUGGGCAAGGGAGAGCA
+.....((((((((....))(((((.(((...(((((((.((((((((.(((...((......)).....))))))))))).)))))))...))).)))))..))).))). ( -43.40, z-score =  -2.17, R)
+>chicken
+--GAAGCGUCCGGAGAUCCUGCUCCGUCGCCCCAGUGUUCAGACUACCUGUUCAGGACAAUGCUGUUGUACAGUAGUCUGCACAUUGGUUAGACUGGGCAAGGGAAAGCA
+--...((.(((((....))(((((.(((...(((((((.((((((((.(((.(((.......)))....))))))))))).)))))))...))).))))).)))...)). ( -45.00, z-score =  -3.33, R)
+>consensus
+__GAAGCGUCCGGAGAUCCUGCUCCGUCGCCCCAGUGUUCAGACUACCUGUUCAGGACAAUGCCGUUGUACAGUAGUCUGCACAUUGGUUAGACUGGGCAAGGGAAAGCA
+.....((((((((....))(((((.(((...(((((((.((((((((.(((..(.(((......))).)))))))))))).)))))))...))).)))))..)).)))). (-42.30 = -42.30 +   0.00) 
+
+>>hsa-mir-199b
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  77.27
+ Shannon entropy: 0.22727
+ G+C content: 0.52427
+ Mean single sequence MFE: -39.05
+ Consensus MFE: -35.90
+ Energy contribution: -35.90
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.06
+ Mean z-score:  -2.50
+ Structure conservation index:   0.92
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.52
+ SVM RNA-class probability: 0.992234
+ Prediction: RNA
+
+######################################################################
+
+>human
+CCAGAGGACACCUCCACUCCGUCUACCCAGUGUUUAGACUAUCUGUUCAGGACUCCCAAAUUGUACAGUAGUCUGCACAUUGGUUAGGCUGGGCUGGGUUAGACCCUCGG
+...((((.....((((..(((((((.(((((((.(((((((.((((.((((....))....)).))))))))))).))))))).))))).))..))))......)))).. ( -42.90, z-score =  -2.73, R)
+>chicken
+-----------CUCCACUCCGUCUGCCCAGUGUUCAGACUACCUGUUCAGGACUACGAGAUUGUACAGUAGUCUGCACAUUGGUUAGGCUGUGCUGGGAUACACC-----
+-----------.(((((.(.(((((.(((((((.((((((((.(((.(((..........))).))))))))))).))))))).))))).).).)))).......----- ( -35.20, z-score =  -2.28, R)
+>consensus
+___________CUCCACUCCGUCUACCCAGUGUUCAGACUACCUGUUCAGGACUACCAAAUUGUACAGUAGUCUGCACAUUGGUUAGGCUGGGCUGGGAUACACC_____
+............(((((((.(((((.(((((((.(((((((.((((.(((..........))).))))))))))).))))))).))))).))).))))............ (-35.90 = -35.90 +   0.00) 
+
+>>hsa-mir-19a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 82
+ Reading direction: forward
+ Mean pairwise identity:  96.34
+ Shannon entropy: 0.03659
+ G+C content: 0.42329
+ Mean single sequence MFE: -36.60
+ Consensus MFE: -36.00
+ Energy contribution: -36.25
+ Covariance contribution:   0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -5.95
+ Structure conservation index:   0.98
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.13
+ SVM RNA-class probability: 0.997580
+ Prediction: RNA
+
+######################################################################
+
+>human
+GCAGUCCUCUGUUAGUUUUGCAUAGUUGCACUACAAGAAGAAUGUAGUUGUGCAAAUCUAUGCAAAACUGAUGGUGGCCUGC
+((((.((.(((((((((((((((((((((((((((.......))))...))))))..))))))))))))))))).)).)))) ( -39.10, z-score =  -6.83, R)
+>chicken
+GCAGUCUUCUGUUAGUUUUGCAUAGUUGCACUACAGGAAGAAUGUAGUUGUGCAAAUCUAUGCAAAACUGAUGGUGGCCUG-
+.(((.((.(((((((((((((((((((((((((((.......))))...))))))..))))))))))))))))).)).)))- ( -34.10, z-score =  -5.07, R)
+>consensus
+GCAGUCCUCUGUUAGUUUUGCAUAGUUGCACUACAAGAAGAAUGUAGUUGUGCAAAUCUAUGCAAAACUGAUGGUGGCCUG_
+((((.((.(((((((((((((((((((((((((((.......))))...))))))..))))))))))))))))).)).)))) (-36.00 = -36.25 +   0.25) 
+
+>>hsa-mir-19b-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 87
+ Reading direction: forward
+ Mean pairwise identity:  95.40
+ Shannon entropy: 0.04598
+ G+C content: 0.44828
+ Mean single sequence MFE: -38.21
+ Consensus MFE: -38.15
+ Energy contribution: -37.90
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.08
+ Mean z-score:  -5.53
+ Structure conservation index:   1.00
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.31
+ SVM RNA-class probability: 0.998291
+ Prediction: RNA
+
+######################################################################
+
+>human
+CACUGUUCUAUGGUUAGUUUUGCAGGUUUGCAUCCAGCUGUGUGAUAUUCUGCUGUGCAAAUCCAUGCAAAACUGACUGUGGUAGUG
+(((((..(((((((((((((((((((((((((..((((.............)))))))))).)).)))))))))))))))))))))) ( -38.42, z-score =  -5.84, R)
+>chicken
+CACUGUUCUCUGGUUAGUUUUGCAGGUUUGCAUCCAGCUGUAUGAUACUCUGCUGUGCAAAUCCAUGCAAAACUGACUGUGGCAGUG
+(((((((...((((((((((((((((((((((..((((.(((...)))...)))))))))).)).)))))))))))))).))))))) ( -38.00, z-score =  -5.21, R)
+>consensus
+CACUGUUCUAUGGUUAGUUUUGCAGGUUUGCAUCCAGCUGUAUGAUACUCUGCUGUGCAAAUCCAUGCAAAACUGACUGUGGCAGUG
+(((((..(((((((((((((((((((((((((..((((.(((...)))...)))))))))).)).)))))))))))))))))))))) (-38.15 = -37.90 +  -0.25) 
+
+>>hsa-mir-202
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  59.09
+ Shannon entropy: 0.40909
+ G+C content: 0.49639
+ Mean single sequence MFE: -45.75
+ Consensus MFE: -39.65
+ Energy contribution: -40.90
+ Covariance contribution:   1.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -5.86
+ Structure conservation index:   0.87
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.40
+ SVM RNA-class probability: 0.998572
+ Prediction: RNA
+
+######################################################################
+
+>human
+CGCCUCAGAGCCGCCCGCCGUUCCUUUUUCCUAUGCAUAUACUUCUUUGAGGAUCUGGCCUAAAGAGGUAUAGGGCAUGGGAAAACGGGGCGGUCGGGUCCUCCCCAGCG
+(((....(((..((((((((((((.(((((((((((.(((((((((((.(((......))))))))))))))..))))))))))).))))))).))))).)))....))) ( -58.80, z-score =  -5.60, R)
+>chicken
+-------------------GUUCCUUUUUCCUAUGCAUAUACUUCUUUGAGAGUUUGAUCUAAAGAGGCAUAGAGCAUGGGAAAAUGGGGCG------------------
+-------------------(((((.(((((((((((.(((.(((((((.(((......)))))))))).)))..))))))))))).))))).------------------ ( -32.70, z-score =  -6.11, R)
+>consensus
+___________________GUUCCUUUUUCCUAUGCAUAUACUUCUUUGAGAAUCUGACCUAAAGAGGCAUAGAGCAUGGGAAAACGGGGCG__________________
+............((((((((((((.(((((((((((.(((((((((((.(((......))))))))))))))..))))))))))).))))))).)))))........... (-39.65 = -40.90 +   1.25) 
+
+>>hsa-mir-203a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  58.18
+ Shannon entropy: 0.41818
+ G+C content: 0.48355
+ Mean single sequence MFE: -40.05
+ Consensus MFE: -32.83
+ Energy contribution: -35.45
+ Covariance contribution:   2.62
+ Combinations/Pair:   1.00
+ Mean z-score:  -4.49
+ Structure conservation index:   0.82
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   4.10
+ SVM RNA-class probability: 0.999626
+ Prediction: RNA
+
+######################################################################
+
+>human
+GUGUUGGGGACUCGCGCGCUGGGUCCAGUGGUUCUUAACAGUUCAACAGUUCUGUAGCGCAAUUGUGAAAUGUUUAGGACCACUAGACCCGGCGGGCGCGGCGACAGCGA
+.(((((..(.(.(((.(((((((((.(((((((((.((((.((((.((((((......).))))))))).)))).))))))))).))))))))).))).).)..))))). ( -56.40, z-score =  -5.37, R)
+>chicken
+------------------CUUGGUGCAGUGGUUCUUAACAGUUCAACAGUUCUCUAUCAUAAUUGUGAAAUGUUUAGGACCACUUGACC---------------------
+------------------...(((..(((((((((.((((.((((.(((((.........))))))))).)))).)))))))))..)))--------------------- ( -23.70, z-score =  -3.62, R)
+>consensus
+__________________CUGGGUCCAGUGGUUCUUAACAGUUCAACAGUUCUCUAGCACAAUUGUGAAAUGUUUAGGACCACUAGACC_____________________
+............(((.(((((((((.(((((((((.((((.((((.(((((.........))))))))).)))).))))))))).))))))))).)))............ (-32.83 = -35.45 +   2.62) 
+
+>>hsa-mir-203b
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 86
+ Reading direction: forward
+ Mean pairwise identity:  74.42
+ Shannon entropy: 0.25581
+ G+C content: 0.47044
+ Mean single sequence MFE: -28.90
+ Consensus MFE: -24.42
+ Energy contribution: -27.30
+ Covariance contribution:   2.88
+ Combinations/Pair:   1.00
+ Mean z-score:  -4.08
+ Structure conservation index:   0.85
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.67
+ SVM RNA-class probability: 0.999151
+ Prediction: RNA
+
+######################################################################
+
+>human
+GCGCCCGCCGGGUCUAGUGGUCCUAAACAUUUCACAAUUGCGCUACAGAACUGUUGAACUGUUAAGAACCACUGGACCCAGCGCGC
+((((..((.((((((((((((.((.((((.((((((.((.(......))).)).)))).)))).)).)))))))))))).)))))) ( -38.90, z-score =  -5.61, R)
+>chicken
+----------GGUCAAGUGGUCCUAAACAUUUCACAAUUAUGAUAGAGAACUGUUGAACUGUUAAGAACCACUGCACCAAG-----
+----------(((..((((((.((.((((.((((........((((....)))))))).)))).)).))))))..)))...----- ( -18.90, z-score =  -2.54, R)
+>consensus
+__________GGUCAAGUGGUCCUAAACAUUUCACAAUUACGAUACAGAACUGUUGAACUGUUAAGAACCACUGCACCAAG_____
+..((((((.((((((((((((.((.((((.((((((.((.(......))).)).)))).)))).)).)))))))))))).)))))) (-24.42 = -27.30 +   2.88) 
+
+>>hsa-mir-204
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  86.36
+ Shannon entropy: 0.13636
+ G+C content: 0.48843
+ Mean single sequence MFE: -41.01
+ Consensus MFE: -40.26
+ Energy contribution: -40.01
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -3.10
+ Structure conservation index:   0.98
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.15
+ SVM RNA-class probability: 0.997655
+ Prediction: RNA
+
+######################################################################
+
+>human
+GGCUACAGUCUUUCUUCAUGUGACUCGUGGACUUCCCUUUGUCAUCCUAUGCCUGAGAAUAUAUGAAGGAGGCUGGGAAGGCAAAGGGACGUUCAAUUGUCAUCACUGGC
+(((....))).....(((((((((...(((((.((((((((((.(((((.((((...............))))))))).)))))))))).)))))...)))).)).))). ( -42.26, z-score =  -3.42, R)
+>chicken
+----ACAGUGUCUGUUCAUGUGACCCGUGGACUUCCCUUUGUCAUCCUAUGCCUGAGAAUAUAUGAAGGGGGCUGGGAAGGCAAAGGGACGUUCAACUGUCAUCA-----
+----((((...))))....(((((...(((((.((((((((((.(((((.((((...............))))))))).)))))))))).)))))...)))))..----- ( -39.76, z-score =  -2.79, R)
+>consensus
+____ACAGUCUCUCUUCAUGUGACCCGUGGACUUCCCUUUGUCAUCCUAUGCCUGAGAAUAUAUGAAGGAGGCUGGGAAGGCAAAGGGACGUUCAACUGUCAUCA_____
+...................(((((...(((((.((((((((((.(((((.((((...............))))))))).)))))))))).)))))...)))))....... (-40.26 = -40.01 +  -0.25) 
+
+>>hsa-mir-205
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  79.09
+ Shannon entropy: 0.20909
+ G+C content: 0.48049
+ Mean single sequence MFE: -45.62
+ Consensus MFE: -41.67
+ Energy contribution: -42.17
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.06
+ Mean z-score:  -5.15
+ Structure conservation index:   0.91
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.66
+ SVM RNA-class probability: 0.999125
+ Prediction: RNA
+
+######################################################################
+
+>human
+AAAGAUCCUCAGACAAUCCAUGUGCUUCUCUUGUCCUUCAUUCCACCGGAGUCUGUCUCAUACCCAACCAGAUUUCAGUGGAGUGAAGUUCAGGAGGCAUGGAGCUGACA
+........((((....(((((((....((((((..(((((((((((.((((((((.............)))))))).)))))))))))..))))))))))))).)))).. ( -49.02, z-score =  -5.60, R)
+>chicken
+-----------GACAAUCCAUG-GGUUCUGUUGUCCUUCAUUCCACCGGAGUCUGUCUCGUACCUAACCAGAUUUCAGUGGAGUGAAGCACAAGAGACAUGGAGAUGA--
+-----------..((.((((((-...(((.((((.(((((((((((.((((((((.............)))))))).))))))))))).)))).)))))))))..)).-- ( -42.22, z-score =  -4.70, R)
+>consensus
+___________GACAAUCCAUG_GCUUCUCUUGUCCUUCAUUCCACCGGAGUCUGUCUCAUACCCAACCAGAUUUCAGUGGAGUGAAGCACAAGAGACAUGGAGAUGA__
+.............((.((((((....((((((((.(((((((((((.((((((((.............)))))))).))))))))))).))))))))))))))..))... (-41.67 = -42.17 +   0.50) 
+
+>>hsa-mir-206
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 86
+ Reading direction: forward
+ Mean pairwise identity:  70.93
+ Shannon entropy: 0.29070
+ G+C content: 0.42987
+ Mean single sequence MFE: -33.20
+ Consensus MFE: -28.48
+ Energy contribution: -32.85
+ Covariance contribution:   4.38
+ Combinations/Pair:   0.97
+ Mean z-score:  -5.58
+ Structure conservation index:   0.86
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.69
+ SVM RNA-class probability: 0.999182
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGCUUCCCGAGGCCACAUGCUUCUUUAUAUCCCCAUAUGGAUUACUUUGCUAUGGAAUGUAAGGAAGUGUGUGGUUUCGGCAAGUG
+.((((.((((((((((((((((((((((((..(((((.(.(......).)))))).)))))))))))))))))))))))).)))). ( -43.90, z-score =  -7.64, R)
+>chicken
+--------------ACAUGCUUCUUUAUAUCCCCAUAUGGAUUAGGCUGCUAUGGAAUGUAAGGAAGUGUGUGGUUUC--------
+--------------((((((((((((((((..((((((((......))).))))).))))))))))))))))......-------- ( -22.50, z-score =  -3.51, R)
+>consensus
+______________ACAUGCUUCUUUAUAUCCCCAUAUGGAUUACGCUGCUAUGGAAUGUAAGGAAGUGUGUGGUUUC________
+.(((((((((((((((((((((((((((((..(((((.(.(......).)))))).))))))))))))))))))))))))))))). (-28.48 = -32.85 +   4.38) 
+
+>>hsa-mir-20a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 71
+ Reading direction: forward
+ Mean pairwise identity:  94.37
+ Shannon entropy: 0.05634
+ G+C content: 0.38028
+ Mean single sequence MFE: -31.85
+ Consensus MFE: -31.00
+ Energy contribution: -30.75
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.04
+ Mean z-score:  -5.34
+ Structure conservation index:   0.97
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.42
+ SVM RNA-class probability: 0.998608
+ Prediction: RNA
+
+######################################################################
+
+>human
+GUAGCACUAAAGUGCUUAUAGUGCAGGUAGUGUUUAGUUAUCUACUGCAUUAUGAGCACUUAAAGUACUGC
+((((.(((.(((((((((((((((((.(((((......)).))))))))))))))))))))..))).)))) ( -31.00, z-score =  -4.72, R)
+>chicken
+GUAGCACUAAAGUGCUUAUAGUGCAGGUAGUGUUCACUAAUCUACUGCAUUAUAAGCACUUAAAGUACUGC
+((((.(((.(((((((((((((((((.((((....)))).....)))))))))))))))))..))).)))) ( -32.70, z-score =  -5.96, R)
+>consensus
+GUAGCACUAAAGUGCUUAUAGUGCAGGUAGUGUUCACUAAUCUACUGCAUUAUAAGCACUUAAAGUACUGC
+((((.(((.(((((((((((((((((.(((...........))))))))))))))))))))..))).)))) (-31.00 = -30.75 +  -0.25) 
+
+>>hsa-mir-21
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 72
+ Reading direction: forward
+ Mean pairwise identity:  93.06
+ Shannon entropy: 0.06944
+ G+C content: 0.47917
+ Mean single sequence MFE: -36.85
+ Consensus MFE: -36.95
+ Energy contribution: -36.20
+ Covariance contribution:  -0.75
+ Combinations/Pair:   1.10
+ Mean z-score:  -6.08
+ Structure conservation index:   1.00
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.04
+ SVM RNA-class probability: 0.997097
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGUCGGGUAGCUUAUCAGACUGAUGUUGACUGUUGAAUCUCAUGGCAACACCAGUCGAUGGGCUGUCUGACA
+.(((((..((((((((.(((((.(((((.((((.(.....)))))))))).)))))))))))))..))))). ( -35.80, z-score =  -5.58, R)
+>chicken
+UGUCGGAUAGCUUAUCAGACUGAUGUUGACUGUUGGAUCUCAUGGCAACAACAGUCGGUAGGCUGUCUGACA
+.(((((((((((((((.(((((.(((((.((((........))))))))).)))))))))))))))))))). ( -37.90, z-score =  -6.58, R)
+>consensus
+UGUCGGAUAGCUUAUCAGACUGAUGUUGACUGUUGAAUCUCAUGGCAACAACAGUCGAUAGGCUGUCUGACA
+.(((((((((((((((.(((((.(((((.((((........))))))))).)))))))))))))))))))). (-36.95 = -36.20 +  -0.75) 
+
+>>hsa-mir-214
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  97.27
+ Shannon entropy: 0.02727
+ G+C content: 0.55909
+ Mean single sequence MFE: -67.62
+ Consensus MFE: -67.62
+ Energy contribution: -67.62
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -8.27
+ Structure conservation index:   1.00
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   1.40
+ SVM RNA-class probability: 0.936328
+ Prediction: RNA
+ WARNING: Mean z-score out of range.
+
+######################################################################
+
+>human
+GGCCUGGCUGGACAGAGUUGUCAUGUGUCUGCCUGUCUACACUUGCUGUGCAGAACAUCCGCUCACCUGUACAGCAGGCACAGACAGGCAGUCACAUGACAACCCAGCCU
+.....((((((.....(((((((((((.((((((((((...((((((((((((.............))))))))))))...)))))))))).))))))))))))))))). ( -67.62, z-score =  -8.16, R)
+>chicken
+GGACUGGCUGGACGGAGUUGUCAUGUGUCUGCCUGUCUACACUUGCUGUGCAGAACAUCCUCUCACCUGUACAGCAGGCACAGACAGGCAGUCACAUGACAACCCAGCCU
+.....((((((.....(((((((((((.((((((((((...((((((((((((.............))))))))))))...)))))))))).))))))))))))))))). ( -67.62, z-score =  -8.38, R)
+>consensus
+GGACUGGCUGGACAGAGUUGUCAUGUGUCUGCCUGUCUACACUUGCUGUGCAGAACAUCCGCUCACCUGUACAGCAGGCACAGACAGGCAGUCACAUGACAACCCAGCCU
+.....((((((.....(((((((((((.((((((((((...((((((((((((.............))))))))))))...)))))))))).))))))))))))))))). (-67.62 = -67.62 +   0.00) 
+
+>>hsa-mir-215
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  67.27
+ Shannon entropy: 0.32727
+ G+C content: 0.36717
+ Mean single sequence MFE: -28.60
+ Consensus MFE: -22.31
+ Energy contribution: -22.81
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.03
+ Mean z-score:  -2.90
+ Structure conservation index:   0.78
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.90
+ SVM RNA-class probability: 0.996217
+ Prediction: RNA
+
+######################################################################
+
+>human
+AUCAUUCAGAAAUGGUAUACAGGAAAAUGACCUAUGAAUUGACAGACAAUAUAGCUGAGUUUGUCUGUCAUUUCUUUAGGCCAAUAUUCUGUAUGACUGUGCUACUUCAA
+........(((.((((((((((((.(.((.((((.(((.((((((((((...........)))))))))).)))..)))).)).).))))))......)))))).))).. ( -33.40, z-score =  -3.62, R)
+>chicken
+-UCAGUAAGAACUGGUGUCCAGGAAAAUGACCUAUGAAUUGACAGACUGC-UUUCAAAAUGUGCCUGUCAUUUCUAUAGGCCAAUAUUCUGU------------------
+-(((((....)))))....(((((.(.((.((((((((.((((((...((-...........)))))))).))).))))).)).).))))).------------------ ( -23.80, z-score =  -2.18, R)
+>consensus
+_UCAGUAAGAAAUGGUAUACAGGAAAAUGACCUAUGAAUUGACAGACAAC_UAGCAAAAUGUGCCUGUCAUUUCUAUAGGCCAAUAUUCUGU__________________
+.(((((....)))))....(((((.(.((.((((((((.((((((((...............)))))))).))).))))).)).).)))))................... (-22.31 = -22.81 +   0.50) 
+
+>>hsa-mir-216a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  77.27
+ Shannon entropy: 0.22727
+ G+C content: 0.44381
+ Mean single sequence MFE: -40.65
+ Consensus MFE: -36.16
+ Energy contribution: -36.66
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.00
+ Mean z-score:  -4.84
+ Structure conservation index:   0.89
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.74
+ SVM RNA-class probability: 0.999259
+ Prediction: RNA
+
+######################################################################
+
+>human
+GAUGGCUGUGAGUUGGCUUAAUCUCAGCUGGCAACUGUGAGAUGUUCAUACAAUCCCUCACAGUGGUCUCUGGGAUUAUGCUAAACAGAGCAAUUUCCUAGCCCUCACGA
+......((((((..(((((((((((((..(((.((((((((.(((....)))....)))))))).))).)))))))))((((......)))).......)))))))))). ( -41.10, z-score =  -3.35, R)
+>chicken
+GAUGGCUGUGAAUUGGCUUAAUCUCAGCUGGCAACUGUGAGCAGUUAAUAA---UUCUCACAGUGGUAUCUGGGAUUAUGCUAAACACAGCAAUUUC-------------
+....((((((..(((((.(((((((((...((.((((((((.(((.....)---)))))))))).))..))))))))).))))).))))))......------------- ( -40.20, z-score =  -6.32, R)
+>consensus
+GAUGGCUGUGAAUUGGCUUAAUCUCAGCUGGCAACUGUGAGAAGUUAAUAA___CCCUCACAGUGGUAUCUGGGAUUAUGCUAAACACAGCAAUUUC_____________
+....((((((..(((((.(((((((((...((.((((((((...............)))))))).))..))))))))).))))).))))))................... (-36.16 = -36.66 +   0.50) 
+
+>>hsa-mir-217
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  83.64
+ Shannon entropy: 0.16364
+ G+C content: 0.38395
+ Mean single sequence MFE: -32.50
+ Consensus MFE: -31.60
+ Energy contribution: -31.60
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -4.63
+ Structure conservation index:   0.97
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.64
+ SVM RNA-class probability: 0.999088
+ Prediction: RNA
+
+######################################################################
+
+>human
+AGUAUAAUUAUUACAUAGUUUUUGAUGUCGCAGAUACUGCAUCAGGAACUGAUUGGAUAAGAAUCAGUCACCAUCAGUUCCUAAUGCAUUGCCUUCAGCAUCUAAACAAG
+.(((.......)))...((((..(((((.(.((.((.(((((.((((((((((.((((........))).).)))))))))).))))).)).)).).))))).))))... ( -33.40, z-score =  -4.61, R)
+>chicken
+----------------AGUUCUUGAUGUCGCAGAUACUGCAUCAGGAACUGAUUGGAUAAUAAUCAGUCACCAUCAGUUCCUAAUGCAUUGCCUUCAGCAUCUAAACAAG
+----------------.(((...(((((.(.((.((.(((((.((((((((((.((((........))).).)))))))))).))))).)).)).).)))))..)))... ( -31.60, z-score =  -4.66, R)
+>consensus
+________________AGUUCUUGAUGUCGCAGAUACUGCAUCAGGAACUGAUUGGAUAAGAAUCAGUCACCAUCAGUUCCUAAUGCAUUGCCUUCAGCAUCUAAACAAG
+.................(((...(((((.(.((.((.(((((.((((((((((.((((........))).).)))))))))).))))).)).)).).)))))..)))... (-31.60 = -31.60 +   0.00) 
+
+>>hsa-mir-218-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  97.27
+ Shannon entropy: 0.02727
+ G+C content: 0.43374
+ Mean single sequence MFE: -40.48
+ Consensus MFE: -39.70
+ Energy contribution: -39.45
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -3.90
+ Structure conservation index:   0.98
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.32
+ SVM RNA-class probability: 0.998323
+ Prediction: RNA
+
+######################################################################
+
+>human
+GUGAUAAUGUAGCGAGAUUUUCUGUUGUGCUUGAUCUAACCAUGUGGUUGCGAGGUAUGAGUAAAACAUGGUUCCGUCAAGCACCAUGGAACGUCACGCAGCUUUCUACA
+(((..((.((.(((.(((.((((((.(((((((((..((((((((..((((.........)))).))))))))..))))))))).)))))).))).))).))))..))). ( -42.90, z-score =  -4.48, R)
+>chicken
+-UGAUAAUGUAGCGAGAUUUUCUGUUGUGCUUGAUCUAACCAUGUGGUUGUGAGGUAUGAGUAAAACAUGGUUCUGUCAAGCACCAUGGAACGUCACGCAGCUUUCUACA
+-.((....((.(((.(((.((((((.(((((((((..((((((((....................))))))))..))))))))).)))))).))).))).))..)).... ( -38.05, z-score =  -3.32, R)
+>consensus
+_UGAUAAUGUAGCGAGAUUUUCUGUUGUGCUUGAUCUAACCAUGUGGUUGCGAGGUAUGAGUAAAACAUGGUUCCGUCAAGCACCAUGGAACGUCACGCAGCUUUCUACA
+..((....((.(((.(((.((((((.(((((((((..((((((((..((((.........)))).))))))))..))))))))).)))))).))).))).))..)).... (-39.70 = -39.45 +  -0.25) 
+
+>>hsa-mir-218-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  59.09
+ Shannon entropy: 0.40909
+ G+C content: 0.48561
+ Mean single sequence MFE: -36.15
+ Consensus MFE: -25.60
+ Energy contribution: -26.10
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.00
+ Mean z-score:  -3.56
+ Structure conservation index:   0.71
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.87
+ SVM RNA-class probability: 0.999418
+ Prediction: RNA
+
+######################################################################
+
+>human
+GACCAGUCGCUGCGGGGCUUUCCUUUGUGCUUGAUCUAACCAUGUGGUGGAACGAUGGAAACGGAACAUGGUUCUGUCAAGCACCGCGGAAAGCACCGUGCUCUCCUGCA
+...(((..((.((((.(((((((...(((((((((..(((((((((......)..((....))..))))))))..)))))))))...))))))).))))))....))).. ( -46.40, z-score =  -3.34, R)
+>chicken
+-------------GGGGUUUUCCUUUGUGCUUGAUCUAACCAUGUGGUAGAACAAUACAAAUUGAACAUGGUUCUGUCAAGCACC-------------------------
+-------------((((....)))).(((((((((..((((((((.(((......))).......))))))))..))))))))).------------------------- ( -25.90, z-score =  -3.79, R)
+>consensus
+_____________GGGGCUUUCCUUUGUGCUUGAUCUAACCAUGUGGUAGAACAAUACAAACGGAACAUGGUUCUGUCAAGCACC_________________________
+.........((((((((....)))..(((((((((..((((((((....................))))))))..))))))))))))))..................... (-25.60 = -26.10 +   0.50) 
+
+>>hsa-mir-22
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 88
+ Reading direction: forward
+ Mean pairwise identity:  70.45
+ Shannon entropy: 0.29545
+ G+C content: 0.49916
+ Mean single sequence MFE: -36.60
+ Consensus MFE: -32.20
+ Energy contribution: -32.45
+ Covariance contribution:   0.25
+ Combinations/Pair:   1.04
+ Mean z-score:  -5.59
+ Structure conservation index:   0.88
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.60
+ SVM RNA-class probability: 0.999022
+ Prediction: RNA
+
+######################################################################
+
+>human
+GGCUGAGCCGCAGUAGUUCUUCAGUGGCAAGCUUUAUGUCCUGACCCAG---CUAAAGCUGCCAGUUGAAGAACUGUUGCCCUCUGCC
+(((.(((..((((((((((((((((((((.((((((.((.........)---)))))))))))).))))))))))))))).))).))) ( -39.80, z-score =  -5.37, R)
+>chicken
+---------GCAGCAGUUCUUCAGUGGCAAGCUUUAUGUCCUUCUCUAGUAGCUAAAGCUGCCAGUUGAAGAACUGUUG---------
+---------.(((((((((((((((((((.((((((.((.((.....))..))))))))))))).))))))))))))))--------- ( -33.40, z-score =  -5.81, R)
+>consensus
+_________GCAGCAGUUCUUCAGUGGCAAGCUUUAUGUCCUGACCCAG___CUAAAGCUGCCAGUUGAAGAACUGUUG_________
+.........((((((((((((((((((((.((((((....((.....))....))))))))))).)))))))))))))))........ (-32.20 = -32.45 +   0.25) 
+
+>>hsa-mir-221
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  80.91
+ Shannon entropy: 0.19091
+ G+C content: 0.46794
+ Mean single sequence MFE: -45.10
+ Consensus MFE: -43.45
+ Energy contribution: -42.95
+ Covariance contribution:  -0.50
+ Combinations/Pair:   1.06
+ Mean z-score:  -5.02
+ Structure conservation index:   0.96
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.58
+ SVM RNA-class probability: 0.998990
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGAACAUCCAGGUCUGGGGCAUGAACCUGGCAUACAAUGUAGAUUUCUGUGUUCGUUAGGCAACAGCUACAUUGUCUGCUGGGUUUCAGGCUACCUGGAAACAUGUUCUC
+.((((((((((((....(((.((((((..(((.(((((((((....(((((((.....))).))))))))))))).)))..)).)))).))))))))))....))))).. ( -47.20, z-score =  -5.12, R)
+>chicken
+------UCCAGGUUUGGGGCAUGAACCUGGCAUACAAUGUAGAUUUCUGUGUUUGUUAAGCAACAGCUACAUUGUCUGCUGGGUUUCCAGCUGCCUGGAAA---------
+------(((((((....((...(((((..(((.(((((((((....(((((((.....))).))))))))))))).)))..)))))))....)))))))..--------- ( -43.00, z-score =  -4.93, R)
+>consensus
+______UCCAGGUCUGGGGCAUGAACCUGGCAUACAAUGUAGAUUUCUGUGUUCGUUAAGCAACAGCUACAUUGUCUGCUGGGUUUCAAGCUACCUGGAAA_________
+......(((((((....(((..(((((..(((.(((((((((....(((((((.....))).))))))))))))).)))..)))))...))))))))))........... (-43.45 = -42.95 +  -0.50) 
+
+>>hsa-mir-222
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 111
+ Reading direction: forward
+ Mean pairwise identity:  73.87
+ Shannon entropy: 0.26126
+ G+C content: 0.47982
+ Mean single sequence MFE: -44.15
+ Consensus MFE: -39.81
+ Energy contribution: -42.56
+ Covariance contribution:   2.75
+ Combinations/Pair:   1.05
+ Mean z-score:  -5.02
+ Structure conservation index:   0.90
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.71
+ SVM RNA-class probability: 0.999211
+ Prediction: RNA
+
+######################################################################
+
+>human
+GCUGCUGGAAGGUGUAGGUACCC-UCAAUGGCUCAGUAGCCAGUGUAGAUCCUGUCUUUCGUAAUCAGCAGCUACAUCUGGCUACUGGGUCUCUGAUGGCAUCUUCUAGCU
+...(((((((((((......((.-(((..(((((((((((((((((((...(((...........)))...))))).))))))))))))))..))).))))))))))))). ( -54.10, z-score =  -5.86, R)
+>chicken
+------------UGUAGUUGCCCAUCAAUCGCUCAGUAGUCAGUGUAGAUUCUGUCUUU-ACAAUCAGCAGCUACAUCUGGCUACUGGGUCUCUGAUGACAUCU-------
+------------..........(((((...((((((((((((((((((...(((.....-.....)))...))))).)))))))))))))...)))))......------- ( -34.20, z-score =  -4.19, R)
+>consensus
+____________UGUAGGUACCC_UCAAUCGCUCAGUAGCCAGUGUAGAUCCUGUCUUU_ACAAUCAGCAGCUACAUCUGGCUACUGGGUCUCUGAUGACAUCU_______
+...((((((((((((.......(((((..(((((((((((((((((((...(((...........)))...))))).))))))))))))))..))))))))))))))))). (-39.81 = -42.56 +   2.75) 
+
+>>hsa-mir-223
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  76.36
+ Shannon entropy: 0.23636
+ G+C content: 0.51555
+ Mean single sequence MFE: -45.55
+ Consensus MFE: -42.50
+ Energy contribution: -42.25
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.06
+ Mean z-score:  -4.50
+ Structure conservation index:   0.93
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.69
+ SVM RNA-class probability: 0.999179
+ Prediction: RNA
+
+######################################################################
+
+>human
+CCUGGCCUCCUGCAGUGCCACGCUCCGUGUAUUUGACAAGCUGAGUUGGACACUCCAUGUGGUAGAGUGUCAGUUUGUCAAAUACCCCAAGUGCGGCACAUGCUUACCAG
+.((((......((((((((.((((..(.((((((((((((((......(((((((.........))))))))))))))))))))).)..)))).))))).)))...)))) ( -47.90, z-score =  -4.85, R)
+>chicken
+---------CUGCAGUGCAGCACUGCGUGUAUUUGACAAGCUGAGUUUGACACUCAGUCUGGCAGAGUGUCAGUUUGUCAAAUACCCCAAGUGAGGCACUUGCU------
+---------..(((((((..((((....((((((((((((((......(((((((.(.....).)))))))))))))))))))))....))))..)))).))).------ ( -43.20, z-score =  -4.16, R)
+>consensus
+_________CUGCAGUGCAACACUCCGUGUAUUUGACAAGCUGAGUUGGACACUCAAUCUGGCAGAGUGUCAGUUUGUCAAAUACCCCAAGUGAGGCACAUGCU______
+...........((((((((.((((....((((((((((((((......(((((((.(.....).)))))))))))))))))))))....)))).))))).)))....... (-42.50 = -42.25 +  -0.25) 
+
+>>hsa-mir-23b
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 97
+ Reading direction: forward
+ Mean pairwise identity:  68.04
+ Shannon entropy: 0.31959
+ G+C content: 0.46272
+ Mean single sequence MFE: -29.52
+ Consensus MFE: -22.54
+ Energy contribution: -22.54
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -3.11
+ Structure conservation index:   0.76
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.04
+ SVM RNA-class probability: 0.997146
+ Prediction: RNA
+
+######################################################################
+
+>human
+CUCAGGUGCUCUGGCUGCUUGGGUUCCUGGCAUGCUGAUUUGUGACUUAAGAUUAAAAUCACAUUGCCAGGGAUUACCACGCAACCACGACCUUGGC
+.(((((.(.(((((.(((.(((((((((((((((.((((((..............)))))))).))))))))))..))).))).))).)))))))). ( -36.04, z-score =  -3.35, R)
+>chicken
+-----------UGGCUGUUUGGGUUCCUGGCAUGAUGAUUUGUGAGUUAAGAUUAAAAUCACAUUGCCAGGGAUUACCAC-----------------
+-----------........(((((((((((((((.((((((...(((....))).)))))))).))))))))))..))).----------------- ( -23.00, z-score =  -2.88, R)
+>consensus
+___________UGGCUGCUUGGGUUCCUGGCAUGAUGAUUUGUGACUUAAGAUUAAAAUCACAUUGCCAGGGAUUACCAC_________________
+...................(((((((((((((((.((((((..............)))))))).))))))))))..))).................. (-22.54 = -22.54 +   0.00) 
+
+>>hsa-mir-24-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 68
+ Reading direction: forward
+ Mean pairwise identity:  97.06
+ Shannon entropy: 0.02941
+ G+C content: 0.49265
+ Mean single sequence MFE: -26.96
+ Consensus MFE: -26.67
+ Energy contribution: -26.67
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -3.85
+ Structure conservation index:   0.99
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.35
+ SVM RNA-class probability: 0.998413
+ Prediction: RNA
+
+######################################################################
+
+>human
+CUCCGGUGCCUACUGAGCUGAUAUCAGUUCUCAUUUUACACACUGGCUCAGUUCAGCAGGAACAGGAG
+((((.((.(((.(((((((((..(((((.............))))).))))))))).))).)).)))) ( -26.32, z-score =  -3.80, R)
+>chicken
+CUCCGGUGCCUACUGAGCUGAUAUCAGUUCUGAUUUUACAUACUGGCUCAGUUCAGCAGGAACAGGAG
+((((.((.(((.(((((((((..(((((..((......)).))))).))))))))).))).)).)))) ( -27.60, z-score =  -3.90, R)
+>consensus
+CUCCGGUGCCUACUGAGCUGAUAUCAGUUCUCAUUUUACACACUGGCUCAGUUCAGCAGGAACAGGAG
+((((.((.(((.(((((((((..(((((.............))))).))))))))).))).)).)))) (-26.67 = -26.67 +   0.00) 
+
+>>hsa-mir-24-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 73
+ Reading direction: forward
+ Mean pairwise identity:  79.45
+ Shannon entropy: 0.20548
+ G+C content: 0.59281
+ Mean single sequence MFE: -26.70
+ Consensus MFE: -24.60
+ Energy contribution: -25.10
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.08
+ Mean z-score:  -1.16
+ Structure conservation index:   0.92
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   0.50
+ SVM RNA-class probability: 0.718599
+ Prediction: RNA
+
+######################################################################
+
+>human
+CUCUGCCUCCCGUGCCUACUGAGCUGAAACACAGUUGGUUUGUGUACACUGGCUCAGUUCAGCAGGAACAGGG
+(((((..(((..(((..(((((((((..((((((.....))))))....)))))))))...)))))).))))) ( -27.30, z-score =  -1.66, R)
+>chicken
+----GCCCCCGGUGCCUACUGAGCUGACACGCAGUCGUUGGUCGCACACUGGCUCAGUUCAGCAGGAACAGGG
+----...(((.((.(((.(((((((((......((((.((......)).))))))))))))).))).)).))) ( -26.10, z-score =  -0.66, R)
+>consensus
+____GCCCCCCGUGCCUACUGAGCUGAAACACAGUCGGUGGGCGCACACUGGCUCAGUUCAGCAGGAACAGGG
+.......(((.((.(((.(((((((((......(((((((......)))))))))))))))).))).)).))) (-24.60 = -25.10 +   0.50) 
+
+>>hsa-mir-27b
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 97
+ Reading direction: forward
+ Mean pairwise identity:  92.78
+ Shannon entropy: 0.07216
+ G+C content: 0.47938
+ Mean single sequence MFE: -50.35
+ Consensus MFE: -49.26
+ Energy contribution: -49.26
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -6.89
+ Structure conservation index:   0.98
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.53
+ SVM RNA-class probability: 0.992375
+ Prediction: RNA
+
+######################################################################
+
+>human
+ACCUCUCUAACAAGGUGCAGAGCUUAGCUGAUUGGUGAACAGUGAUUGGUUUCCGCUUUGUUCACAGUGGCUAAGUUCUGCACCUGAAGAGAAGGUG
+((((((((....((((((((((((((((((....((((((((....(((...)))..))))))))..))))))))))))))))))..)))).)))). ( -50.40, z-score =  -7.01, R)
+>chicken
+ACCUCUCUGGUGAGGUGCAGAGCUUAGCUGAUUGGUGAACAGUGAUUGUUUCCCUCUUUGUUCACAGUGGCUAAGUUCUGCACCUGAAGAGAAGGUG
+((((((((....((((((((((((((((((....((((((((.((.........)).))))))))..))))))))))))))))))..)))).)))). ( -50.30, z-score =  -6.76, R)
+>consensus
+ACCUCUCUAACAAGGUGCAGAGCUUAGCUGAUUGGUGAACAGUGAUUGGUUCCCGCUUUGUUCACAGUGGCUAAGUUCUGCACCUGAAGAGAAGGUG
+((((((((....((((((((((((((((((....((((((((...............))))))))..))))))))))))))))))..)))).)))). (-49.26 = -49.26 +   0.00) 
+
+>>hsa-mir-29a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 64
+ Reading direction: forward
+ Mean pairwise identity:  95.31
+ Shannon entropy: 0.04688
+ G+C content: 0.32031
+ Mean single sequence MFE: -24.90
+ Consensus MFE: -24.90
+ Energy contribution: -24.90
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -6.54
+ Structure conservation index:   1.00
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.72
+ SVM RNA-class probability: 0.994687
+ Prediction: RNA
+
+######################################################################
+
+>human
+AUGACUGAUUUCUUUUGGUGUUCAGAGUCAAUAUAAUUUUCUAGCACCAUCUGAAAUCGGUUAU
+((((((((((((...(((((((.((((...........)))))))))))...)))))))))))) ( -24.90, z-score =  -6.42, R)
+>chicken
+AUGACUGAUUUCUUUUGGUGUUCAGAGUCAAUAAUAUUUUCUAGCACCAUUUGAAAUCGGUUAU
+((((((((((((...(((((((.((((...........)))))))))))...)))))))))))) ( -24.90, z-score =  -6.66, R)
+>consensus
+AUGACUGAUUUCUUUUGGUGUUCAGAGUCAAUAAAAUUUUCUAGCACCAUCUGAAAUCGGUUAU
+((((((((((((...(((((((.((((...........)))))))))))...)))))))))))) (-24.90 = -24.90 +   0.00) 
+
+>>hsa-mir-29b-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 81
+ Reading direction: forward
+ Mean pairwise identity:  90.12
+ Shannon entropy: 0.09877
+ G+C content: 0.38174
+ Mean single sequence MFE: -32.02
+ Consensus MFE: -31.57
+ Energy contribution: -31.82
+ Covariance contribution:   0.25
+ Combinations/Pair:   1.00
+ Mean z-score:  -6.35
+ Structure conservation index:   0.99
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.89
+ SVM RNA-class probability: 0.996128
+ Prediction: RNA
+
+######################################################################
+
+>human
+CUUCAGGAAGCUGGUUUCAUAUGGUGGUUUAGAUUUAAAUAGUGAUUGUCUAGCACCAUUUGAAAUCAGUGUUCUUGGGGG
+(((((((((((((((((((.((((((..((((((.............)))))))))))).)))))))))).))))))))). ( -34.02, z-score =  -6.59, R)
+>chicken
+--UCAGGAAGCUGGUUUCAUAUGGUGGUUUAGAUUUAACUAUUCAUUGUCUAGCACCAUUUGAAAUCAGUGUUCUUGG---
+--.((((((((((((((((.((((((..((((((.............)))))))))))).)))))))))).)))))).--- ( -30.02, z-score =  -6.11, R)
+>consensus
+__UCAGGAAGCUGGUUUCAUAUGGUGGUUUAGAUUUAAAUAGUCAUUGUCUAGCACCAUUUGAAAUCAGUGUUCUUGG___
+(((((((((((((((((((.((((((..((((((.............)))))))))))).)))))))))).))))))))). (-31.57 = -31.82 +   0.25) 
+
+>>hsa-mir-29b-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 81
+ Reading direction: forward
+ Mean pairwise identity:  93.83
+ Shannon entropy: 0.06173
+ G+C content: 0.40907
+ Mean single sequence MFE: -31.08
+ Consensus MFE: -29.89
+ Energy contribution: -30.64
+ Covariance contribution:   0.75
+ Combinations/Pair:   1.03
+ Mean z-score:  -5.01
+ Structure conservation index:   0.96
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.50
+ SVM RNA-class probability: 0.998807
+ Prediction: RNA
+
+######################################################################
+
+>human
+CUUCUGGAAGCUGGUUUCACAUGGUGGCUUAGAUUUUUCCAUCUUUGUAUCUAGCACCAUUUGAAAUCAGUGUUUUAGGAG
+(((((((((((((((((((.((((((.((.((((..............)))))))))))).)))))))))).))))))))) ( -31.24, z-score =  -5.32, R)
+>chicken
+--UCUGGAAGCUGGUUUCACAUGGUGGCUUAGAUUUUCCCA-CUUUGUAUCUAGCACCAUUUGAAAUCAGUGUUCUAGGAG
+--(((((((((((((((((.((((((.((.((((.......-......)))))))))))).)))))))))).))))))).. ( -30.92, z-score =  -4.70, R)
+>consensus
+__UCUGGAAGCUGGUUUCACAUGGUGGCUUAGAUUUUCCCA_CUUUGUAUCUAGCACCAUUUGAAAUCAGUGUUCUAGGAG
+(((((((((((((((((((.((((((.((.((((..............)))))))))))).)))))))))).))))))))) (-29.89 = -30.64 +   0.75) 
+
+>>hsa-mir-29c
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 90
+ Reading direction: forward
+ Mean pairwise identity:  94.44
+ Shannon entropy: 0.05556
+ G+C content: 0.44631
+ Mean single sequence MFE: -36.75
+ Consensus MFE: -36.85
+ Energy contribution: -36.60
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -4.75
+ Structure conservation index:   1.00
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.54
+ SVM RNA-class probability: 0.998905
+ Prediction: RNA
+
+######################################################################
+
+>human
+AUCUCUUACACAGGCUGACCGAUUUCUCCUGGUGUUCAGAGUCU--GUUUUUGUCUAGCACCAUUUGAAAUCGGUUAUGAUGUAGGGGGA
+.(((((((((((...(((((((((((...((((((((((((...--..)))))...)))))))...))))))))))))).))))))))). ( -35.40, z-score =  -4.45, R)
+>chicken
+-UCUCUUACACAGGCUGACCGAUUUCUCUUGGUGUUCAGAGUCUCAGUUUCUGUCUAGCACCAUUUGAAAUCGGUUAUGAUGUAGGGGGA
+-(((((((((((...(((((((((((...((((((((((((.......)))))...)))))))...))))))))))))).))))))))). ( -38.10, z-score =  -5.05, R)
+>consensus
+_UCUCUUACACAGGCUGACCGAUUUCUCCUGGUGUUCAGAGUCU__GUUUCUGUCUAGCACCAUUUGAAAUCGGUUAUGAUGUAGGGGGA
+.(((((((((((...(((((((((((...((((((((((((.......)))))...)))))))...))))))))))))).))))))))). (-36.85 = -36.60 +  -0.25) 
+
+>>hsa-mir-301a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 86
+ Reading direction: forward
+ Mean pairwise identity:  96.51
+ Shannon entropy: 0.03488
+ G+C content: 0.41182
+ Mean single sequence MFE: -31.85
+ Consensus MFE: -31.80
+ Energy contribution: -31.80
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -4.32
+ Structure conservation index:   1.00
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.51
+ SVM RNA-class probability: 0.998829
+ Prediction: RNA
+
+######################################################################
+
+>human
+ACUGCUAACGAAUGCUCUGACUUUAUUGCACUACUGUACUUUACAGCUAGCAGUGCAAUAGUAUUGUCAAAGCAUCUGAAAGCAGG
+.(((((..((.(((((.((((.((((((((((.(((((...))))).....))))))))))....)))).))))).))..))))). ( -32.80, z-score =  -4.56, R)
+>chicken
+-CUGCUAACGAAUGCUCUGACUUUAUUGCACUACUGUACUUCACAGCUAGCAGUGCAAUAGUAUUGUCAAAGCAUCUGAAAGCAG-
+-(((((..((.(((((.((((.((((((((((.((((........)).)).))))))))))....)))).))))).))..)))))- ( -30.90, z-score =  -4.08, R)
+>consensus
+_CUGCUAACGAAUGCUCUGACUUUAUUGCACUACUGUACUUCACAGCUAGCAGUGCAAUAGUAUUGUCAAAGCAUCUGAAAGCAG_
+.(((((..((.(((((.((((.((((((((((.((((........)).)).))))))))))....)))).))))).))..))))). (-31.80 = -31.80 +   0.00) 
+
+>>hsa-mir-302b
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 75
+ Reading direction: forward
+ Mean pairwise identity:  82.67
+ Shannon entropy: 0.17333
+ G+C content: 0.36825
+ Mean single sequence MFE: -27.21
+ Consensus MFE: -25.77
+ Energy contribution: -27.27
+ Covariance contribution:   1.50
+ Combinations/Pair:   1.09
+ Mean z-score:  -5.89
+ Structure conservation index:   0.95
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.27
+ SVM RNA-class probability: 0.998142
+ Prediction: RNA
+
+######################################################################
+
+>human
+GCUCCCUUCAACUUUAACAUGGAAGUGCUUUCUGUGACUUUA--AAAGUAAGUGCUUCCAUGUUUUAGUAGGAGU
+(((((.....(((..((((((((((..(((.((.........--..)).)))..))))))))))..))).))))) ( -29.10, z-score =  -5.84, R)
+>chicken
+---CCCUUUUACUUUAACAUGGAGGUGCUUUCUGUGAUUUUACAAAAGUAAGUGCUUCCAUGUUUUAGUAG----
+---......((((..((((((((((..(((.((.............)).)))..))))))))))..)))).---- ( -25.32, z-score =  -5.94, R)
+>consensus
+___CCCUUCAACUUUAACAUGGAAGUGCUUUCUGUGACUUUA__AAAGUAAGUGCUUCCAUGUUUUAGUAG____
+.....((((((((..((((((((((..(((.((.............)).)))..))))))))))..)))))))). (-25.77 = -27.27 +   1.50) 
+
+>>hsa-mir-302c
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 68
+ Reading direction: forward
+ Mean pairwise identity:  79.41
+ Shannon entropy: 0.20588
+ G+C content: 0.45601
+ Mean single sequence MFE: -28.45
+ Consensus MFE: -25.98
+ Energy contribution: -27.10
+ Covariance contribution:   1.12
+ Combinations/Pair:   1.04
+ Mean z-score:  -5.26
+ Structure conservation index:   0.91
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.63
+ SVM RNA-class probability: 0.999080
+ Prediction: RNA
+
+######################################################################
+
+>human
+CCUUUGCUUUAACAUGGGGGUACCUGCUGUGUGAAACAAAAGUAAGUGCUUCCAUGUUUCAGUGGAGG
+((((..((..(((((((((((((.((((.((.....))..)))).)))))))))))))..))..)))) ( -32.00, z-score =  -5.73, R)
+>chicken
+-----GCUUUAACAUGGAGGUACCUGCUGCCU---ACAAAAGUAAGUGCUUCCAUGUUUCAGUGG---
+-----(((..(((((((((((((.((((....---.....)))).)))))))))))))..)))..--- ( -24.90, z-score =  -4.80, R)
+>consensus
+_____GCUUUAACAUGGAGGUACCUGCUGCCU___ACAAAAGUAAGUGCUUCCAUGUUUCAGUGG___
+((((((((..(((((((((((((.((((............)))).)))))))))))))..)))))))) (-25.98 = -27.10 +   1.12) 
+
+>>hsa-mir-3074
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 81
+ Reading direction: forward
+ Mean pairwise identity:  96.30
+ Shannon entropy: 0.03704
+ G+C content: 0.53086
+ Mean single sequence MFE: -36.46
+ Consensus MFE: -35.47
+ Energy contribution: -35.47
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -4.37
+ Structure conservation index:   0.97
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.45
+ SVM RNA-class probability: 0.998680
+ Prediction: RNA
+
+######################################################################
+
+>human
+GCUCGACUCCUGUUCCUGCUGAACUGAGCCAGUGUGUAAAAUGAGAACUGAUAUCAGCUCAGUAGGCACCGGAGGGCGGGU
+(((((.((((.((.((((((((.((((..((((.............))))...)))).)))))))).)).))))..))))) ( -36.22, z-score =  -3.91, R)
+>chicken
+GCUCGACUCCUGUUCCUGCUGAACUGAGCCAGUAUGUAAAAUCAGAACUGAUAUCAGCUCAGUAGGCACCGGAGGACGGGU
+(((((.((((.((.((((((((.((((..((((.((......))..))))...)))).)))))))).)).))))..))))) ( -36.70, z-score =  -4.83, R)
+>consensus
+GCUCGACUCCUGUUCCUGCUGAACUGAGCCAGUAUGUAAAAUCAGAACUGAUAUCAGCUCAGUAGGCACCGGAGGACGGGU
+(((((.((((.((.((((((((.((((..((((.............))))...)))).)))))))).)).))))..))))) (-35.47 = -35.47 +   0.00) 
+
+>>hsa-mir-30a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 72
+ Reading direction: forward
+ Mean pairwise identity:  95.83
+ Shannon entropy: 0.04167
+ G+C content: 0.53844
+ Mean single sequence MFE: -36.65
+ Consensus MFE: -34.20
+ Energy contribution: -34.45
+ Covariance contribution:   0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -5.43
+ Structure conservation index:   0.93
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.39
+ SVM RNA-class probability: 0.998529
+ Prediction: RNA
+
+######################################################################
+
+>human
+GCGACUGUAAACAUCCUCGACUGGAAGCUGUGAAGCCACAGAUGGG-CUUUCAGUCGGAUGUUUGCAGCUGC
+(((.((((((((((((..((((((((((((((....))).....))-))))))))))))))))))))).))) ( -37.30, z-score =  -5.91, R)
+>chicken
+GCGACUGUAAACAUCCUCGACUGGAAGCUGUGAAGCAGCAGAUGGGGCUUUCAGUCGGAUGUUUGCAGCUGC
+(((.((((((((((((..(((((((((((.(............).))))))))))))))))))))))).))) ( -36.00, z-score =  -4.95, R)
+>consensus
+GCGACUGUAAACAUCCUCGACUGGAAGCUGUGAAGCAACAGAUGGG_CUUUCAGUCGGAUGUUUGCAGCUGC
+(((.((((((((((((..((((((((((((((....)))))......))))))))))))))))))))).))) (-34.20 = -34.45 +   0.25) 
+
+>>hsa-mir-30c-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 89
+ Reading direction: forward
+ Mean pairwise identity:  92.13
+ Shannon entropy: 0.07865
+ G+C content: 0.51124
+ Mean single sequence MFE: -37.00
+ Consensus MFE: -36.45
+ Energy contribution: -36.45
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.06
+ Mean z-score:  -3.30
+ Structure conservation index:   0.99
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.21
+ SVM RNA-class probability: 0.997905
+ Prediction: RNA
+
+######################################################################
+
+>human
+ACCAUGCUGUAGUGUGUGUAAACAUCCUACACUCUCAGCUGUGAGCUCAAGGUGGCUGGGAGAGGGUUGUUUACUCCUUCUGCCAUGGA
+.(((((..((((...(.(((((((.(((...(((((((((.((....))....))))))))).))).))))))).)...))))))))). ( -35.40, z-score =  -2.48, R)
+>chicken
+ACCAUGCUGUAGCACGUGUAAACAUCCUACACUCUCAGCUGUGAACUCGAGGUGGCUGGGAGAGGAUUGUUUACGCCUUCUGCCAUGGA
+.(((((..((((...(((((((((((((...((((((((..(.........)..)))))))))))).)))))))))...))))))))). ( -38.60, z-score =  -4.12, R)
+>consensus
+ACCAUGCUGUAGCACGUGUAAACAUCCUACACUCUCAGCUGUGAACUCAAGGUGGCUGGGAGAGGAUUGUUUACGCCUUCUGCCAUGGA
+.(((((..((((...(((((((((((((...(((((((((.((....))....))))))))))))).)))))))))...))))))))). (-36.45 = -36.45 +   0.00) 
+
+>>hsa-mir-30c-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 72
+ Reading direction: forward
+ Mean pairwise identity:  91.67
+ Shannon entropy: 0.08333
+ G+C content: 0.42892
+ Mean single sequence MFE: -25.67
+ Consensus MFE: -24.04
+ Energy contribution: -24.04
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -3.63
+ Structure conservation index:   0.94
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.19
+ SVM RNA-class probability: 0.997837
+ Prediction: RNA
+
+######################################################################
+
+>human
+AGAUACUGUAAACAUCCUACACUCUCAGCUGUGGAAAGUAAGAAAGCUGGGAGAAGGCUGUUUACUCUUUCU
+(((....(((((((.(((...(((((((((..............))))))))).))).)))))))....))) ( -25.24, z-score =  -3.32, R)
+>chicken
+AGGUACUGUAAACAUCCUACACUCUCAGCUGUGGAAACUAAGAAAGCUGGGAGAAGGCUGUUUACUCU----
+.......(((((((.(((...(((((((((..(....)......))))))))).))).)))))))...---- ( -26.10, z-score =  -3.94, R)
+>consensus
+AGAUACUGUAAACAUCCUACACUCUCAGCUGUGGAAACUAAGAAAGCUGGGAGAAGGCUGUUUACUCU____
+.......(((((((.(((...(((((((((..............))))))))).))).)))))))....... (-24.04 = -24.04 +   0.00) 
+
+>>hsa-mir-3120
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 81
+ Reading direction: forward
+ Mean pairwise identity:  98.77
+ Shannon entropy: 0.01235
+ G+C content: 0.53704
+ Mean single sequence MFE: -49.60
+ Consensus MFE: -49.60
+ Energy contribution: -49.60
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -6.84
+ Structure conservation index:   1.00
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.48
+ SVM RNA-class probability: 0.991608
+ Prediction: RNA
+
+######################################################################
+
+>human
+GUCAUGUGACUGCCUGUCUGUGCCUGCUGUACAGGUGAGCGGAUGUUCUGCACAGCAAGUGUAGACAGGCAGACACAUGAC
+((((((((.(((((((((((..(.((((((.((((...........)))).)))))).)..))))))))))).)))))))) ( -49.60, z-score =  -6.70, R)
+>chicken
+GUCAUGUGACUGCCUGUCUGUGCCUGCUGUACAGGUGAGAGGAUGUUCUGCACAGCAAGUGUAGACAGGCAGACACAUGAC
+((((((((.(((((((((((..(.((((((.((((...........)))).)))))).)..))))))))))).)))))))) ( -49.60, z-score =  -6.98, R)
+>consensus
+GUCAUGUGACUGCCUGUCUGUGCCUGCUGUACAGGUGAGAGGAUGUUCUGCACAGCAAGUGUAGACAGGCAGACACAUGAC
+((((((((.(((((((((((..(.((((((.((((...........)))).)))))).)..))))))))))).)))))))) (-49.60 = -49.60 +   0.00) 
+
+>>hsa-mir-3187
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 70
+ Reading direction: forward
+ Mean pairwise identity:  82.86
+ Shannon entropy: 0.17143
+ G+C content: 0.67500
+ Mean single sequence MFE: -36.10
+ Consensus MFE: -26.10
+ Energy contribution: -27.10
+ Covariance contribution:   1.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -2.62
+ Structure conservation index:   0.72
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   1.19
+ SVM RNA-class probability: 0.907767
+ Prediction: RNA
+
+######################################################################
+
+>human
+GCUGGCCCUGGGCAGCGUGUGGCUGAAGGUCACCAUGUUCUCCUUGGCCAUGGGGCUGCGCGGGGCCAGC
+((((((((((.(((((...((((.....))))(((((..(.....)..))))).))))).)))))))))) ( -45.00, z-score =  -3.91, R)
+>chicken
+----------GGCAGCGUGUUGCUGAAGGUCACCAUGUUCUCCUUGGCCAUGGGGCUGCGCGGUGCCAGC
+----------((((.(((((.((((.....).(((((..(.....)..)))))))).))))).))))... ( -27.20, z-score =  -1.33, R)
+>consensus
+__________GGCAGCGUGUGGCUGAAGGUCACCAUGUUCUCCUUGGCCAUGGGGCUGCGCGGGGCCAGC
+..........((((.((((((((((.....).(((((..(.....)..)))))))))))))).))))... (-26.10 = -27.10 +   1.00) 
+
+>>hsa-mir-32
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 70
+ Reading direction: forward
+ Mean pairwise identity:  95.71
+ Shannon entropy: 0.04286
+ G+C content: 0.40714
+ Mean single sequence MFE: -31.05
+ Consensus MFE: -31.40
+ Energy contribution: -31.40
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.07
+ Mean z-score:  -5.97
+ Structure conservation index:   1.01
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.07
+ SVM RNA-class probability: 0.997270
+ Prediction: RNA
+
+######################################################################
+
+>human
+GGAGAUAUUGCACAUUACUAAGUUGCAUGUUGUCACGGCCUCAAUGCAAUUUAGUGUGUGUGAUAUUUUC
+((((((((..(((((.(((((((((((((..((....))..).)))))))))))))))))..)))))))) ( -31.90, z-score =  -6.62, R)
+>chicken
+GGAGAUAUUGCACAUUACUAAGUUGCAUGUUGUCACGGCCUCAGUGCAAUUUAGUGUGUGCGAUACUUUC
+((((.((((((((((.(((((((((((((..((....))..)).))))))))))))))))))))))))). ( -30.20, z-score =  -5.33, R)
+>consensus
+GGAGAUAUUGCACAUUACUAAGUUGCAUGUUGUCACGGCCUCAAUGCAAUUUAGUGUGUGCGAUACUUUC
+(((((((((((((((.(((((((((((((..((....))..).))))))))))))))))))))))))))) (-31.40 = -31.40 +   0.00) 
+
+>>hsa-mir-34a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 111
+ Reading direction: forward
+ Mean pairwise identity:  94.59
+ Shannon entropy: 0.05405
+ G+C content: 0.48849
+ Mean single sequence MFE: -50.65
+ Consensus MFE: -47.20
+ Energy contribution: -47.95
+ Covariance contribution:   0.75
+ Combinations/Pair:   1.02
+ Mean z-score:  -5.28
+ Structure conservation index:   0.93
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.44
+ SVM RNA-class probability: 0.998676
+ Prediction: RNA
+
+######################################################################
+
+>human
+GGCCAGCUGUGAGUGUUUCUUUGGCAGUGUCUUAGCUGGUUGUUGUGAGCAAUAGU-AAGGAAGCAAUCAGCAAGUAUACUGCCCUAGAAGUGCUGCACGUUGUGGGGCCC
+((((.((((((((..(((((..(((((((((((.((((((((((....((....))-.....))))))))))))).))))))))..)))))..)).))))..))..)))). ( -50.70, z-score =  -4.84, R)
+>chicken
+-GCCAGCUGUGAGUGUUUCUUUGGCAGUGUCUUAGCUGGUUGUUGUGAGCAAUAGUUAAGGAAGCAAUCAGCAAGUAUACUGCCCUAGAAGUGCUACACAUUGUUGGGCC-
+-.(((((((((((..(((((..(((((((((((.((((((((((...(((....))).....))))))))))))).))))))))..)))))..)).))))..)))))...- ( -50.60, z-score =  -5.71, R)
+>consensus
+_GCCAGCUGUGAGUGUUUCUUUGGCAGUGUCUUAGCUGGUUGUUGUGAGCAAUAGU_AAGGAAGCAAUCAGCAAGUAUACUGCCCUAGAAGUGCUACACAUUGUGGGGCC_
+..(((((((((((..(((((..(((((((((((.((((((((((...(((....))).....))))))))))))).))))))))..)))))..)).))))..))))).... (-47.20 = -47.95 +   0.75) 
+
+>>hsa-mir-363
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 75
+ Reading direction: forward
+ Mean pairwise identity:  94.67
+ Shannon entropy: 0.05333
+ G+C content: 0.40667
+ Mean single sequence MFE: -24.95
+ Consensus MFE: -24.75
+ Energy contribution: -24.00
+ Covariance contribution:  -0.75
+ Combinations/Pair:   1.08
+ Mean z-score:  -3.71
+ Structure conservation index:   0.99
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.36
+ SVM RNA-class probability: 0.998440
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGUUGUCGGGUGGAUCACGAUGCAAUUUUGAUGAGUAUCAUAGGAGAAAAAUUGCACGGUAUCCAUCUGUAAACC
+.(((..(((((((((..((.(((((((((.(((.....)))......)))))))))))..)))))))))..))). ( -25.40, z-score =  -3.61, R)
+>chicken
+UGUUGUCGGGUGGAUCACGAUGCAAUUUUGAUUAGUUUAGUAGGAGAAAAAUUGCACGGUAUCCAUCUGUAAACC
+.(((..(((((((((..((.(((((((((..((..........))..)))))))))))..)))))))))..))). ( -24.50, z-score =  -3.80, R)
+>consensus
+UGUUGUCGGGUGGAUCACGAUGCAAUUUUGAUGAGUAUAAUAGGAGAAAAAUUGCACGGUAUCCAUCUGUAAACC
+.(((..(((((((((..((.(((((((((.(((.....)))......)))))))))))..)))))))))..))). (-24.75 = -24.00 +  -0.75) 
+
+>>hsa-mir-365a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 87
+ Reading direction: forward
+ Mean pairwise identity:  98.85
+ Shannon entropy: 0.01149
+ G+C content: 0.44253
+ Mean single sequence MFE: -36.65
+ Consensus MFE: -35.90
+ Energy contribution: -36.40
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.00
+ Mean z-score:  -4.91
+ Structure conservation index:   0.98
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.41
+ SVM RNA-class probability: 0.998600
+ Prediction: RNA
+
+######################################################################
+
+>human
+ACCGCAGGGAAAAUGAGGGACUUUUGGGGGCAGAUGUGUUUCCAUUCCACUAUCAUAAUGCCCCUAAAAAUCCUUAUUGCUCUUGCA
+...((((((..((((((((..(((((((((((((((((.........))).)))....))))))))))).))))))))..)))))). ( -35.40, z-score =  -4.32, R)
+>chicken
+ACCGCAGGGAAAAUGAGGGACUUUUGGGGGCAGAUGUGUUUCCAUUACACUAUCAUAAUGCCCCUAAAAAUCCUUAUUGCUCUUGCA
+...((((((..((((((((..((((((((((((((((((.......)))).)))....))))))))))).))))))))..)))))). ( -37.90, z-score =  -5.50, R)
+>consensus
+ACCGCAGGGAAAAUGAGGGACUUUUGGGGGCAGAUGUGUUUCCAUUACACUAUCAUAAUGCCCCUAAAAAUCCUUAUUGCUCUUGCA
+...((((((..((((((((..((((((((((((((((((.......)))).)))....))))))))))).))))))))..)))))). (-35.90 = -36.40 +   0.50) 
+
+>>hsa-mir-365b
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 112
+ Reading direction: forward
+ Mean pairwise identity:  74.11
+ Shannon entropy: 0.25893
+ G+C content: 0.43453
+ Mean single sequence MFE: -38.75
+ Consensus MFE: -37.75
+ Energy contribution: -37.50
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -4.71
+ Structure conservation index:   0.97
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.58
+ SVM RNA-class probability: 0.998989
+ Prediction: RNA
+
+######################################################################
+
+>human
+AGAGUGUUCAAGGACAGCAAGAAAAAUGAGGGACUUUCAGGGGCAGCUGUGUUUU-CUGACUCAGUCAUAAUGCCCCUAAAAAUCCUUAUUGUUCUUGCAGUGUGCAUCGGG
+.((.((((....))))(((((((.((((((((..(((.(((((((((((.(((..-..))).)))).....))))))))))..)))))))).)))))))........))... ( -40.60, z-score =  -3.37, R)
+>chicken
+--------------CAGCAAGAAAAAUGAGGGACUUUCAGGGGCAGCUGUGUUUUACUAACCCAGUCAUAAUGCCCCUAAAAAUCCUUAUUGUUCUUGCA------------
+--------------..(((((((.((((((((..(((.(((((((((((.(((.....))).)))).....))))))))))..)))))))).))))))).------------ ( -36.90, z-score =  -6.04, R)
+>consensus
+______________CAGCAAGAAAAAUGAGGGACUUUCAGGGGCAGCUGUGUUUU_CUAACCCAGUCAUAAUGCCCCUAAAAAUCCUUAUUGUUCUUGCA____________
+................(((((((.((((((((..(((.(((((((((((.(((.....))).)))).....))))))))))..)))))))).)))))))............. (-37.75 = -37.50 +  -0.25) 
+
+>>hsa-mir-3661
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 96
+ Reading direction: forward
+ Mean pairwise identity:  83.33
+ Shannon entropy: 0.16667
+ G+C content: 0.61389
+ Mean single sequence MFE: -36.15
+ Consensus MFE: -31.20
+ Energy contribution: -32.45
+ Covariance contribution:   1.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -1.87
+ Structure conservation index:   0.86
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   0.97
+ SVM RNA-class probability: 0.865488
+ Prediction: RNA
+
+######################################################################
+
+>human
+CACCUUCUCGCAGAGGCUCUUGACCUGGGACUCGGACAGCUGCUUGCACUCGUUCAGCUGCUCGAUCCACUGGUCCAGCUCCUUGGUGAACACCUU
+.......((((.((((..((.((((..(((.(((..((((((...((....)).))))))..))))))...)))).))..)))).))))....... ( -36.40, z-score =  -2.39, R)
+>chicken
+CACCUUCUCGCAGAGGCUGCGGACCUGGCUCUCGCUCAGCUGCCGGCACUCGUUCAGCUGCUCGAUCCACUGGUCCAGCUCCUUGGCGAA------
+.......((((.((((..((((((((((...(((..((((((.((.....))..))))))..))).)))..))))).)).)))).)))).------ ( -35.90, z-score =  -1.35, R)
+>consensus
+CACCUUCUCGCAGAGGCUCCGGACCUGGCACUCGCACAGCUGCCGGCACUCGUUCAGCUGCUCGAUCCACUGGUCCAGCUCCUUGGCGAA______
+.......((((.((((..((((((((((...(((..((((((...((....)).))))))..))).)))..)))))))..)))).))))....... (-31.20 = -32.45 +   1.25) 
+
+>>hsa-mir-3666
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 111
+ Reading direction: forward
+ Mean pairwise identity:  94.59
+ Shannon entropy: 0.05405
+ G+C content: 0.48870
+ Mean single sequence MFE: -37.10
+ Consensus MFE: -34.60
+ Energy contribution: -34.60
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -2.10
+ Structure conservation index:   0.93
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   1.41
+ SVM RNA-class probability: 0.937026
+ Prediction: RNA
+
+######################################################################
+
+>human
+AGUAAGGUCCGUCAGUUGUAAUGAGACCCAGUGCAAGUGUAGAUGCCGACUCCGUGGCAGAGUUCAGCGUUUCACACUGCCUGGUCUCUGUCACUCUAUUGAAUUAGAUUG
+.....((((..(((((.((.((((((((.((.(((.((((((((((.(((((.......)))))..)))))).))))))))))))))).)).))...)))))....)))). ( -34.50, z-score =  -1.81, R)
+>chicken
+AGUAGGGUCCAUCAGUUGUAAUGAGACUCAGCGCA-GUGUAGAUGCCGACUCGGUGGCAGAGUUCAGCGUUUCACACUGCCUGGUCUCUGUCACUCUAUUGAAUUAGAUUG
+((((((((.((.....))....(((((.(((.(((-((((((((((.(((((.......)))))..)))))).)))))))))))))))....))))))))........... ( -39.70, z-score =  -2.39, R)
+>consensus
+AGUAAGGUCCAUCAGUUGUAAUGAGACCCAGCGCA_GUGUAGAUGCCGACUCCGUGGCAGAGUUCAGCGUUUCACACUGCCUGGUCUCUGUCACUCUAUUGAAUUAGAUUG
+.....((((..(((((.((.(((((((.(((.(((.((((((((((.(((((.......)))))..)))))).))))))))))))))).)).))...)))))....)))). (-34.60 = -34.60 +   0.00) 
+
+>>hsa-mir-367
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 68
+ Reading direction: forward
+ Mean pairwise identity:  89.71
+ Shannon entropy: 0.10294
+ G+C content: 0.35616
+ Mean single sequence MFE: -24.75
+ Consensus MFE: -22.35
+ Energy contribution: -24.35
+ Covariance contribution:   2.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -5.97
+ Structure conservation index:   0.90
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.36
+ SVM RNA-class probability: 0.998452
+ Prediction: RNA
+
+######################################################################
+
+>human
+CCAUUACUGUUGCUAAUAUGCAACUCUGUUGAAUAUAAAUUGGAAUUGCACUUUAGCAAUGGUGAUGG
+((((((((((((((((..(((((.((((............)))).)))))..)))))))))))))))) ( -28.90, z-score =  -7.56, R)
+>chicken
+----UACUGUUGCUAACAUGCAACUCUGUUGUAUAAAAAUUGGAAUUGCACUUUAGCAAUGGUGAUGG
+----((((((((((((..(((((.((((............)))).)))))..)))))))))))).... ( -20.60, z-score =  -4.37, R)
+>consensus
+____UACUGUUGCUAACAUGCAACUCUGUUGAAUAAAAAUUGGAAUUGCACUUUAGCAAUGGUGAUGG
+((((((((((((((((..(((((.((((............)))).)))))..)))))))))))))))) (-22.35 = -24.35 +   2.00) 
+
+>>hsa-mir-383
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 73
+ Reading direction: forward
+ Mean pairwise identity:  94.52
+ Shannon entropy: 0.05479
+ G+C content: 0.49315
+ Mean single sequence MFE: -27.45
+ Consensus MFE: -25.70
+ Energy contribution: -25.45
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.04
+ Mean z-score:  -2.71
+ Structure conservation index:   0.94
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.28
+ SVM RNA-class probability: 0.987750
+ Prediction: RNA
+
+######################################################################
+
+>human
+CUCCUCAGAUCAGAAGGUGAUUGUGGCUUUGGGUGGAUAUUAAUCAGCCACAGCACUGCCUGGUCAGAAAGAG
+(((.((.((((((..((((.((((((((...(((........)))))))))))))))..)))))).))..))) ( -27.30, z-score =  -2.60, R)
+>chicken
+CUCCUCAGAUCAGAAGGUGAUUGUGGCUUUGGGUAAAUAUUGAGCAGCCACAGCACUGCCUGGUCAGAAAGAG
+(((.((.((((((..((((.((((((((((.(((....))).)).))))))))))))..)))))).))..))) ( -27.60, z-score =  -2.82, R)
+>consensus
+CUCCUCAGAUCAGAAGGUGAUUGUGGCUUUGGGUAAAUAUUAAGCAGCCACAGCACUGCCUGGUCAGAAAGAG
+(((.((.((((((..((((.((((((((((((.......))))..))))))))))))..)))))).))..))) (-25.70 = -25.45 +  -0.25) 
+
+>>hsa-mir-451a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 72
+ Reading direction: forward
+ Mean pairwise identity:  65.28
+ Shannon entropy: 0.34722
+ G+C content: 0.42262
+ Mean single sequence MFE: -34.70
+ Consensus MFE: -28.58
+ Energy contribution: -33.20
+ Covariance contribution:   4.62
+ Combinations/Pair:   1.00
+ Mean z-score:  -8.41
+ Structure conservation index:   0.82
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.01
+ SVM RNA-class probability: 0.979475
+ Prediction: RNA
+ WARNING: Mean z-score out of range.
+
+######################################################################
+
+>human
+CUUGGGAAUGGCAAGGAAACCGUUACCAUUACUGAGUUUAGUAAUGGUAAUGGUUCUCUUGCUAUACCCAGA
+.(((((.((((((((..(((((((((((((((((....)))))))))))))))))..)))))))).))))). ( -44.70, z-score = -10.51, R)
+>chicken
+--------UGGCAGGGAAACCGUUACCAUUACUGAGUUUAGUAAUGGUAACGGUUCU---------------
+--------......((((.(((((((((((((((....)))))))))))))))))))--------------- ( -24.70, z-score =  -6.31, S)
+>consensus
+________UGGCAAGGAAACCGUUACCAUUACUGAGUUUAGUAAUGGUAACGGUUCU_______________
+.(((((((((((((((.(((((((((((((((((....))))))))))))))))).))))))))))))))). (-28.58 = -33.20 +   4.62) 
+
+>>hsa-mir-451b
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 68
+ Reading direction: forward
+ Mean pairwise identity:  69.12
+ Shannon entropy: 0.30882
+ G+C content: 0.42017
+ Mean single sequence MFE: -29.40
+ Consensus MFE: -23.58
+ Energy contribution: -28.20
+ Covariance contribution:   4.62
+ Combinations/Pair:   0.96
+ Mean z-score:  -8.34
+ Structure conservation index:   0.80
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.21
+ SVM RNA-class probability: 0.985887
+ Prediction: RNA
+ WARNING: Mean z-score out of range.
+
+######################################################################
+
+>human
+UGGGUAUAGCAAGAGAACCAUUACCAUUACUAAACUCAGUAAUGGUAACGGUUUCCUUGCCAUUCCCA
+.(((.((.(((((..((((.(((((((((((......))))))))))).))))..))))).)).))). ( -34.30, z-score =  -8.56, R)
+>chicken
+-------------AGAACCGUUACCAUUACUAAACUCAGUAAUGGUAACGGUUUCCCUGCCA------
+-------------.(((((((((((((((((......)))))))))))))))))........------ ( -24.50, z-score =  -8.13, S)
+>consensus
+_____________AGAACCAUUACCAUUACUAAACUCAGUAAUGGUAACGGUUUCCCUGCCA______
+.((((((.(((((.(((((((((((((((((......))))))))))))))))).))))).)))))). (-23.58 = -28.20 +   4.62) 
+
+>>hsa-mir-455
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 96
+ Reading direction: forward
+ Mean pairwise identity:  94.79
+ Shannon entropy: 0.05208
+ G+C content: 0.52604
+ Mean single sequence MFE: -41.95
+ Consensus MFE: -41.45
+ Energy contribution: -41.20
+ Covariance contribution:  -0.25
+ Combinations/Pair:   1.03
+ Mean z-score:  -3.68
+ Structure conservation index:   0.99
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.34
+ SVM RNA-class probability: 0.998390
+ Prediction: RNA
+
+######################################################################
+
+>human
+UCCCUGGCGUGAGGGUAUGUGCCUUUGGACUACAUCGUGGAAGCCAGCACCAUGCAGUCCAUGGGCAUAUACACUUGCCUCAAGGCCUAUGUCAUC
+....((((((((((((((((((((.((((((.(((.(((........))).))).)))))).)))))))))).)))(((....))).))))))).. ( -41.70, z-score =  -3.29, R)
+>chicken
+UCCCUGGUGUGAGGGUAUGUGCCCUUGGACUACAUCGUGGAAGCCAGCACCAUGCAGUCCAUGGGCAUAUACACUUGCCUCAAGGUUUAUUUCAUC
+.((.(((.(..((.((((((((((.((((((.(((.(((........))).))).)))))).)))))))))).))..).))).))........... ( -42.20, z-score =  -4.06, R)
+>consensus
+UCCCUGGCGUGAGGGUAUGUGCCCUUGGACUACAUCGUGGAAGCCAGCACCAUGCAGUCCAUGGGCAUAUACACUUGCCUCAAGGCCUAUGUCAUC
+.((.(((.(..((.((((((((((.((((((.(((.(((........))).))).)))))).)))))))))).))..).))).))........... (-41.45 = -41.20 +  -0.25) 
+
+>>hsa-mir-4683
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 81
+ Reading direction: forward
+ Mean pairwise identity:  76.54
+ Shannon entropy: 0.23457
+ G+C content: 0.65945
+ Mean single sequence MFE: -32.95
+ Consensus MFE: -23.30
+ Energy contribution: -25.80
+ Covariance contribution:   2.50
+ Combinations/Pair:   1.00
+ Mean z-score:  -1.63
+ Structure conservation index:   0.71
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:  -0.24
+ SVM RNA-class probability: 0.383665
+ Prediction: OTHER
+
+######################################################################
+
+>human
+GACACGCAAGACGAGGCGGGCCUGGAGGUGCACCAGUUCUGGCCGCUGGUGGAGAUCCAGUGCUCGCCCGAUCUCAAGUUC
+...((...(((((.((((((((((((..(.(((((((.......))))))).)..))))).))))))))).)))...)).. ( -39.50, z-score =  -2.79, R)
+>chicken
+GACACGCAGGACGAGGCCGGGCUGGAGGUGCACCAGUUCUGGCCGCUGGUGGAGAUCCAGUGCUC----------------
+.....((.......(((((((((((.......)))).)))))))(((((.......)))))))..---------------- ( -26.40, z-score =  -0.46, R)
+>consensus
+GACACGCAAGACGAGGCCGGCCUGGAGGUGCACCAGUUCUGGCCGCUGGUGGAGAUCCAGUGCUC________________
+..............((((((((((((..(.(((((((.......))))))).)..))))).)))))))............. (-23.30 = -25.80 +   2.50) 
+
+>>hsa-mir-490
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 130
+ Reading direction: forward
+ Mean pairwise identity:  73.85
+ Shannon entropy: 0.26154
+ G+C content: 0.50534
+ Mean single sequence MFE: -47.50
+ Consensus MFE: -41.40
+ Energy contribution: -42.40
+ Covariance contribution:   1.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -3.44
+ Structure conservation index:   0.87
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.34
+ SVM RNA-class probability: 0.998377
+ Prediction: RNA
+
+######################################################################
+
+>human
+UGGAGGCCUUGCUGGUUUGGAAAGUUCAUUGUUCGACACCAUGGAUCUCCAGGUGGGUCAAGUUUA--GAGAUGCACCAACCUGGAGGACUCCAUGCUGUUGAGCUGUUCACAAGCAGCGGACACUUCCA
+.(((((..((((((.(((((((........((((((((.(((((((((((((((.(((...(((..--..)))..))).)))))))))..)))))).))))))))..))).))))))))))...))))). ( -54.40, z-score =  -3.30, R)
+>chicken
+---------------------AAGUUCAUGGUUCGACACCAUGGAUCUCCAGGUGGGUCAAGAUUAUAGAGAUACACCAACCUGGAGGACUCCAUGCUGUUGAGCUGUUCACAAGCAGCGGA--------
+---------------------...........((((((.(((((((((((((((.(((....(((.....)))..))).)))))))))..)))))).))))))(((((......)))))...-------- ( -40.60, z-score =  -3.58, R)
+>consensus
+_____________________AAGUUCAUGGUUCGACACCAUGGAUCUCCAGGUGGGUCAAGAUUA__GAGAUACACCAACCUGGAGGACUCCAUGCUGUUGAGCUGUUCACAAGCAGCGGA________
+.......................((((.....((((((.(((((((((((((((.(((...((((....))))..))).)))))))))..)))))).))))))(((((......)))))))))....... (-41.40 = -42.40 +   1.00) 
+
+>>hsa-mir-6720
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 98
+ Reading direction: forward
+ Mean pairwise identity:  96.94
+ Shannon entropy: 0.03061
+ G+C content: 0.62245
+ Mean single sequence MFE: -39.87
+ Consensus MFE: -34.92
+ Energy contribution: -35.92
+ Covariance contribution:   1.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -1.01
+ Structure conservation index:   0.88
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:  -1.17
+ SVM RNA-class probability: 0.092533
+ Prediction: OTHER
+
+######################################################################
+
+>human
+UUGAGCGAGAGAUUGUGGCGCACCGAGUUCUUCCAGCCCUGGUAGGCGCCGCGGAAGAAGGGGAAGCGCGCCUGCAGGAACUGGUAGAUCUCGCUGAG
+.(.(((((((.....(((....)))...(((.((((.((((.(((((((.((.............)))))))))))))..)))).)))))))))).). ( -40.52, z-score =  -1.18, R)
+>chicken
+UUGAGCGAGAGGUUGUGGCGCACCGAGUUCUUCCAGCCCUGGUAGGAGCCGCGGAAGAAGGGGAAGCGGGCCUGCAGGAACUGGUAGAUCUCGCUGAG
+.(.((((((((((.(.....))))....(((.((((.((((.((((..((((.............)))).))))))))..)))).)))))))))).). ( -39.22, z-score =  -0.85, R)
+>consensus
+UUGAGCGAGAGAUUGUGGCGCACCGAGUUCUUCCAGCCCUGGUAGGAGCCGCGGAAGAAGGGGAAGCGCGCCUGCAGGAACUGGUAGAUCUCGCUGAG
+.(.(((((((.....(((....)))...(((.((((.((((.(((((((.((.............)))))))))))))..)))).)))))))))).). (-34.92 = -35.92 +   1.00) 
+
+>>hsa-mir-7-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 110
+ Reading direction: forward
+ Mean pairwise identity:  94.55
+ Shannon entropy: 0.05455
+ G+C content: 0.39716
+ Mean single sequence MFE: -44.15
+ Consensus MFE: -45.15
+ Energy contribution: -44.15
+ Covariance contribution:  -1.00
+ Combinations/Pair:   1.07
+ Mean z-score:  -5.82
+ Structure conservation index:   1.02
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.14
+ SVM RNA-class probability: 0.997635
+ Prediction: RNA
+
+######################################################################
+
+>human
+UUGGAUGUUGGCCUAGUUCUGUGUGGAAGACUAGUGAUUUUGUUGUUUUUAGAUAACUAAAUCGACAACAAAUCACAGUCUGCCAUAUGGCACAGGCCAUGCCUCUACAG
+.((((.((((((((.((.((((((((.(((((.(((((((.(((((((((((....)))))..)))))))))))))))))).)))))))).)))))))).)).))))... ( -48.00, z-score =  -6.69, R)
+>chicken
+-UGGAUGUUGGUCUAGUUCUGUGUGGAAGACUAGUGAUUUUGUUGUUUUUAGAUAAUUAAAUUGACAACAAAUCACAGUCUGCCAUAUGGCACAGAUCAUGCCUCUACAG
+-((((.((((((((.((.((((((((.(((((.(((((((.(((((((((((....)))))..)))))))))))))))))).)))))))).)))))))).)).))))... ( -40.30, z-score =  -4.95, R)
+>consensus
+_UGGAUGUUGGCCUAGUUCUGUGUGGAAGACUAGUGAUUUUGUUGUUUUUAGAUAACUAAAUCGACAACAAAUCACAGUCUGCCAUAUGGCACAGACCAUGCCUCUACAG
+.((((.((((((((.((.((((((((.(((((.(((((((.(((((((((((....)))))..)))))))))))))))))).)))))))).)))))))).)).))))... (-45.15 = -44.15 +  -1.00) 
+
+>>hsa-mir-759
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 91
+ Reading direction: forward
+ Mean pairwise identity:  86.81
+ Shannon entropy: 0.13187
+ G+C content: 0.29670
+ Mean single sequence MFE: -33.80
+ Consensus MFE: -32.15
+ Energy contribution: -32.90
+ Covariance contribution:   0.75
+ Combinations/Pair:   1.08
+ Mean z-score:  -7.17
+ Structure conservation index:   0.95
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.41
+ SVM RNA-class probability: 0.990356
+ Prediction: RNA
+
+######################################################################
+
+>human
+UAAUAAAUUAAAUGCCUAAACUGGCAGAGUGCAAACAAUUUUGACUCAGAUCUAAAUGUUUGCACUGGCUGUUUAAACAUUUAAUUUGUUA
+((((((((((((((..(((((.(((..((((((((((.(((.((......)).))))))))))))).))))))))..)))))))))))))) ( -32.40, z-score =  -6.44, R)
+>chicken
+UAAUAAAUUAAAUGCUUAAACUAGCACUGUGCAAGCAUUUUUGUCUUGGAUCGCAAUGUUUGCACUGGCUGUUUAAACAUUUAAUUUAUUA
+((((((((((((((.((((((.(((...(((((((((((.(.(((...))).).)))))))))))..))))))))).)))))))))))))) ( -35.20, z-score =  -7.90, S)
+>consensus
+UAAUAAAUUAAAUGCCUAAACUAGCACAGUGCAAACAAUUUUGACUCAGAUCGAAAUGUUUGCACUGGCUGUUUAAACAUUUAAUUUAUUA
+((((((((((((((.((((((.(((...(((((((((.(((((........))))))))))))))..))))))))).)))))))))))))) (-32.15 = -32.90 +   0.75) 
+
+>>hsa-mir-8485
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 91
+ Reading direction: forward
+ Mean pairwise identity:  65.93
+ Shannon entropy: 0.34066
+ G+C content: 0.39560
+ Mean single sequence MFE: -35.70
+ Consensus MFE: -33.30
+ Energy contribution: -32.55
+ Covariance contribution:  -0.75
+ Combinations/Pair:   1.14
+ Mean z-score:  -2.47
+ Structure conservation index:   0.93
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.81
+ SVM RNA-class probability: 0.995523
+ Prediction: RNA
+
+######################################################################
+
+>human
+UCUGUGAUAUACGUGUGUGUGUGUGUGUAUAUAGCAUAUGUGUAUACAUACACACACACACACACACACACACACACACACACACACGUAU
+........((((((((((((((((((((((((...))))(((((....)))))..................)))))))))))))))))))) ( -36.80, z-score =  -0.70, S)
+>chicken
+------------GUGUGUGUGUGUGUGUAUAUA-CAUACAUAUAUAUACACACACACACACACACACACACACACACA-------------
+------------(((((((((((((((((((((-........)))))))))))))))))))))...............------------- ( -34.60, z-score =  -4.24, S)
+>consensus
+____________GUGUGUGUGUGUGUGUAUAUA_CAUACAUAUAUACACACACACACACACACACACACACACACACA_____________
+............(((((((((((((((((((((.......))))))))))))))))))))).............................. (-33.30 = -32.55 +  -0.75) 
+
+>>hsa-mir-9-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 89
+ Reading direction: forward
+ Mean pairwise identity:  96.63
+ Shannon entropy: 0.03371
+ G+C content: 0.39543
+ Mean single sequence MFE: -42.60
+ Consensus MFE: -42.20
+ Energy contribution: -42.20
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -8.62
+ Structure conservation index:   0.99
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   1.45
+ SVM RNA-class probability: 0.941237
+ Prediction: RNA
+ WARNING: Mean z-score out of range.
+
+######################################################################
+
+>human
+CGGGGUUGGUUGUUAUCUUUGGUUAUCUAGCUGUAUGAGUGGUGUGGAGUCUUCAUAAAGCUAGAUAACCGAAAGUAAAAAUAACCCCA
+.(((((((....(((..(((((((((((((((.((((((.((.......)))))))).)))))))))))))))..)))...))))))). ( -42.00, z-score =  -8.20, R)
+>chicken
+-GGGGUUGGUUGUUAUCUUUGGUUAUCUAGCUGUAUGAGUGGUGUCGAUUCUUCAUAAAGCUAGAUAACCGAAAGUAAAAAUAACCCCA
+-(((((((....(((..(((((((((((((((.((((((..((....))..)))))).)))))))))))))))..)))...))))))). ( -43.20, z-score =  -9.04, R)
+>consensus
+_GGGGUUGGUUGUUAUCUUUGGUUAUCUAGCUGUAUGAGUGGUGUCGAGUCUUCAUAAAGCUAGAUAACCGAAAGUAAAAAUAACCCCA
+.(((((((....(((..(((((((((((((((.((((((.((.......)))))))).)))))))))))))))..)))...))))))). (-42.20 = -42.20 +   0.00) 
+
+>>hsa-mir-9-2
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 87
+ Reading direction: forward
+ Mean pairwise identity:  98.85
+ Shannon entropy: 0.01149
+ G+C content: 0.36782
+ Mean single sequence MFE: -40.10
+ Consensus MFE: -40.10
+ Energy contribution: -40.10
+ Covariance contribution:   0.00
+ Combinations/Pair:   1.00
+ Mean z-score:  -8.66
+ Structure conservation index:   1.00
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   1.41
+ SVM RNA-class probability: 0.936560
+ Prediction: RNA
+ WARNING: Mean z-score out of range.
+
+######################################################################
+
+>human
+GGAAGCGAGUUGUUAUCUUUGGUUAUCUAGCUGUAUGAGUGUAUUGGUCUUCAUAAAGCUAGAUAACCGAAAGUAAAAACUCCUUCA
+.((((.(((((.(((..(((((((((((((((.((((((..(....)..)))))).)))))))))))))))..))).))))))))). ( -40.10, z-score =  -8.69, R)
+>chicken
+GGAAGCGAGUUGUUAUCUUUGGUUAUCUAGCUGUAUGAGUGUUUUGGUCUUCAUAAAGCUAGAUAACCGAAAGUAAAAACUCCUUCA
+.((((.(((((.(((..(((((((((((((((.((((((..(....)..)))))).)))))))))))))))..))).))))))))). ( -40.10, z-score =  -8.63, R)
+>consensus
+GGAAGCGAGUUGUUAUCUUUGGUUAUCUAGCUGUAUGAGUGUAUUGGUCUUCAUAAAGCUAGAUAACCGAAAGUAAAAACUCCUUCA
+.((((.(((((.(((..(((((((((((((((.((((((..(....)..)))))).)))))))))))))))..))).))))))))). (-40.10 = -40.10 +   0.00) 
+
+>>hsa-mir-9-3
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 90
+ Reading direction: forward
+ Mean pairwise identity:  77.78
+ Shannon entropy: 0.22222
+ G+C content: 0.41597
+ Mean single sequence MFE: -38.60
+ Consensus MFE: -34.25
+ Energy contribution: -35.00
+ Covariance contribution:   0.75
+ Combinations/Pair:   1.03
+ Mean z-score:  -7.46
+ Structure conservation index:   0.89
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.38
+ SVM RNA-class probability: 0.989818
+ Prediction: RNA
+
+######################################################################
+
+>human
+GGAGGCCCGUUUCUCUCUUUGGUUAUCUAGCUGUAUGAGUGCCACAGAGCCGUCAUAAAGCUAGAUAACCGAAAGUAGAAAUGAUUCUCA
+.((((..(((((((((.(((((((((((((((.(((((..((......))..))))).))))))))))))))))).)))))))..)))). ( -41.10, z-score =  -7.01, R)
+>chicken
+--------GUUUCUGUCUUUGGUUAUCUAGCUGUAUGAGUGUUGUGGAGCCAUCAUAAAGCUAGAUAACCGAAAGUAGAAAUGACUUC--
+--------(((((((..(((((((((((((((.(((((..(((....)))..))))).)))))))))))))))..)))))))......-- ( -36.10, z-score =  -7.90, R)
+>consensus
+________GUUUCUCUCUUUGGUUAUCUAGCUGUAUGAGUGCCACAGAGCCAUCAUAAAGCUAGAUAACCGAAAGUAGAAAUGACUCC__
+.......((((((((..(((((((((((((((.(((((..((......))..))))).)))))))))))))))..))))))))....... (-34.25 = -35.00 +   0.75) 
+
+>>hsa-mir-92a-1
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 78
+ Reading direction: forward
+ Mean pairwise identity:  91.03
+ Shannon entropy: 0.08974
+ G+C content: 0.50000
+ Mean single sequence MFE: -36.45
+ Consensus MFE: -35.95
+ Energy contribution: -35.45
+ Covariance contribution:  -0.50
+ Combinations/Pair:   1.07
+ Mean z-score:  -5.72
+ Structure conservation index:   0.99
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   3.27
+ SVM RNA-class probability: 0.998138
+ Prediction: RNA
+
+######################################################################
+
+>human
+CUUUCUACACAGGUUGGGAUCGGUUGCAAUGCUGUGUUUCUGUAUGGUAUUGCACUUGUCCCGGCCUGUUGAGUUUGG
+..(((...((((((((((((.(((.(((((((((((......)))))))))))))).)))))))))))).)))..... ( -36.20, z-score =  -6.11, R)
+>chicken
+CUUUCUACACAGGUUGGGAUCAGUUGCAAUGCUGUGCGUUUCUGUGGUAUUGCACUUGUCCCGGCCUGUUGAGGUUGG
+(..(((..((((((((((((.(((.(((((((..(........)..)))))))))).))))))))))))..)))..). ( -36.70, z-score =  -5.33, R)
+>consensus
+CUUUCUACACAGGUUGGGAUCAGUUGCAAUGCUGUGCGUCUCUAUGGUAUUGCACUUGUCCCGGCCUGUUGAGGUUGG
+..(((...((((((((((((.(((.(((((((..((......))..)))))))))).)))))))))))).)))..... (-35.95 = -35.45 +  -0.50) 
+
+>>hsa-mir-99a
+
+############################  RNAz 2.1.1  ##############################
+
+ Sequences: 2
+ Columns: 81
+ Reading direction: forward
+ Mean pairwise identity:  90.12
+ Shannon entropy: 0.09877
+ G+C content: 0.50261
+ Mean single sequence MFE: -38.35
+ Consensus MFE: -36.37
+ Energy contribution: -36.87
+ Covariance contribution:   0.50
+ Combinations/Pair:   1.00
+ Mean z-score:  -6.60
+ Structure conservation index:   0.95
+ Background model: dinucleotide
+ Decision model: sequence based alignment quality
+ SVM decision value:   2.86
+ SVM RNA-class probability: 0.995892
+ Prediction: RNA
+
+######################################################################
+
+>human
+CCCAUUGGCAUAAACCCGUAGAUCCGAUCUUGUGGUGAAGUGGACCGCACAAGCUCGCUUCUAUGGGUCUGUGUCAGUGUG
+..((((((((((.(((((((((..(((.((((((.((........)))))))).)))..))))))))).)))))))))).. ( -39.60, z-score =  -6.10, R)
+>chicken
+CCAAUUGGCAUAAACCCGUAGAUCCGAUCUUGUGUUGAAAUGCACUGCACAAGCUCGCUUCUAUGGGUCUGUGUCAGU---
+...(((((((((.(((((((((..(((.(((((((...........))))))).)))..))))))))).)))))))))--- ( -37.10, z-score =  -7.10, R)
+>consensus
+CCAAUUGGCAUAAACCCGUAGAUCCGAUCUUGUGGUGAAAUGCACCGCACAAGCUCGCUUCUAUGGGUCUGUGUCAGU___
+..((((((((((.(((((((((..(((.((((((.............)))))).)))..))))))))).)))))))))).. (-36.37 = -36.87 +   0.50) 
+

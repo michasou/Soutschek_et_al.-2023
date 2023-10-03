@@ -1,0 +1,401 @@
+---
+title: "Untitled"
+author: "Michael"
+date: '2022-10-21'
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+  library(ggsci)
+  library(scales)
+  library(emmeans)
+  library(lmerTest)
+  library(ggpubr)
+  library(rstatix)
+  library(ggsignif)
+  library(cowplot)
+  library(viridis)
+  library(grid)
+  library(gtable)
+})
+```
+
+
+
+
+#Load Data
+```{r}
+e <- readRDS("../DataPrep/bursts_raw.rds")
+e$condition <- factor(e$condition,levels = c("pLNA-Ctrl","pLNA-1229"))
+e$decay_time <- e$`end time` - e$`time of peak`
+e$rise_time <- e$`time of peak` - e$`start time`
+```
+
+
+#info
+```{r}
+info <- e[,c("file_name","condition","Differentiation")]
+info <- distinct(info)
+```
+
+
+
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],"darkgrey","black","lightgrey","darkgrey")
+```
+
+
+##################
+##################
+#Charge Transfer
+```{r}
+agg_ch <- aggregate(log(-e$`area (pA/ms)`),e[,c("file_name")], FUN=mean)
+agg_ch <- merge(agg_ch,info,by = "file_name", all.x = TRUE)
+
+mod_s1 <- lm(x ~ condition + Differentiation,data = agg_ch)
+s1 <- emmeans(mod_s1, trt.vs.ctrl ~ condition , ref="pLNA-Ctrl")
+
+s1_df <- as.data.frame(s1$contrasts)
+s1_df$group1 <- "pLNA-Ctrl"
+s1_df$group2 <- s1_df$contrast
+s1_df$group2 <- gsub("\\) - \\(pLNA-Ctrl\\)","",s1_df$group2)
+s1_df$group2 <- gsub("\\(", "",s1_df$group2)
+s1_df <- add_significance(s1_df,p.col = "p.value")
+
+#add y_position
+y_pos <-max(agg_ch[,"x"])
+s1_df$y_pos <- y_pos*1.05
+
+
+p1 <- ggplot(agg_ch,aes(x = condition, y = x)) + 
+  geom_boxplot(outlier.shape = NA) +
+  stat_summary(aes(color = Differentiation),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(
+    data = s1_df,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  ylab("Bursts: Charge Transfer [pA/ms] (log(-x))") +
+  theme_classic()+
+  scale_color_manual(values = col_vec) +
+  theme(text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+
+ggsave2("../Figures/Bursts_ChargeTransfer.png",p1, width = 4.5,height = 4, bg = "white")
+```
+
+
+
+#Burst Peak Ampl
+```{r}
+agg_amp <- aggregate(sqrt(-e$`peak ampl. (pA)`),e[,c("file_name")], FUN=mean)
+agg_amp <- merge(agg_amp,info,by = "file_name", all.x = TRUE)
+
+mod_s2 <- lm(x ~ condition + Differentiation,data = agg_amp)
+s2 <- emmeans(mod_s2, trt.vs.ctrl ~ condition , ref="pLNA-Ctrl")
+
+s2_df <- as.data.frame(s2$contrasts)
+s2_df$group1 <- "pLNA-Ctrl"
+s2_df$group2 <- s2_df$contrast
+s2_df$group2 <- gsub("\\) - \\(pLNA-Ctrl\\)","",s2_df$group2)
+s2_df$group2 <- gsub("\\(", "",s2_df$group2)
+s2_df <- add_significance(s2_df,p.col = "p.value")
+s2_df$p.value.signif <- round(s2_df$p.value,2)
+
+#add y_position
+y_pos <-max(agg_amp[,"x"])
+s2_df$y_pos <- y_pos*1.05
+
+
+p2 <- ggplot(agg_amp,aes(x = condition, y = x)) + 
+  geom_boxplot(outlier.shape = NA) +
+  stat_summary(aes(color = Differentiation),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(
+    data = s2_df,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  ylab("Bursts: Peak Amplitude [pA] (sqrt(-x))") +
+  theme_classic()+
+  scale_color_manual(values = col_vec) +
+  theme(text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+
+
+ggsave2("../Figures/Bursts_PeakAmp.png",p2, width = 4.5,height = 4, bg = "white")
+```
+
+
+
+```{r}
+legend <- get_legend(p1)
+
+pp <- plot_grid(p1 + theme(legend.position="none"),
+                NULL,
+                p2 + theme(legend.position="none"),
+                legend, rel_widths = c(1,0.1,1,0.55),nrow = 1)
+
+ggsave2("../Figures/Bursts_summary.png",pp, width = 7.8,height = 4.25, bg = "white")
+```
+
+
+
+
+##############
+##############
+
+
+
+#Burst Half width
+```{r}
+agg_half <- aggregate(log(e$`half width`),e[,c("file_name")], FUN=mean)
+agg_half <- merge(agg_half,info,by = "file_name", all.x = TRUE)
+
+mod_s3 <- lm(x ~ condition + Differentiation,data = agg_half)
+s3 <- emmeans(mod_s3, trt.vs.ctrl ~ condition , ref="pLNA-Ctrl")
+
+s3_df <- as.data.frame(s3$contrasts)
+s3_df$group1 <- "pLNA-Ctrl"
+s3_df$group2 <- s3_df$contrast
+s3_df$group2 <- gsub("\\) - \\(pLNA-Ctrl\\)","",s3_df$group2)
+s3_df$group2 <- gsub("\\(", "",s3_df$group2)
+s3_df <- add_significance(s3_df,p.col = "p.value")
+
+#add y_position
+y_pos <-max(agg_half[,"x"])
+s3_df$y_pos <- y_pos*1.05
+
+
+p3 <- ggplot(agg_half,aes(x = condition, y = x)) + 
+  geom_boxplot(outlier.shape = NA) +
+  stat_summary(aes(color = Differentiation),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(
+    data = s3_df,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  ylab("Bursts: Half width [ms] (log)") +
+  theme_classic(base_size = 12)+
+  scale_color_manual(values = col_vec) +
+  #coord_cartesian(ylim = c(0,7)) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+
+
+ggsave2("../Figures/Bursts_HalfWidth.png",p3, width = 4.5,height = 4, bg = "white")
+```
+
+
+
+#Burst Duration
+```{r}
+agg_time <- aggregate(e$`duration (ms)`,e[,c("file_name")], FUN=mean)
+agg_time <- merge(agg_time,info,by = "file_name", all.x = TRUE)
+
+mod_s4 <- lm(x ~ condition + Differentiation,data = agg_time)
+s4 <- emmeans(mod_s4, trt.vs.ctrl ~ condition , ref="pLNA-Ctrl")
+
+s4_df <- as.data.frame(s4$contrasts)
+s4_df$group1 <- "pLNA-Ctrl"
+s4_df$group2 <- s4_df$contrast
+s4_df$group2 <- gsub("\\) - \\(pLNA-Ctrl\\)","",s4_df$group2)
+s4_df$group2 <- gsub("\\(", "",s4_df$group2)
+s4_df <- add_significance(s4_df,p.col = "p.value")
+
+#add y_position
+y_pos <-max(agg_time[,"x"])
+s4_df$y_pos <- y_pos*1.05
+
+
+p4 <- ggplot(agg_time,aes(x = condition, y = x)) + 
+  geom_boxplot(outlier.shape = NA) +
+  stat_summary(aes(color = Differentiation),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(
+    data = s4_df,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  ylab("Bursts: Duration [ms]") +
+  theme_classic(base_size = 12)+
+  scale_color_manual(values = col_vec) +
+  #coord_cartesian(ylim = c(0,7)) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+
+
+ggsave2("../Figures/Bursts_Duration.png",p4, width = 4.5,height = 4, bg = "white")
+```
+
+
+
+
+
+#Decay Time
+```{r}
+agg_dec <- aggregate(e$decay_time,e[,c("file_name")], FUN=mean)
+agg_dec <- merge(agg_dec,info,by = "file_name", all.x = TRUE)
+
+mod_s5 <- lm(x ~ condition + Differentiation,data = agg_dec)
+s5 <- emmeans(mod_s5, trt.vs.ctrl ~ condition , ref="pLNA-Ctrl")
+
+s5_df <- as.data.frame(s5$contrasts)
+s5_df$group1 <- "pLNA-Ctrl"
+s5_df$group2 <- s5_df$contrast
+s5_df$group2 <- gsub("\\) - \\(pLNA-Ctrl\\)","",s5_df$group2)
+s5_df$group2 <- gsub("\\(", "",s5_df$group2)
+s5_df <- add_significance(s5_df,p.col = "p.value")
+
+#add y_position
+y_pos <-max(agg_dec[,"x"])
+s5_df$y_pos <- y_pos*1.2
+
+
+p5 <- ggplot(agg_dec,aes(x = condition, y = x)) + 
+  geom_boxplot(outlier.shape = NA) +
+  stat_summary(aes(color = Differentiation),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(
+    data = s5_df,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  ylab("Decay time [ms]") +
+  theme_classic(base_size = 12)+
+  scale_color_manual(values = col_vec) +
+  coord_cartesian(ylim = c(0,NA)) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+
+
+ggsave2("../Figures/Bursts_DecayTime.png",p5, width = 4.5,height = 4, bg = "white")
+```
+
+
+
+
+
+
+#####################
+#####################
+#resistance
+```{r}
+resis <- read.csv("../raw/resistance2.csv")
+
+#input resistance
+resis$condition <- gsub("pLNA1229","pLNA-1229",resis$condition)
+resis$condition <- gsub("pLNA Ctrl","pLNA-Ctrl",resis$condition)
+resis$condition <- factor(resis$condition,levels = c("pLNA-Ctrl","pLNA-1229"))
+
+mod_s6 <- lm(input ~ condition + Differentiation,data = resis)
+s6 <- emmeans(mod_s6, trt.vs.ctrl ~ condition, ref="pLNA-Ctrl")
+
+s6_df <- as.data.frame(s6$contrasts)
+s6_df$group1 <- "pLNA-Ctrl"
+s6_df$group2 <- s6_df$contrast
+s6_df$group2 <- gsub("\\) - \\(pLNA-Ctrl\\)","",s6_df$group2)
+s6_df$group2 <- gsub("\\(","",s6_df$group2)
+s6_df <- add_significance(s6_df,p.col = "p.value")
+
+#add y_position
+y_pos <-max(resis[,"input"])
+s6_df$y_pos <- y_pos*1.2
+
+
+
+p6 <- ggplot(resis,aes(x = condition, y = input)) + 
+  geom_boxplot() +
+  stat_summary(aes(color = Differentiation),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(
+    data = s6_df,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  ylab("Input Resistance [MOhm]") +
+  theme_classic(base_size = 12)+
+  scale_color_manual(values = col_vec) +
+  coord_cartesian(ylim = c(0,NA)) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+
+
+ggsave2("../Figures/Input_resistance.png",p6, width = 4.5,height = 4, bg = "white")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

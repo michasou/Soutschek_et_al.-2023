@@ -1,0 +1,153 @@
+---
+title: "enrichMiR_Kleaveland_2018"
+author: "Michael Soutschek"
+date: "31 1 2021"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(enrichMiR)
+  library(SummarizedExperiment)
+  library(ggrepel)
+  library(scales)
+})
+```
+
+#load enrichMiR Data
+```{r}
+#sets
+sets_SC <- readRDS("/mnt/schratt/tools/enrichMiR/enrichMiR_data/scanMiR/scanMiR_GRCh38_gene.rds")
+
+sets_TScon <- readRDS("/mnt/schratt/tools/enrichMiR/enrichMiR_data/Targetscan/20211124_Targetscan8_Human_ConPred_human.rds")
+sets_TSall <- readRDS("/mnt/schratt/tools/enrichMiR/enrichMiR_data/Targetscan/20211124_Targetscan8_Human_AllPred_human.rds")
+
+#mir
+se_short <- readRDS("../../../TimeCourse_GRCh38.p10_Ens91/data/Small_RNA/smallRNA_oasis_noRound.DEA.SE.rds")
+se_short_21 <- se_short[,se_short$day == 21]
+se_short_21 <- se_short_21[grep("hsa-miR",row.names(se_short_21)),]
+
+miRs <- as.data.frame(assays(se_short_21)$logcpm)
+miRs <- rowMeans(miRs)
+miRs <- miRs[miRs > 1.5]
+```
+
+
+#load experiment
+```{r}
+se <- readRDS("../data/SE.dea.Gene.salmon.raw.rds")
+
+dea1229 <- rowData(se)[["DEA.pLNA-1229"]] 
+dea181c <- rowData(se)[["DEA.pLNA-181c"]] 
+dea3943 <- rowData(se)[["DEA.pLNA-3943"]] 
+```
+
+
+
+# enrichMiR 3943 (sites only present in TSall)
+```{r}
+enr_3943TS <- testEnrichment(dea3943,sets = sets_TSall,tests = c("areamir","siteoverlap","woverlap","modsites"), sets.properties = miRs)
+res_3943_TS_1 <- getResults(enr_3943TS,test = c("areamir"),flatten = TRUE)
+res_3943_TS_2 <- getResults(enr_3943TS,test = c("siteoverlap.down"),flatten = TRUE)
+res_3943_TS_3 <- getResults(enr_3943TS,test = c("siteoverlap.up"),flatten = TRUE)
+res_3943_TS_4 <- getResults(enr_3943TS,test = c("modsites"),flatten = TRUE)
+
+enr_3943sc <- testEnrichment(dea3943,sets = sets_SC,tests = "lmadd", sets.properties = miRs)
+res_3943_sc <- getResults(enr_3943sc,test = c("lmadd"),flatten = TRUE)
+```
+
+
+# enrichMiR 181
+```{r}
+enr_181TS <- testEnrichment(dea181c,sets = sets_TSall,tests = c("areamir","siteoverlap"), sets.properties = miRs)
+res_181_TS <- getResults(enr_181TS,test = c("areamir"),flatten = TRUE)
+res_181_TS2 <- getResults(enr_181TS,test = c("siteoverlap.up"),flatten = TRUE)
+
+enr_181ms <- testEnrichment(dea181c,sets = sets_TSall,tests = c("siteoverlap"), sets.properties = miRs, th.FDR = 0.5)
+res_181_ms<- getResults(enr_181ms,test = c("siteoverlap.up"),flatten = TRUE)
+
+
+enr_181sc <- testEnrichment(dea181c,sets = sets_SC,tests = "lmadd", sets.properties = miRs)
+res_181_sc <- getResults(enr_181sc,test = c("lmadd"),flatten = TRUE)
+```
+
+# enrichMiR 1229 (only present in TSall)
+```{r}
+enr_1229TS <- testEnrichment(dea1229,sets = sets_TSall,tests = c("areamir","siteoverlap"), sets.properties = miRs)
+res_1229_TS <- getResults(enr_1229TS,test = c("areamir"),flatten = TRUE)
+res_1229_TS <- getResults(enr_1229TS,test = c("siteoverlap.down"),flatten = TRUE)
+res_1229_TS <- getResults(enr_1229TS,test = c("siteoverlap.up"),flatten = TRUE)
+
+
+enr_1229sc <- testEnrichment(dea1229,sets = sets_SC,tests = "lmadd", sets.properties = miRs)
+res_1229_sc <- getResults(enr_1229sc ,test = c("lmadd"),flatten = TRUE)
+```
+
+
+#EnrichPlot 181c
+```{r}
+p1 <- enrichPlot(res = res_181_TS,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = NULL)
+p1 <- p1 + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("miR-181c-5p - Targetscan all (areamir)") + labs(color = "miRNA\nexpression") 
+
+ggsave2("../Figures/Figure_Output/EnrichMiR/miR181_enrichPlot_TS_A.png",p1, width = 6,height = 6.5, bg = "white")
+
+
+p2 <- enrichPlot(res = res_181_sc,enr.field = "combined.coef",col.field = "props",sig.field = "FDR", size.field = NULL)
+p2 <- p2 + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("miR-181c-5p - scanMiR") + labs(color = "miRNA\nexpression")
+
+ggsave2("../Figures/Figure_Output/EnrichMiR/miR181_enrichPlot_SC.png",p2, width = 6,height = 6.5, bg = "white")
+
+p3 <- enrichPlot(res = res_181_ms,enr.field = "enrichment",col.field = "props",sig.field = "FDR", size.field = NULL,label.field = "members")
+p3 <- p3 + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("miR-181c-5p - Targetscan all (siteoverlap)") + labs(color = "miRNA\nexpression") +
+  scale_y_continuous(trans = enrichMiR:::.reverselog_trans(10), labels = function(x) format(x, nsmall = 3)) 
+
+
+ggsave2("../Figures/Figure_Output/EnrichMiR/miR181_enrichPlot_TS_SO.png",p3, width = 6,height = 6.5, bg = "white")
+
+pp <- plot_grid(p1,p3,p2,ncol = 1)
+ggsave2("../Figures/Figure_Output/EnrichMiR/miR181_enrichPlot.png",pp, width = 8,height = 12, bg = "white")
+```
+
+
+
+#CD Plot ScanMiR miR-1229
+```{r}
+#sites
+set_1229 <- "hsa-miR-1229-3p"
+
+p3 <- CDplotWrapper(dea = dea1229, sets = sets_SC, setName = set_1229, by = "best_stype") + coord_cartesian(xlim = c(-0.35,0.35)) + theme_classic() + ggtitle("miR-1229-3p") + guides(color=guide_legend(title="scanMiR\nbest site type")) + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12))
+
+ggsave2("../Figures/Figure_Output/EnrichMiR/miR1229_CDPlot_SC.png",p3, width = 5,height = 4.5, bg = "white")
+```
+
+
+
+
+#CD Plot ScanMiR miR-3943
+```{r}
+#sites
+set_3943 <- "hsa-miR-3943"
+set_3943_2 <- "AGCCCCC"
+
+
+p4 <- CDplotWrapper(dea = dea3943, sets = sets_SC, setName = set_3943, by = "best_stype") + coord_cartesian(xlim = c(-0.35,0.35)) + theme_classic() + ggtitle("miR-3943") + guides(color=guide_legend(title="scanMiR\nbest site type")) + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12))
+
+ggsave2("../Figures/Figure_Output/EnrichMiR/miR3943_CDPlot_SC.png",p4, width = 5,height = 4.5, bg = "white")
+```
+
+
+
+#CD Plot ScanMiR miR-181
+```{r}
+#sites
+set_181 <- "hsa-miR-181c-5p"
+
+p5 <- CDplotWrapper(dea = dea181c, sets = sets_SC, setName = set_181, by = "best_stype") + coord_cartesian(xlim = c(-0.35,0.35)) + theme_classic() + ggtitle("miR-181c-5p") + guides(color=guide_legend(title="scanMiR\nbest site type")) + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12))
+
+ggsave2("../Figures/Figure_Output/EnrichMiR/miR181_CDPlot_SC.png",p5, width = 5,height = 4.5, bg = "white")
+```
+
+

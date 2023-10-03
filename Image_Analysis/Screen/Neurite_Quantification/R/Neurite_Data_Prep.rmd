@@ -1,0 +1,106 @@
+---
+title: "Neurite_Data_Prep"
+author: "Michael"
+date: "6 12 2020"
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+library(data.table)
+library(readxl)
+library(stringr)
+```
+
+
+
+# Import Data and clean up
+```{r}
+# Import Data
+neur_res <- read.csv("../raw/230724_Screen_mean.csv")
+neur_res <- neur_res[,-grep("Crop",colnames(neur_res))]
+neur_res <- neur_res[,-grep("StDev",colnames(neur_res))]
+
+# Get Metadata Info and clean up
+m <- str_split_fixed(neur_res$FileName_Cy3,"_",3)
+m[,3] <- gsub("-Stitching.tif","",m[,3],fixed = TRUE,)
+df_m <- as.data.frame(m)
+colnames(df_m)[1] <- "Blinding"
+colnames(df_m)[2] <- "CVS_no"
+colnames(df_m)[3] <- "Picture_Info"
+neur_res <- cbind(neur_res,df_m)
+neur_res <- neur_res[,-grep("FileName",colnames(neur_res))]
+
+# Import Blinding
+Blinding <- read_excel("../../Blinding.xlsx")
+m2 <- str_split_fixed(Blinding$Condition,"_",2)
+df_m2 <- as.data.frame(m2)
+colnames(df_m2)[1] <- "Replicate"
+colnames(df_m2)[2] <- "Day"
+df_m2$Day <- as.numeric(df_m2$Day)
+Blinding <- cbind(Blinding, df_m2)
+
+# Merge
+neur_res <- merge(neur_res,Blinding, by = "Blinding", all.x = TRUE)
+```
+
+
+# Get some namings
+```{r}
+colnames(neur_res) <- gsub("_SomaFiltered_ObjectSkeleton","",colnames(neur_res))
+colnames(neur_res) <- gsub("_NeuronSkeletons","",colnames(neur_res))
+```
+
+
+
+# save
+```{r}
+saveRDS(neur_res,"../R/Neurite_Result.rds")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

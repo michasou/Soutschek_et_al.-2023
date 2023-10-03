@@ -1,0 +1,161 @@
+---
+title: "smallRNA_Heat_Figures"
+author: "Michael Soutschek"
+date: "11 1 2021"
+output: html_document
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(plgINS)
+  library(viridis)
+  library(RColorBrewer)
+  library(data.table)
+  library(dplyr)
+  library(tidyr)
+  library(sechm)
+})
+```
+
+
+# Color Definitions
+```{r}
+ancols <- list(day=c("0"="#3F3F3F",
+                       "9" ="#575757",
+                       "15" ="#707070",
+                       "21" = "#898989",
+                       "27" ="#A1A1A1",
+                       "33" ="#BABABA",
+                       "40" = "#D3D3D3" 
+) )
+
+heatcol = inferno(255)
+```
+
+
+
+
+# Load Data
+```{r}
+se <- readRDS("../../data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+se$day <- as.factor(se$day)
+se2 <- se[,se$day != 0]
+```
+
+
+
+## Figures
+
+```{r significant results, eval=TRUE}
+# select significant results
+## all stages
+res <- rowData(se)$DEA.all
+res$maxlfc <- rowMax(abs(as.matrix(res[,1:6]))) 
+sig_all <- row.names(res)[res$FDR < 0.05]
+sig <- row.names(res)[res$FDR < 0.01 & res$maxlfc > 2]
+sig_plot <- row.names(res)[res$FDR < 0.01 & res$maxlfc > 2 & res$logCPM > 3]
+
+## neuronal stages
+res.neu <- rowData(se)$DEA.neuronal
+res.neu$maxlfc <- rowMax(abs(as.matrix(res.neu[,1:5]))) 
+sig.neu <- row.names(res.neu)[res.neu$FDR < 0.01 & res.neu$maxlfc > 2]
+```
+
+
+
+
+# Heatmaps
+
+#miRNAs
+```{r}
+se_mi <- se[grep("hsa-miR",row.names(se))]
+res_mi <- res[grep("hsa-miR",row.names(res)),]
+sig_mi <- row.names(res_mi)[res_mi$FDR < 0.05]
+sig_mi_down <- row.names(res_mi)[res_mi$FDR < 0.05 & res_mi$logFC.stage9 < 0]
+sig_mi_down2 <- row.names(res_mi)[res_mi$FDR < 0.05 & res_mi$logFC.stage15 < 0]
+
+res_mi_neu <- res.neu[grep("hsa-miR",row.names(res.neu)),]
+sig_mi_neu <- row.names(res_mi_neu)[res_mi_neu$FDR < 0.05]
+```
+
+```{r}
+a <- sechm(se_mi, sig_mi, top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, anno_colors = ancols, show_colnames = FALSE, column_title = "miRNA", annocol_title_side=NA, name = "logFC")
+
+png("Figure_Output/Heat/smallRNA_Heat_miRNAs_alldays_normDay9.png", width=7, height=5, units="in", res=300)
+a
+dev.off()
+
+png("Figure_Output/Heat/smallRNA_Heat_miRNAs_alldays_normDay9_defense.png", width=6, height=4.5, units="in", res=300)
+a
+dev.off()
+
+# Top 15 candidates miR neuronal
+res.neu.miR <- res.neu[row.names(res.neu) %in% row.names(se_mi),]
+top20.neu.miR <- row.names(head(res.neu.miR[order(res.neu.miR$FDR),],10))
+
+
+a <- sechm(se_mi, top20.neu.miR,  top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = TRUE, hmcols = heatcol, anno_colors = ancols, show_colnames = FALSE, column_title = "miRNA Top 10 sig.", annocol_title_side=NA, name = "logFC")
+
+png("Figure_Output/Heat/smallRNA_miRNA_alldays_normDay9_Top10_neur.png", width=5.5, height=5, units="in", res=300)
+a
+dev.off()
+
+# Top 15 candidates miR down
+res.miR.down <- res_mi[sig_mi_down,]
+top20.neu.miR.down <- row.names(head(res.miR.down[order(res.miR.down$FDR),],35))
+
+
+a <- sechm(se_mi, top20.neu.miR.down,  top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = TRUE, hmcols = heatcol, anno_colors = ancols, show_colnames = FALSE, column_title = "miRNA Top20 sig. down.", annocol_title_side=NA, name = "logFC")
+
+png("Figure_Output/Heat/smallRNA_miRNA_alldays_normDay9_Top35_neur_down.png", width=5.5, height=5, units="in", res=300)
+a
+dev.off()
+
+```
+
+
+#snoRNAs
+```{r}
+se_sno <- se[grep("SNOR",row.names(se))]
+res_sno <- res[grep("SNOR",row.names(res)),]
+sig_sno <- row.names(res_sno)[res_sno$FDR < 0.05]
+```
+
+```{r}
+a <- sechm(se_sno, sig_sno, top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, anno_colors = ancols, show_colnames = FALSE, column_title = "snoRNA", annocol_title_side=NA, name = "logFC")
+a@top_annotation@anno_list$day@name_param$show <- FALSE
+
+png("Figure_Output/Heat/smallRNA_Heat_snoRNAs_alldays_normDay9.png", width=7, height=3.5, units="in", res=300)
+a
+dev.off()
+```
+
+#piRNAs
+```{r}
+se_pi <- se[grep("piR",row.names(se))]
+res_pi <- res[grep("piR",row.names(res)),]
+sig_pi <- row.names(res_pi)[res_pi$FDR < 0.05]
+```
+
+```{r}
+a <- sechm(se_pi, sig_pi, top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, anno_colors = ancols, show_colnames = FALSE, column_title = "piRNA", annocol_title_side=NA, name = "logFC")
+
+png("Figure_Output/Heat/smallRNA_Heat_piRNAs_alldays_normDay9.png", width=7, height=3.5, units="in", res=300)
+a
+dev.off()
+```
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,85 @@
+---
+title: "smallRNA raw SE generation"
+author: "tgermade"
+date: "`r Sys.Date()`"
+output:
+    html_document:
+        toc: true
+        toc_float: true
+        theme: 'cerulean'
+        highlight: 'tango'
+        df_print: paged
+---
+
+<style>
+  .main-container {
+    max-width: 1500px !important;
+  }
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries}
+
+suppressPackageStartupMessages({
+  library(edgeR)
+  library(SummarizedExperiment)
+  library(SEtools)
+})
+```
+
+
+## Allocation
+
+```{r allocation}
+
+# allocation
+
+## input/output files
+folder <- "../data/Small_RNA/Small_RNA_Counts_Oasis/"
+output <- "../data/Small_RNA/raw/smallRNA_oasis.raw.SE.rds"
+```
+
+
+## Loading
+
+```{r import raw}
+
+# import raw data
+filelist = list.files(path = folder, pattern = ".*.txt")
+esmo_list <- lapply(filelist, function(x)read.table(paste(folder, x, sep=''), header = TRUE))
+esmo_table <- Reduce(function(dtf1, dtf2) merge(dtf1, dtf2, by = "Name", all = TRUE),
+              esmo_list)
+```
+
+
+## SE generation
+
+```{r modify raw}
+
+# modify raw data
+esmo <- tibble::column_to_rownames(esmo_table, var = "Name")
+dsmo <- as.data.frame(t(sapply(strsplit(colnames(esmo),"_",fixed=T), FUN=function(x) x)))
+colnames(dsmo) <- c("experiment", "day")
+dsmo$day <- as.numeric(as.character(dsmo$day))
+```
+
+```{r create raw se}
+
+# create raw SE
+se <- SummarizedExperiment(list(counts=as.matrix(esmo)), colData=dsmo)
+se <- se[,order(se$day, se$experiment)]
+se$stage <- as.factor(se$day)
+```
+
+
+## Export
+
+```{r export raw se}
+
+# save the raw SE-object
+saveRDS(se, output)
+```
+

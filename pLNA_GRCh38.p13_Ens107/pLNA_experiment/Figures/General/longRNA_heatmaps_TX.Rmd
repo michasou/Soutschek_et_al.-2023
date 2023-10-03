@@ -1,0 +1,85 @@
+---
+title: "longRNA-exploratory"
+author: "Michael Soutschek"
+date: "11 1 2021"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(plgINS)
+  library(viridis)
+  library(RColorBrewer)
+  library(data.table)
+  library(dplyr)
+  library(tidyr)
+  library(plotly)
+  library(cowplot)
+})
+```
+
+
+# Color Definitions
+```{r}
+ancols <- list(day=c("0"="#3F3F3F",
+                       "9" ="#575757",
+                       "15" ="#707070",
+                       "21" = "#898989",
+                       "27" ="#A1A1A1",
+                       "33" ="#BABABA",
+                       "40" = "#D3D3D3" 
+) )
+
+heatcol = inferno(256)
+```
+
+
+
+# Load Data
+```{r}
+se <- readRDS("../data/SE.dea.TX.salmon.raw.rds")
+```
+
+
+
+#1229 Heatmaps
+```{r}
+dea1229 <- rowData(se)[["DEA.pLNA-1229"]]
+dea1229$names <- row.names(dea1229)
+dea1229.sig <- dea1229[dea1229$FDR < 0.05,]
+
+png("Figure_Output/Heatmaps/Expl_1229_sig_TX.png", width=13, height=13, units="in", res=300)
+sechm::sechm(se, row.names(dea1229.sig), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE, show_rownames = FALSE)
+dev.off()
+```
+
+
+#181 Heatmaps
+```{r}
+dea181c <- rowData(se)[["DEA.pLNA-181c"]]
+dea181c$names <- row.names(dea181c)
+dea181c.sig <- dea181c[dea181c$FDR < 0.05,]
+
+png("Figure_Output/Heatmaps/Expl_181c_sig_TX.png", width=9, height=6, units="in", res=300)
+sechm::sechm(se, row.names(dea181c.sig), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE, show_rownames = FALSE)
+dev.off()
+```
+
+
+
+
+#3943 Heatmaps
+```{r}
+dea3943 <- rowData(se)[["DEA.pLNA-3943"]]
+dea3943$names <- row.names(dea3943)
+dea3943.sig <- dea3943[dea3943$FDR < 0.1,]
+
+png("Figure_Output/Heatmaps/Expl_3943_sig_TX.png", width=9, height=6, units="in", res=300)
+sechm::sechm(se, row.names(dea3943.sig), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE, show_rownames = FALSE)
+dev.off()
+```
+
+

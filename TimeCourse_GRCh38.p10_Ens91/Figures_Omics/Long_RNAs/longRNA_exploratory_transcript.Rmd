@@ -1,0 +1,89 @@
+---
+title: "longRNA-exploratory"
+author: "Michael Soutschek"
+date: "11 1 2021"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(plgINS)
+  library(viridis)
+  library(RColorBrewer)
+  library(data.table)
+  library(dplyr)
+  library(tidyr)
+  library(plotly)
+})
+```
+
+
+# Load Data
+```{r}
+se <- readRDS("../../data/Long_RNA/Salmon_Transcript_Analysis/longRNA.Salmon.TX.SE.rds")
+colData(se)$day <- as.numeric(sapply(strsplit(row.names(colData(se)),"_"), getElement, 2))
+se$day2 <- paste0("Day_",se$day)
+colData(se)$experiment <- sapply(strsplit(row.names(colData(se)),"_"), getElement,1)
+se$replicate <- as.integer(gsub("SC","",se$experiment))
+```
+
+
+```{r}
+#get names
+rowData(se)$ensembl_id <- row.names(rowData(se))
+rowData(se)$ensembl <- gsub("\\..*","",row.names(rowData(se)))
+
+tx2gene <- read.delim("../../data/Long_RNA/Salmon_Transcript_Analysis/tx2symbol_info.txt",header = FALSE)
+colnames(tx2gene) <- c("ensembl_id","symbol")
+
+rowData(se) <- merge(rowData(se),tx2gene,by = "ensembl_id",all.x = TRUE, sort = FALSE)
+rowData(se)$name <- paste(rowData(se)$ensembl_id,rowData(se)$symbol,sep = " - ")
+```
+
+```{r}
+se2 <- se[,se$day != 0]
+```
+
+
+
+
+# Violine Figures:
+```{r}
+# example to get genes:
+#g <- grep("\\.SOX2$|\\.POU5F1$|LIN28A", row.names(se), value=TRUE)
+#g
+# or:
+g1 <- row.names(se)[rowData(se)$ensembl %in% c("ENST00000625778","ENST00000650110","ENST00000295987")]
+g1
+
+g1 <- row.names(se)[rowData(se)$ensembl %in% c("ENST00000621981")]
+
+
+
+
+ggplot(meltSE(se, g1, assayName = "tpm", rowDat.columns = NULL), aes(as.factor(day), tpm)) + geom_violin() + facet_wrap(~name, scale="free")
+
+png("Figure_Output/Single_Genes_Transcript/Ube3a_Syn1.png", width=7, height=2, units="in", res=300)
+ggplot(meltSE(se, g1, assayName = "tpm", rowDat.columns = NULL), aes(as.factor(day), tpm)) + geom_violin() + facet_wrap(~name, scale="free")
+dev.off()
+
+```
+
+
+
+## PCA
+
+```{r pca, message=FALSE, warning=FALSE, eval=TRUE}
+
+## all stages
+p <- plPCA(assays(se)$tpm, as.data.frame(colData(se)), colorBy = "day2", shapeBy = "replicate",add.labels = FALSE)
+
+orca(p, file = "Figure_Output/Exploratory_Transcript/LongRNA_Transcript_PCA.png")
+orca(p, file = "Figure_Output/Exploratory_Transcript/LongRNA_Transcript_PCA.pdf")
+```
+
+
+

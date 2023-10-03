@@ -1,0 +1,176 @@
+---
+title: "pLNA-1229_Targets"
+author: "Michael Soutschek"
+date: "12/16/2022"
+output: html_document
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+        library(scanMiR)
+        library(SummarizedExperiment)
+        library(dplyr)
+        library(readr)
+        library(ComplexHeatmap)
+        library(viridis)
+        library(ggplot2)
+        library(SEtools)
+        library(cowplot)
+})
+```
+
+
+
+#load data
+```{r}
+se1 <- readRDS("../../../../../GRCh38.p10_Ens91_Sushi-mapping/data/Long_RNA/longRNA_noRound.DEA.SE.rds") 
+se2 <- readRDS("../../../data/SE.dea.Gene.salmon.raw.rds")
+se3 <- readRDS("/mnt/schratt/externData/2016_edfors_PRJNA183192_HumanCellLines_RNAseq/R/SE.dea.Gene.salmon.raw.rds")
+dea <- read_csv("../target_data/dea1229_targets_genebased.csv")
+```
+
+#targets
+```{r}
+targets <- dea[!is.na(dea$repression),]
+targets78 <- targets[targets$`7mer` > 0 | targets$`8mer` > 0,]
+targets78filt <- targets78[targets78$logCPM > 1,]
+
+targets8filt <- targets78filt[targets78filt$`8mer` > 0,]
+```
+
+
+#examples
+```{r}
+g1 <- row.names(se2)[rowData(se2)$gene_name %in% c("MEF2D","SNCA","PINK1")]
+g1 <- row.names(se2)[rowData(se2)$gene_name %in% c("SYN1")]
+
+
+p1 <- ggplot(meltSE(se1, g1, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + geom_point(aes(color = experiment)) +  facet_wrap(~feature, scale="free") + coord_cartesian(ylim = c(0,NA))
+p2 <-  ggplot(meltSE(se2, g1, assayName = "logcpm"), aes(condition, logcpm)) + geom_violin() + geom_point(aes(color = diff)) +  facet_wrap(~feature, scale="free") + coord_cartesian(ylim = c(0,NA))
+p3 <- ggplot(meltSE(se3, g1, assayName = "logcpm"), aes(Cell_type, logcpm)) + geom_violin() + geom_point() +  facet_wrap(~feature, scale="free") + coord_cartesian(ylim = c(0,NA))
+
+pp <- plot_grid(p1,p2,p3)
+ggsave("./CellType_ExampleGenes.png",pp, width = 15,height = 9, bg = "white")
+```
+
+
+#heatmap targets78
+```{r}
+
+df1 <- meltSE(se2, genes = row.names(se2)[rowData(se2)$gene_name %in% targets78filt$symbol], assayName = "logcpm")
+df1_Ctrl <- df1[df1$condition == "pLNA-Ctrl",]
+
+df2 <- meltSE(se3, genes = row.names(se2)[rowData(se2)$gene_name %in% targets78filt$symbol], assayName = "logcpm")
+colnames(df2)[colnames(df2) == "Cell_type"] <- "condition"
+
+df <- rbind(df1_Ctrl[,c("feature","logcpm","condition")],df2[,c("feature","logcpm","condition")])
+df_agg <- aggregate(df$logcpm, df[,c("feature","condition")], FUN=mean)
+df_wide <- reshape(df_agg, idvar = "feature", timevar = "condition", direction = "wide")
+row.names(df_wide) <- df_wide$feature
+df_wide$feature <- NULL
+df_wide[df_wide < 1] <- NA
+df_wide <- df_wide[!is.na(df_wide$`x.pLNA-Ctrl`),]
+colnames(df_wide) <- gsub("x.","",colnames(df_wide))
+
+cond <- c("pLNA-Ctrl","HEK 293","SHSY5Y")
+names(cond) <- c("pLNA-Ctrl","HEK 293","SHSY5Y")
+
+
+
+png("./Targets78_Heatmap.png", width=10, height=8, units="in", res=300)
+draw(Heatmap(df_wide,name = "logcpm", col = viridis(256),  na_col = "red",
+             show_row_names = FALSE, show_row_dend = FALSE, show_column_dend = FALSE,
+             cluster_rows = TRUE, column_order = cond,
+             show_column_names = FALSE, 
+             top_annotation = HeatmapAnnotation(
+               Condition = cond,
+               annotation_legend_param = list( nrow=1,
+                                               labels = cond,
+                                               at = cond)
+               ),
+             column_title = "miR-1229, 7mers or 8mers",
+             row_names_side = "right", 
+             heatmap_legend_param = list(legend_direction = "horizontal"),
+             width = unit(7, "in")),
+     heatmap_legend_side = "bottom",
+     annotation_legend_side = "bottom")
+dev.off()
+```
+
+
+
+
+#heatmap targets8
+```{r}
+
+df1 <- meltSE(se2, genes = row.names(se2)[rowData(se2)$gene_name %in% targets8filt$symbol], assayName = "logcpm")
+df1_Ctrl <- df1[df1$condition == "pLNA-Ctrl",]
+
+df2 <- meltSE(se3, genes = row.names(se2)[rowData(se2)$gene_name %in% targets8filt$symbol], assayName = "logcpm")
+colnames(df2)[colnames(df2) == "Cell_type"] <- "condition"
+
+df <- rbind(df1_Ctrl[,c("feature","logcpm","condition")],df2[,c("feature","logcpm","condition")])
+df_agg <- aggregate(df$logcpm, df[,c("feature","condition")], FUN=mean)
+df_wide <- reshape(df_agg, idvar = "feature", timevar = "condition", direction = "wide")
+row.names(df_wide) <- df_wide$feature
+df_wide$feature <- NULL
+df_wide[df_wide < 1] <- NA
+df_wide <- df_wide[!is.na(df_wide$`x.pLNA-Ctrl`),]
+colnames(df_wide) <- gsub("x.","",colnames(df_wide))
+
+cond <- c("pLNA-Ctrl","HEK 293","SHSY5Y")
+names(cond) <- c("pLNA-Ctrl","HEK 293","SHSY5Y")
+
+
+
+png("./Targets8_Heatmap.png", width=10, height=8, units="in", res=300)
+draw(Heatmap(df_wide,name = "logcpm", col = viridis(256),  na_col = "red",
+             show_row_names = FALSE, show_row_dend = FALSE, show_column_dend = FALSE,
+             cluster_rows = TRUE, column_order = cond,
+             show_column_names = FALSE, 
+             top_annotation = HeatmapAnnotation(
+               Condition = cond,
+               annotation_legend_param = list( nrow=1,
+                                               labels = cond,
+                                               at = cond)
+               ),
+             row_names_side = "right", 
+             column_title = "miR-1229, 8mers",
+             heatmap_legend_param = list(legend_direction = "horizontal"),
+             width = unit(7, "in")),
+     heatmap_legend_side = "bottom",
+     annotation_legend_side = "bottom")
+dev.off()
+
+
+df_wide2 <- df_wide[is.na(df_wide$`HEK 293`) | is.na(df_wide$SHSY5Y),]
+png("./Targets8_notexpressed_Heatmap.png", width=10, height=10, units="in", res=300)
+draw(Heatmap(df_wide2,name = "logcpm", col = viridis(256),  na_col = "red",
+             show_row_names = TRUE, show_row_dend = FALSE, show_column_dend = FALSE,
+             cluster_rows = TRUE, column_order = cond,
+             show_column_names = FALSE, 
+             top_annotation = HeatmapAnnotation(
+               Condition = cond,
+               annotation_legend_param = list( nrow=1,
+                                               labels = cond,
+                                               at = cond)
+               ),
+             row_names_side = "right", 
+             column_title = "miR-1229, 8mers not expressed",
+             heatmap_legend_param = list(legend_direction = "horizontal"),
+             width = unit(7, "in")),
+     heatmap_legend_side = "bottom",
+     annotation_legend_side = "bottom")
+dev.off()
+```
+
+
+
+
+
+
+
+
+

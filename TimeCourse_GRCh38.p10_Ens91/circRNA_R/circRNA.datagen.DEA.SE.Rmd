@@ -1,0 +1,163 @@
+---
+title: "circRNA DEA SE generation"
+author: "tgermade"
+date: "`r Sys.Date()`"
+output:
+    html_document:
+        toc: true
+        toc_float: true
+        theme: 'cerulean'
+        highlight: 'tango'
+        df_print: paged
+---
+
+<style>
+  .main-container {
+    max-width: 1500px !important;
+  }
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, warning=FALSE, message=FALSE}
+
+suppressPackageStartupMessages({
+  library(edgeR)
+  library(SummarizedExperiment)
+  library(SEtools)
+})
+```
+
+
+## Allocation
+
+```{r allocation}
+
+# allocation
+
+## input files
+input1 <- "../data/circRNA/raw/longRNA.circ.dcc.raw.SE.rds"
+input2 <- "../data/circRNA/raw/longRNA.circ.ce.raw.SE.rds"
+## output files
+output1 <- "../data/circRNA/longRNA.circ.dcc.DEA.SE.rds"
+output.no_round1 <- "../data/circRNA/longRNA.circ_noRound.dcc.DEA.SE.rds"
+output2 <- "../data/circRNA/longRNA.circ.ce.DEA.SE.rds"
+output.no_round2 <- "../data/circRNA/longRNA.circ_noRound.ce.DEA.SE.rds"
+```
+
+
+## Loading
+
+```{r load se, warning=FALSE, message=FALSE}
+
+# load raw SE file
+se1 <- readRDS(input1)
+se2 <- readRDS(input2)
+
+# filter raw data
+## filter: AT LEAST how many counts in AT LEAST how many samples? e.g. counts >= 20, samples >= 2
+sel <- c(10, 2)
+
+se1 <- se1[which(rowSums(assay(se1) >= sel[1]) >= sel[2]),]
+se2 <- se2[which(rowSums(assay(se2) >= sel[1]) >= sel[2]),]
+```
+
+
+## DEA over all stages
+
+```{r dea all, message=FALSE, warning=FALSE, eval=TRUE}
+
+# run DEA
+source("../functions/dea.R")
+
+se1 <- DEA(se1,  name = "all", model = ~stage)
+se2 <- DEA(se2, name = "all", model = ~stage)
+```
+
+
+## DEA over neuronal stages
+
+```{r dea neuronal, message=FALSE, warning=FALSE, eval=TRUE}
+
+# run DEA
+source("../functions/dea.R")
+
+se1 <- DEA(se1, use = which(se1$day > 0), name = "neuronal", model = ~stage)
+se2 <- DEA(se2, use = which(se2$day > 0), name = "neuronal", model = ~stage)
+```
+
+
+## pairwise DEA over all stages
+
+```{r variables, eval=TRUE}
+# define variables
+stages <- unique(as.numeric(as.character(se1$stage)))
+dea.names <- c("9v0", "15v9", "21v15", "27v21", "33v27", "40v33")
+```
+
+```{r dea pairwise, eval=TRUE}
+
+# do pairwise differential expression analysis for all stages
+for(i in 1:length(dea.names)){
+  se1 <- DEA(se1, name = dea.names[i], use = se1$stage %in% c(stages[i],stages[i+1]), 
+            model = ~stage)
+}
+for(i in 1:length(dea.names)){
+  se2 <- DEA(se2, name = dea.names[i], use = se2$stage %in% c(stages[i],stages[i+1]), 
+            model = ~stage)
+}
+```
+
+
+## add logFC
+
+```{r add assays function, message=FALSE, warning=FALSE, eval=TRUE}
+logAssays <- function(se, control,output){
+  ## SE object with logCPM & logFC assays
+  assays(se)$logcpm <- log1p(cpm(calcNormFactors(DGEList(assay(se)))))
+  se <- SEtools::log2FC(se, controls = se$stage==control, fromAssay = "logcpm", toAssay = output)
+  return(se)
+}
+```
+
+```{r add assays, message=FALSE, warning=FALSE, eval=TRUE}
+se1 <- logAssays(se1, 0,output = "log2FC.all")
+se2 <- logAssays(se2, 0,output = "log2FC.all")
+
+se1 <- logAssays(se1, 9,output = "log2FC.neur")
+se2 <- logAssays(se2, 9,output = "log2FC.neur")
+```
+
+
+
+
+## Export
+
+```{r add libsize info, eval=TRUE}
+
+# add library size info to colData
+se1$libsize <- colSums(assay(se1))
+se2$libsize <- colSums(assay(se2))
+```
+
+```{r export se no_round, eval=TRUE}
+
+# export unrounded
+saveRDS(se1, output.no_round1)
+saveRDS(se2, output.no_round2)
+```
+
+```{r export se round, message=FALSE, warning=FALSE, eval=TRUE}
+
+# round
+source("../functions/roundSE.R")
+se1 <- roundSE(se1)
+se2 <- roundSE(se2)
+
+# export rounded
+saveRDS(se1, output1)
+saveRDS(se2, output2)
+```
+

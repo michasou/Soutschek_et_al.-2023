@@ -1,0 +1,146 @@
+---
+title: "DataPrep_IndMitos"
+author: "Michael"
+date: "2023-07-03"
+output: html_document
+---
+
+
+```{r}
+library(data.table)
+```
+
+
+#load data and clean up
+```{r}
+res29 <- fread("P:/DATA/Michasou/Mito Experiments/SIM/Analysis/Day29/CellProfiler/230714_SIM_IndMitochondria.csv")
+res29 <- as.data.frame(res29)
+```
+
+```{r}
+res29 <- res29[,-grep("Metadata|PathName",res29[1,])]
+res29$Name <- res29$Image.1
+res29 <- res29[,-grep("Image.",colnames(res29))]
+colnames(res29) <- paste0(colnames(res29),"_",res29[1,])
+res29 <- res29[-1,]
+
+colnames(res29) <- gsub("MitoProcesses\\.[1-5]","Mito",colnames(res29))
+colnames(res29) <- gsub("MitoProcessesSkeleton","Skeleton",colnames(res29))
+
+res29$Day <- "Day 29"
+```
+
+```{r}
+res36 <- fread("P:/DATA/Michasou/Mito Experiments/SIM/Analysis/Day36/CellProfiler/230817_SIM_IndMitochondria.csv")
+res36 <- as.data.frame(res36)
+```
+
+
+```{r}
+res36 <- res36[,-grep("Metadata|PathName",res36[1,])]
+res36$Name <- res36$Image.1
+res36 <- res36[,-grep("Image.",colnames(res36))]
+colnames(res36) <- paste0(colnames(res36),"_",res36[1,])
+res36 <- res36[-1,]
+
+colnames(res36) <- gsub("MitoProcesses\\.[1-5]","Mito",colnames(res36))
+colnames(res36) <- gsub("MitoProcessesSkeleton","Skeleton",colnames(res36))
+
+res36$Name_FileName_SIM <- gsub("-1","",res36$Name_FileName_SIM)
+res36$Name_FileName_SIM <- gsub("B_30-45.tif","B_30_45.tif",res36$Name_FileName_SIM)
+
+res36$Day <- "Day 36"
+```
+
+
+```{r}
+res <- rbind(res29,res36)
+```
+
+
+
+
+
+#variables
+```{r}
+colnames(res)[which(colnames(res) == "Skeleton_AreaShape_Area")] <- "Skeleton_Length"
+colnames(res) <- gsub("_Intensity","",colnames(res))
+colnames(res) <- gsub("_AreaShape","",colnames(res))
+```
+
+
+
+
+
+#save
+```{r}
+saveRDS(res,"./IndMito_wo_blinding.rds")
+```
+
+
+
+
+#Blinding
+```{r}
+res$blinding <- paste(sapply(strsplit(res$Name_FileName_SIM,"_"),"[",1),sapply(strsplit(res$Name_FileName_SIM,"_"),"[",2),sep = "_")
+```
+
+
+```{r}
+bl29 <- readRDS("../raw/Day29/Day29_blinding.rds")
+bl36 <- readRDS("../raw/Day36/Day36_blinding.rds")
+
+bl <- rbind(bl29,bl36)
+```
+
+```{r}
+res <- merge(res,bl,by = c("blinding"),all.x = TRUE)
+```
+
+
+```{r}
+res$date <- sapply(strsplit(res$file,"_"),"[",1)
+res$Differentiation <- res$date
+
+res$Differentiation[res$Day == "Day 29"] <- gsub("230511","M1",res$Differentiation[res$Day == "Day 29"])
+res$Differentiation[res$Day == "Day 29"] <- gsub("230518","M2",res$Differentiation[res$Day == "Day 29"])
+res$Differentiation[res$Day == "Day 29"] <- gsub("230525","M3",res$Differentiation[res$Day == "Day 29"])
+
+
+res$Differentiation[res$Day == "Day 36"] <- gsub("230518","M1",res$Differentiation[res$Day == "Day 36"])
+res$Differentiation[res$Day == "Day 36"] <- gsub("230525","M2",res$Differentiation[res$Day == "Day 36"])
+res$Differentiation[res$Day == "Day 36"] <- gsub("230601","M3",res$Differentiation[res$Day == "Day 36"])
+```
+
+
+
+
+#cleanup
+```{r}
+res$Condition <- sapply(strsplit(res$file,"_"),"[",4)
+res$Condition <- gsub("PLNA1229","pLNA-1229",res$Condition)
+res$Condition <- gsub("^1229","pLNA-1229",res$Condition)
+res$Condition <- gsub("Ctrl1","Ctrl",res$Condition)
+res$Condition <- gsub("Ctrl","pLNA-Ctrl",res$Condition)
+res$Condition <- gsub("control","pLNA-Ctrl",res$Condition)
+
+res$Image <- res$blinding
+```
+
+
+```{r}
+res$Length <- as.numeric(res$Skeleton_Length) / 31.9458
+res$Mito_Compactness <- as.numeric(res$Mito_Compactness)
+res$Mito_Eccentricity <- as.numeric(res$Mito_Eccentricity)
+res$Mito_IntegratedIntensity_SIM <- as.numeric(res$Mito_IntegratedIntensity_SIM)
+res$Mito_MeanIntensity_SIM <- as.numeric(res$Mito_MeanIntensity_SIM)
+res$Mito_Area <- as.numeric(res$Mito_Area)
+res$Mito_Area_um <- res$Mito_Area / (31.9458^2)
+```
+
+
+#save
+```{r}
+saveRDS(res,"./IndMito.rds")
+```
+

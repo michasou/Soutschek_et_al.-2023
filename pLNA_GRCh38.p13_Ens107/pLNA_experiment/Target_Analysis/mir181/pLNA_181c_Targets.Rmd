@@ -1,0 +1,90 @@
+---
+title: "pLNA-181c_Targets"
+author: "Michael Soutschek"
+date: "12/16/2022"
+output: html_document
+---
+
+
+
+```{r}
+library(scanMiR)
+library(SummarizedExperiment)
+library(dplyr)
+```
+
+
+
+#load data
+```{r}
+se <- readRDS("../../data/SE.dea.TX.salmon.raw.rds")
+se2 <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
+sites181c <- readRDS("./target_data/Screen_mir-181c-5p_sites_agg.rds")
+colnames(sites181c)[colnames(sites181c) == "V3"] <- "gene_id"
+sites181c$gene_id <- sapply(strsplit(sites181c$gene_id,"\\."),"[",1)
+```
+
+
+#Transcript based
+```{r}
+dea181c <- rowData(se)[["DEA.pLNA-181c"]]
+dea181c$transcript <- sapply(strsplit(row.names(dea181c),"\\."), getElement,1)
+dea181c$gene_id <- NULL
+
+dea181c <- merge(dea181c,sites181c,by = "transcript",all.x = TRUE)
+dea181c <- dea181c[dea181c$logCPM > 0.5,]
+dea181c <- dea181c[order(dea181c$FDR),]
+write.csv(dea181c,"dea181c_targets_transcriptbased.csv")
+
+genes <- dea181c[order(dea181c$repression)[1:20],unique("symbol")]
+```
+
+```{r}
+dea181cup <- dea181c[dea181c$logFC > 0,]
+dea181cup <- dea181cup[dea181cup$FDR < 0.5,]
+```
+
+
+
+#Gene based
+```{r}
+dea181cg <- rowData(se2)[["DEA.pLNA-181c"]]
+dea181cg$gene_id <- sapply(strsplit(row.names(dea181cg),"\\."),"[",1)
+dea181cg$gene_name <- sapply(strsplit(row.names(dea181cg),"\\."),"[",2)
+```
+
+
+```{r}
+sites181cfiltered <- sites181c[sites181c$transcript %in% dea181c$transcript,]
+sites181cagg <- sites181cfiltered %>%
+  group_by(gene_id) %>%
+  dplyr::filter(repression == min(min(repression), na.rm=TRUE))
+
+sites181cagg$transcript <- NULL
+sites181cagg <- distinct(sites181cagg)
+
+dea181cg <- merge(dea181cg,sites181cagg, by = "gene_id",all.x = TRUE)
+#dea181cg <- dea181cg[dea181cg$logCPM > 0.5,]
+dea181cg <- dea181cg[order(dea181cg$FDR),]
+write.csv(dea181cg,"dea181c_targets_genebased.csv")
+
+genes <- dea181cg[order(dea181cg$repression)[1:20],"gene_name"]
+```
+
+
+
+#individual sites
+```{r}
+sites_ind <- readRDS("./target_data/Screen_mir-181c-5p_sites.rds")
+sites_ind <- merge(sites_ind,dea181c,by.x = "seqnames", by.y = "transcript",all.x = TRUE)
+sites_ind <- sites_ind[sites_ind$logCPM > 1.5,]
+sites_ind <- sites_ind[order(sites_ind$log_kd),]
+
+genes  <- unique(sites_ind[1:22,"symbol.x"])
+
+write.csv(sites_ind,"dea181c_targets_individualsites.csv")
+```
+
+
+
+

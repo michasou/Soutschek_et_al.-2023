@@ -1,0 +1,170 @@
+---
+title: "smallRNA_volcano"
+author: "Michael Soutschek"
+date: "11 1 2021"
+output: html_document
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(plgINS)
+  library(viridis)
+  library(RColorBrewer)
+  library(data.table)
+  library(dplyr)
+  library(tidyr)
+  library(scales)
+  library(ggplot2)
+  library(ggsci)
+  library(cowplot)
+  library(ggrepel)
+  library(ggnewscale)
+})
+source("../../functions/plotVolcano.R")
+```
+
+
+
+
+# set colors
+```{r}
+#show_col(pal_uchicago("default")(3))
+red <- pal_uchicago("default")(3)[1]
+grey <- pal_uchicago("default")(3)[2]
+yellow <- pal_uchicago("default")(3)[3]
+```
+
+
+# Load Data
+```{r}
+se <- readRDS("../../data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+se$day <- as.factor(se$day)
+se2 <- se[,se$day != 0]
+```
+
+
+# plotVolcano Function
+
+# Get volcanos for all DEAs
+```{r}
+dea.names <- c("9v0", "15v9", "21v15", "27v21", "33v27", "40v33")
+dea.names <- paste0("DEA.",dea.names)
+plot.list <- list()
+
+for(i in dea.names){
+  df <- rowData(se)[[i]]
+  p <- plotVolcano(df = df, text.size = 12, sig = 0.05,log.base = 10,anno = NULL, 
+                        xlim_min = -10,  xlim_max = 10, padding = 0.5,
+                        colors = c(yellow,red,grey),
+                        text_color = c("black","white") )
+  p <- p + ggtitle(i) + theme(title=element_text(size=12), legend.position = "none")
+  plot.list[[i]] <- p
+}
+
+p1 <- plotVolcano(df = rowData(se)[["DEA.40v33"]], text.size = 12, sig = 0.05,
+                  log.base = 10,anno = NULL, 
+                        xlim_min = -10,  xlim_max = 10, padding = 0.5,
+                        colors = c(yellow,red,grey),
+                        text_color = c("black","white") )
+```
+
+# Plot_Grid
+```{r}
+legend <- get_legend(
+  # create some space to the left of the legend
+  p1 + theme(legend.box.margin = margin(0, 0, 0, 12))
+)
+
+pp1 <- plot_grid(plotlist = plot.list, align = "hv")
+pp <- plot_grid(pp1, legend, rel_widths = c(3, .4))
+ggsave(pp,filename = "Figure_Output/Volcanos/smallRNA_volc_grid.png", width = 10, height = 7)
+```
+
+# Plot Volcano 21v9
+```{r}
+# # df prep
+# df.21v9 <- rowData(se)[["DEA.21v9"]]
+# df.21v9 <- as.data.frame(df.21v9)
+# df.21v9$names <- row.names(df.21v9)
+# df.21v9$dir <- ifelse(df.21v9$logFC < 0, "downr","upr")
+# 
+# # mirs to annotate
+# anno1 <- grep("-181a|-181b-5p|-181c|-302|-889|-212",df.21v9$names,value = TRUE)
+# anno2 <- grep("-3168|-4485-3p|-518c|-577|-1180|-3200-3p",df.21v9$names,value = TRUE)
+# 
+# # plot Volcano
+# p <- plotVolcano(df = df.21v9 , text.size = 12, sig = 0.05,log.base = 10)
+# 
+# # add general label
+# p1 <- p + geom_label_repel(box.padding = 0.4,segment.colour = "black", aes(color = dir,fill = `Sign.`, label=ifelse(names %in% anno1 & `Sign.` != "not", names, ""))) + scale_fill_manual(values = c("up" = yellow,"down" = red,"not" = grey)) + scale_color_manual(values = c("up" = yellow,"down" = red,"not" = grey,"upr" = "black","downr"  = "white"),guide = FALSE)
+# p1 <- p1 + ggtitle("DEA.21v9 Mouse Micros") + theme(title=element_text(size=12)) 
+#   
+# # add primate label
+# p2 <- p + geom_label_repel(box.padding = 1,segment.colour = "black", aes(color = dir,fill = `Sign.`, label=ifelse(names %in% anno2, names, ""))) + scale_fill_manual(values = c("up" = yellow,"down" = red,"not" = grey)) + scale_color_manual(values = c("up" = yellow,"down" = red,"not" = grey,"upr" = "black","downr"  = "white"),guide = FALSE)
+# p2 <- p2 + ggtitle("DEA.21v9 Primate Micros") + theme(title=element_text(size=12))
+# 
+# pp2 <- plot_grid(p1,p2, align = "hv")
+# ggsave(pp2,filename = "Figure_Output/Volcanos/smallRNA_volc_21v9.png", width = 12, height = 6)
+```
+
+# Plot Volcano 27v9
+```{r}
+# df.27v9 <- rowData(se)[["DEA.27v9"]]
+# df.27v9 <- as.data.frame(df.27v9)
+# df.27v9$names <- row.names(df.27v9)
+# df.27v9$dir <- ifelse(df.27v9$logFC < 0, "downr","upr")
+# 
+# # mirs to annotate
+# anno1 <- grep("-181a-5|-181b-5p|-181c|-302a|-132-|-302c|-212|-134-5p|-125b-5p",df.27v9$names,value = TRUE)
+# anno2 <- grep("-7704|-548g|-4485-3p|-518c|-7706|-4497|-3200-3p|-592",df.27v9$names,value = TRUE)
+# 
+# # plot Volcano
+# p <- plotVolcano(df = df.27v9 , text.size = 12, sig = 0.05,log.base = 10)
+# 
+# # add general label
+# p1 <- p + geom_label_repel(box.padding = 0.25,segment.colour = "black", aes(color = dir,fill = `Sign.`, label=ifelse(names %in% anno1 & `Sign.` != "not", names, ""))) + scale_fill_manual(values = c("up" = yellow,"down" = red,"not" = grey)) + scale_color_manual(values = c("up" = yellow,"down" = red,"not" = grey,"upr" = "black","downr"  = "white"),guide = FALSE)
+# p1 <- p1 + ggtitle("DEA.27v9 Mouse Micros") + theme(title=element_text(size=12)) 
+#   
+# # add primate label
+# p2 <- p + geom_label_repel(box.padding = 1,segment.colour = "black", aes(color = dir,fill = `Sign.`, label=ifelse(names %in% anno2, names, ""))) + scale_fill_manual(values = c("up" = yellow,"down" = red,"not" = grey)) + scale_color_manual(values = c("up" = yellow,"down" = red,"not" = grey,"upr" = "black","downr"  = "white"),guide = FALSE)
+# p2 <- p2 + ggtitle("DEA.27v9 Primate Micros") + theme(title=element_text(size=12)) 
+# 
+# pp2 <- plot_grid(p1,p2, align = "hv")
+# ggsave(pp2,filename = "Figure_Output/Volcanos/smallRNA_volc_27v9.png", width = 12, height = 6)
+```
+
+
+# Plot Volcano 40v9
+```{r}
+# df.40v9 <- rowData(se)[["DEA.40v9"]]
+# df.40v9 <- as.data.frame(df.40v9)
+# df.40v9$names <- row.names(df.40v9)
+# df.40v9$dir <- ifelse(df.40v9$logFC < 0, "downr","upr")
+# 
+# # mirs to annotate
+# anno1 <- grep("-181a-|-181b-5p|-181c|-302a-5p|-302d-3p|-132-3p-125b-5p|-let7a-5p|-212-5p|-134-5p",df.40v9$names,value = TRUE)
+# anno2 <- grep("-7704|-548g|-4485-3p|-518c|-577|-1180|-3200-3p|-592",df.40v9$names,value = TRUE)
+# 
+# # plot Volcano
+# p <- plotVolcano(df = df.40v9 , text.size = 12, sig = 0.05,log.base = 10)
+# 
+# # add general label
+# p1 <- p + geom_label_repel(box.padding = 0.25,segment.colour = "black", aes(color = dir,fill = `Sign.`, label=ifelse(names %in% anno1 & `Sign.` != "not", names, ""))) + scale_fill_manual(values = c("up" = yellow,"down" = red,"not" = grey)) + scale_color_manual(values = c("up" = yellow,"down" = red,"not" = grey,"upr" = "black","downr"  = "white"),guide = FALSE)
+# p1 <- p1 + ggtitle("DEA.40v9 Mouse Micros") + theme(title=element_text(size=12)) 
+#   
+# # add primate label
+# p2 <- p + geom_label_repel(box.padding = 1,segment.colour = "black", aes(color = dir,fill = `Sign.`, label=ifelse(names %in% anno2, names, ""))) + scale_fill_manual(values = c("up" = yellow,"down" = red,"not" = grey)) + scale_color_manual(values = c("up" = yellow,"down" = red,"not" = grey,"upr" = "black","downr"  = "white"),guide = FALSE)
+# p2 <- p2 + ggtitle("DEA.40v9 Primate Micros") + theme(title=element_text(size=12)) 
+# 
+# pp2 <- plot_grid(p1,p2, align = "hv")
+# ggsave(pp2,filename = "Figure_Output/Volcanos/smallRNA_volc_40v9.png", width = 12, height = 6)
+```
+
+
+
+

@@ -1,0 +1,79 @@
+---
+title: "CaImaging"
+author: "Michael"
+date: '2022-10-17'
+output: html_document
+---
+
+
+#libraries
+```{r}
+suppressPackageStartupMessages({
+  library(data.table)
+  library(ggplot2)
+  library(stringr)
+  library(reshape2)
+  library(emmeans)
+  library(ggrepel)
+  library(emmeans)
+  library(dplyr)
+})
+```
+
+
+
+
+## Load Data From SpikeIt App
+```{r echo=TRUE}
+NumFrames <- 753 #Number of Frames in a video
+totalTime <- 300 #in s
+timeperFrame <- totalTime/NumFrames
+
+data_m1 <- read.csv("../raw/Peak-Tables_M1_MCMA_075_3_397.csv")
+data_m2 <- read.csv("../raw/Peak-Tables_M2_MCMA_075_3_397.csv")
+data_m3 <- read.csv("../raw/Peak-Tables_M3_MCMA_075_3_397.csv")
+
+data <- rbind(data_m1,data_m2,data_m3)
+
+#filter out NBQX
+data <- data[-grep("NBQX",data$Table),]
+
+#filter out the first 30s, since these are screwed up in the MA conditions
+data <- data[data$Peak.Stop.s. > 30,]
+
+#cleanup
+data <- data[!is.na(data$Baseline.Intensity.df.F.),]
+data$Table.ID <- NULL
+
+#the amplitude column is already calculated in Peak.Intensity.df.F, so "amplitude" would be calculated doubled and can be deleted
+data$Amplitude <- NULL
+
+#get Metadata Info
+data$Differentiation <- sapply(strsplit(data$Table,"_"),"[",1)
+data$LNA <- sapply(strsplit(data$Table,"_"),"[",7)
+data$LNA[data$LNA != "Empty"] <- paste0("pLNA-",data$LNA[data$LNA != "Empty"])
+data$Day <- sapply(strsplit(data$Table,"_"),"[",8)
+data$CVS <- sapply(strsplit(data$Table,"_"),"[",9)
+data$Video <- sapply(strsplit(data$Table,"_"),"[",10)
+data$Drug <- sapply(strsplit(data$Table,"_"),"[",6)
+data$Condition <- paste0(data$LNA,"_",data$Drug)
+data$CVS <- gsub("\\..*","",data$CVS)
+
+
+#exclude every cell that spikes less than 5x per video
+NumPeaks <- aggregate(data$Peak.Intensity.df.F., data[,c("Cell.Trace","Table")],FUN = length)
+colnames(NumPeaks)[3] <- "#Peaks"
+
+lowPeaks <- NumPeaks[NumPeaks$`#Peaks` < 5,]
+lowPeaks$Info <- paste0(lowPeaks$Table,"_",lowPeaks$Cell.Trace)
+
+data$Info <- paste0(data$Table,"_",data$Cell.Trace)
+data2 <- data[!(data$Info %in% lowPeaks$Info),]
+
+
+saveRDS(data,"./PeakTable_075.rds")
+```
+
+
+
+

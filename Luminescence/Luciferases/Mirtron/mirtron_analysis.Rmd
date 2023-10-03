@@ -1,0 +1,121 @@
+---
+title: "Lactate"
+author: "Michael"
+date: "2023-07-20"
+output: html_document
+---
+
+
+```{r}
+library(readxl)
+library(scales)
+library(ggsci)
+library(ggplot2)
+library(MASS)
+library(emmeans)
+library(cowplot)
+library(rstatix)
+library(ggpattern)
+```
+
+
+```{r}
+show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],pal_uchicago("default")(9)[2])
+```
+
+
+#load data
+```{r}
+res <- read.csv("./HEK_mirtron_PBS_formatted.csv")
+res$Replicate <- NULL
+res <- as.data.frame(t(res))
+colnames(res) <- c("N1","N2","N3")
+res$Condition <- row.names(res)
+res2 <- reshape2::melt(res, id.vars=c("Condition"))
+colnames(res2)[which(colnames(res2)== "variable")] <- "Replicate"
+res2$Condition <- gsub("_"," ",res2$Condition)
+res2$Condition <- gsub("miR.1229","miR-1229",res2$Condition)
+res2$Precursor <- sapply(strsplit(res2$Condition,"\\."),"[",1)
+res2$Precursor <- factor(res2$Precursor, levels = c("Human miR-1229","Chimp miR-1229"))
+res2$Condition <- factor(res2$Condition, levels = c("Human miR-1229.Ctrl PBS","Human miR-1229.human PBS","Human miR-1229.chimp PBS","Chimp miR-1229.Ctrl PBS","Chimp miR-1229.chimp PBS","Chimp miR-1229.human PBS"))
+levels(res2$Condition) <- gsub("\\.", "\n", levels(res2$Condition))
+
+```
+
+
+
+#stat
+
+
+
+
+```{r}
+mod <- lm(value ~ Condition + Replicate,res2)
+s1 <- emmeans(mod, trt.vs.ctrl ~ Condition , ref="Human miR-1229\nCtrl PBS")
+
+s1_df <- as.data.frame(s1$contrasts)
+s1_df$group1 <- "Human miR-1229\nCtrl PBS"
+s1_df$group2 <- s1_df$contrast
+s1_df$group2 <- gsub("\\) - \\(Human miR-1229\nCtrl PBS\\)","",s1_df$group2)
+s1_df$group2 <- gsub("\\(", "",s1_df$group2)
+s1_df <- add_significance(s1_df,p.col = "p.value")
+
+y_pos <- max(res2[,"value"])
+s1_df$y_pos <- y_pos*1.05
+# s1_df$y_adj <- rep(c(0,1,0))
+# s1_df$y_pos2 <- s1_df$y_pos + s1_df$y_adj
+
+
+s1_df$p.value.signif[s1_df$p.value.signif == "ns"] <- NA
+```
+
+
+
+
+```{r}
+p1 <- ggplot(res2, aes(x = Condition, y = value)) +
+  geom_bar_pattern(aes(pattern = Precursor),
+    position = position_dodge(preserve = "single"),
+                   pattern_fill = "black",
+                   pattern_angle = 45,
+                   pattern_density = 0.1,
+                   pattern_spacing = 0.025,
+                   pattern_key_scale_factor = 0.6,
+                   stat = "summary", fun = "mean",
+                   fill = "white", color = "black") + 
+   geom_point(aes(colour = Replicate),
+             size = 2, show.legend = TRUE
+             ) +
+  ylab("Luminescence") +
+  theme_classic(base_size = 12)+
+  scale_colour_manual(values = col_vec) +
+  scale_pattern_manual(values = c('Human miR-1229' = "none", 'Chimp miR-1229' = "stripe")) +
+  ggsignif::geom_signif(
+    data = s1_df,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  scale_y_continuous(labels = scales::label_scientific()) + 
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1))) +
+  guides(pattern = guide_legend(override.aes = list(shape = NA))
+         ) +
+  scale_x_discrete(labels=c("Ctrl.\nPBS","Human\nPBS","Chimp\nPBS",
+                            "Ctrl.\nPBS","Human\nPBS","Chimp\nPBS"))
+
+ggsave2("./miRtron.png",p1, width = 6.5,height = 4, bg = "white")
+```
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,108 @@
+---
+title: "qPCR_TaqMan_Analysis"
+author: "Michael"
+date: "26 1 2022"
+output: html_document
+---
+
+
+```{r}
+suppressPackageStartupMessages({
+library(dplyr)
+library(ggplot2)
+library(ggsci)
+})
+```
+
+
+#load data
+```{r}
+data1 <- readRDS("./qPCR_220112.rds")
+data1$Content <- NULL
+data2 <- readRDS("./qPCR_220126.rds")
+data2$Content <- NULL
+data <- rbind(data1,data2)
+```
+
+
+
+#Clean up and plot Cq-values free
+```{r}
+data <- data[data$Sample != "-RT",]
+ggplot(data,aes(x = day,y=Cq.mean)) +
+  geom_boxplot() + facet_wrap(~ Target, ncol=2, scales = "free" ) + geom_point(aes(color = exp)) + theme_bw()
+
+ggsave("./Cq_mean_values_free.png", width = 7, height =7)
+```
+
+
+
+
+#Analysis
+
+1) normalize each sample to U6
+```{r}
+U6 <- data[data$Target == "U6",]
+colnames(U6)[1] <- "CQ.mean.U6"
+
+data.nU6 <- merge(data,U6[,c("CQ.mean.U6","Sample")],by="Sample")
+data.nU6$normU6 <- data.nU6$Cq.mean - data.nU6$CQ.mean.U6
+data.nU6$normU6.exp <- 2^(-data.nU6$normU6)
+
+data.nU6.plotU6 <- data.nU6[data.nU6$Target != "U6",]
+
+
+#colors
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
+
+data.nU6.plotU6.2 <- data.nU6.plotU6[data.nU6.plotU6$Target != "miR-30e" & data.nU6.plotU6$Target != "miR-708" ,]
+data.nU6.plotU6.2$Target <- factor(data.nU6.plotU6.2$Target, levels = c("miR-181c","miR-1229"))
+
+p2 <- ggplot(data.nU6.plotU6.2,aes(x = day,y=normU6.exp)) + geom_boxplot() + geom_point(aes(color = exp)) + 
+  facet_wrap(~ Target, ncol=3, scales = "free" ) + ylab("Normalized to U6") +
+  scale_color_manual(values = col_vec) + xlab("Day") + 
+  theme_classic() + 
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.background = element_blank(),
+        strip.placement = "inside",
+        text = element_text(size = 16),
+        axis.text.x = element_text(size = rel(1)),
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 14)) +
+  guides(color=guide_legend(title="Differentiation"))
+
+ggsave("./Normlized_miR181_miR1229.png", p2, width = 8, height = 4)
+
+
+
+
+
+
+
+data.nU6.plotU6.3 <- data.nU6.plotU6[data.nU6.plotU6$Target == "miR-708" ,]
+
+p3 <- ggplot(data.nU6.plotU6.3,aes(x = day,y=normU6.exp)) + geom_boxplot() + geom_point(aes(color = exp)) + 
+  facet_wrap(~ Target, ncol=3, scales = "free" )  + theme_classic() + ylab("Normalized to U6") +
+  scale_color_manual(values = col_vec)
+
+ggsave("./Normlized_miR708.png", p3, width = 3, height = 3.5)
+
+data.nU6.plotU6.4 <- data.nU6.plotU6[data.nU6.plotU6$Target == "miR-1229" ,]
+
+p4 <- ggplot(data.nU6.plotU6.4,aes(x = day,y=normU6.exp)) + geom_boxplot() + geom_point(aes(color = exp)) + 
+ ggtitle("miRNA qPCR - miR-1229") + ylab("Normalized to U6") +
+  scale_color_manual(values = col_vec) + xlab("Day") + 
+  theme_classic(base_size = 13) + 
+  theme(strip.text.x = element_text(size = rel(1.2)),
+        strip.background = element_blank(),
+        strip.placement = "inside",
+        text = element_text(size = 12),
+        axis.text.x = element_text(size = rel(0.9))) +
+  guides(color=guide_legend(title="Differentiation"))
+
+ggsave("./miR_1229.png", p4, width = 6.5, height = 4.5)
+```
+
+
+
+

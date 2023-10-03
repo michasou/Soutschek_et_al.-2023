@@ -1,0 +1,52 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# to run the scripts in this folder use the name `conservation`
+# platform: linux-64
+@EXPLICIT
+https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
+https://repo.anaconda.com/pkgs/main/linux-64/blas-1.0-mkl.conda
+https://repo.anaconda.com/pkgs/main/linux-64/ca-certificates-2021.1.19-h06a4308_0.conda
+https://repo.anaconda.com/pkgs/main/linux-64/intel-openmp-2020.2-254.conda
+https://repo.anaconda.com/pkgs/main/linux-64/ld_impl_linux-64-2.33.1-h53a641e_7.conda
+https://conda.anaconda.org/conda-forge/linux-64/libstdcxx-ng-9.3.0-h6de172a_18.tar.bz2
+https://repo.anaconda.com/pkgs/main/linux-64/openjdk-8.0.152-h7b6447c_3.conda
+https://conda.anaconda.org/conda-forge/linux-64/libgomp-9.3.0-h2828fa1_18.tar.bz2
+https://repo.anaconda.com/pkgs/main/linux-64/mkl-2020.2-256.conda
+https://conda.anaconda.org/bioconda/noarch/readseq-2.1.30-1.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-1_gnu.tar.bz2
+https://conda.anaconda.org/conda-forge/linux-64/libgcc-ng-9.3.0-h2828fa1_18.tar.bz2
+https://repo.anaconda.com/pkgs/main/linux-64/bzip2-1.0.8-h7b6447c_0.conda
+https://repo.anaconda.com/pkgs/main/linux-64/icu-58.2-he6710b0_3.conda
+https://repo.anaconda.com/pkgs/main/linux-64/libffi-3.3-he6710b0_2.conda
+https://conda.anaconda.org/conda-forge/linux-64/libsvm-324-h9c3ff4c_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/linux-64/lz4-c-1.9.3-h2531618_0.conda
+https://repo.anaconda.com/pkgs/main/linux-64/ncurses-6.2-he6710b0_1.conda
+https://repo.anaconda.com/pkgs/main/linux-64/openssl-1.1.1j-h27cfd23_0.conda
+https://conda.anaconda.org/anaconda/linux-64/perl-5.26.2-h14c3975_0.tar.bz2
+https://conda.anaconda.org/bioconda/linux-64/viennarna-2.3.3-hfc679d8_2.tar.bz2
+https://repo.anaconda.com/pkgs/main/linux-64/xz-5.2.5-h7b6447c_0.conda
+https://repo.anaconda.com/pkgs/main/linux-64/zlib-1.2.11-h7b6447c_3.conda
+https://repo.anaconda.com/pkgs/main/linux-64/libedit-3.1.20191231-h14c3975_1.conda
+https://repo.anaconda.com/pkgs/main/linux-64/readline-8.0-h7b6447c_0.conda
+https://conda.anaconda.org/bioconda/linux-64/rnaz-2.1.1-pl526he1b5a44_1.tar.bz2
+https://repo.anaconda.com/pkgs/main/linux-64/tk-8.6.10-hbc83047_0.conda
+https://repo.anaconda.com/pkgs/main/linux-64/zstd-1.4.5-h9ceee32_0.conda
+https://repo.anaconda.com/pkgs/main/linux-64/libboost-1.73.0-h37e3b65_11.conda
+https://repo.anaconda.com/pkgs/main/linux-64/sqlite-3.33.0-h62c20be_0.conda
+https://repo.anaconda.com/pkgs/main/linux-64/python-3.8.5-h7579374_1.conda
+https://repo.anaconda.com/pkgs/main/linux-64/py-boost-1.73.0-py38h962f231_11.conda
+https://conda.anaconda.org/conda-forge/linux-64/python_abi-3.8-1_cp38.tar.bz2
+https://repo.anaconda.com/pkgs/main/linux-64/six-1.15.0-py38h06a4308_0.conda
+https://repo.anaconda.com/pkgs/main/noarch/wheel-0.36.2-pyhd3eb1b0_0.conda
+https://repo.anaconda.com/pkgs/main/linux-64/boost-1.73.0-py38_11.conda
+https://conda.anaconda.org/conda-forge/linux-64/certifi-2020.12.5-py38h578d9bd_1.tar.bz2
+https://repo.anaconda.com/pkgs/main/linux-64/mkl-service-2.3.0-py38he904b0f_0.conda
+https://conda.anaconda.org/bioconda/linux-64/blast-2.5.0-hc0b0e79_3.tar.bz2
+https://repo.anaconda.com/pkgs/main/linux-64/numpy-base-1.19.2-py38hfa32c7d_0.conda
+https://repo.anaconda.com/pkgs/main/linux-64/setuptools-51.3.3-py38h06a4308_4.conda
+https://repo.anaconda.com/pkgs/main/linux-64/pip-20.3.3-py38h06a4308_0.conda
+https://conda.anaconda.org/bioconda/noarch/seqmagick-0.8.0-py_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/linux-64/biopython-1.78-py38h7b6447c_0.conda
+https://repo.anaconda.com/pkgs/main/linux-64/mkl_fft-1.3.0-py38h54f3939_0.conda
+https://repo.anaconda.com/pkgs/main/linux-64/mkl_random-1.1.1-py38h0573a6f_0.conda
+https://repo.anaconda.com/pkgs/main/linux-64/numpy-1.19.2-py38h54aff64_0.conda

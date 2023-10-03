@@ -1,0 +1,822 @@
+---
+title: "Conservation analysis of human microRNAs"
+author: "Fridolin Gross"
+date: '2021-07-08'
+output:
+  html_document:
+    df_print: paged
+---
+
+### Load required packages
+```{r}
+suppressPackageStartupMessages({
+  library(Biostrings)
+  library(SummarizedExperiment)
+  library(msa)
+  library(pheatmap)
+  library(openxlsx)
+  library(ggpubr)
+  library(tidyverse)
+  library(scanMiRData)
+})
+```
+
+
+### Load human miRNAs and annotation
+Annotations and miRNA sequences can be downloaded and generated using the script `src/miRNA_conservation.R`.
+```{r}
+hsa_seqs <- readDNAStringSet("../data/mirnas/hsa_all.fa")
+hsa_seqs_precursor <- readDNAStringSet("../data/mirnas/hsa.fa")
+
+grl <- rtracklayer::import("../data/mirnas/hsa.gff3")
+grl_mature <- grl[grl$type=="miRNA"]
+names(grl_mature) <- grl_mature$Name
+
+## organisms used for comparison
+orgs <- c(
+  "human" = "hg38",
+  "chimpanzee" = "panTro6",
+  "gorilla" = "gorGor6",
+  "orangutan" = "ponAbe3",
+  "macaque" = "macFas5",
+  "marmoset" = "calJac3",
+  "mouse" = "mm39",
+  "rat" = "rn6", 
+  "dog" = "canFam5",
+  "cow" = "bosTau9",
+  #  "opossum" = "monDom5", ## different format... 
+  "chicken" = "galGal6")
+
+non_humans <- orgs[orgs!=orgs["human"]]
+
+hsa_kd <- getKdModels("hsa")
+```
+
+
+### Load microRNA expression data
+```{r}
+se_smallRNA <- readRDS("../../GRCh38.p10_Ens91_Sushi-mapping/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+se_smallRNA_all <- readRDS("../../GRCh38.p10_Ens91_Sushi-mapping/data/Small_RNA/raw/smallRNA_oasis.raw.SE.rds")
+
+smallRNA_counts <- se_smallRNA  %>%
+  assays() %>%
+  `[[`("logcpm") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "ID") %>%
+  pivot_longer(cols = starts_with("SC")) %>%
+  group_by(ID) %>%
+  summarize(
+    min_exp = min(value),
+    max_exp = max(value),
+    mean_exp = mean(value),
+    median_exp = median(value)) %>%
+  inner_join(mcols(grl)[c("Name", "Derives_from")], by = c("ID" = "Name"), copy=TRUE) %>%
+  left_join(mcols(grl)[c("Name", "ID")], by = c("Derives_from" = "ID"), copy=TRUE) %>%
+  select(-Derives_from) %>%
+  rename(precursor = Name)
+```
+
+
+### Search for orthologs of human miRNAS
+The search for orthologs of human precursor miRNAs is performed using the script `src/miRNA_conservation.R`. Orthologs for each species are stored in `data/hits`. Information about which human miRNAs do or do not have orthologs in other species are stored in `data/miRNA_conservation.csv` and `data/miRNA_conservation.xlsx`.
+
+
+### Generate alignments from orthologs, checking for seed mismatches
+The previously identified orthologs are assembled using the `msa` function.  The function `check_alignment` then determines the number of mismatches in the seed region or in the full precursor sequence of human miRNAs. The results are saved in `res/miRNA_alignments.rds`.
+```{r}
+check_alignment <- function(ma, miRNA_seq, onlySeed = TRUE) {
+  human_seq <- ma@unmasked[["human"]]
+  if(onlySeed) {
+    mature_pos <- matchPattern(miRNA_seq[[1]], ma@unmasked[["human"]])
+    seed_mask <- IRanges(start(mature_pos)+1, start(mature_pos)+6)
+    inv_seed_mask <- GenomicRanges::setdiff(IRanges(1, length(human_seq)),
+                                          seed_mask)
+    colmask(ma) <- inv_seed_mask
+    seed_matrix <- as.matrix(endoapply(ma@unmasked, `[`, seed_mask))
+    h_rows <- which(rownames(seed_matrix) == "human")
+    nh_rows <- which(rownames(seed_matrix) != "human")
+    n_mismatch <- sum(apply(seed_matrix, 2, function(col)
+    all(col[h_rows]!=col[nh_rows])))
+    } else {
+      m <- as.matrix(ma@unmasked)
+      n_mismatch <- sum(apply(m, 2, function(col) all(col[1]!=col[2])))
+    }
+  return(list(alignment = ma, n_mismatch = n_mismatch))
+}
+
+## create data with seed alignments and number of seed mismatches (i.e. where human is different from ALL other orthologs)
+if(file.exists("../res/miRNA_alignments_seed.rds")) {
+  miRNA_alignments <- readRDS("../res/miRNA_alignments_seed.rds")
+} else {
+  miRNA_alignments_seed <- list()
+  for(miRNA in names(grl_mature)) {
+    primary_id <- grl_mature[miRNA]$Derives_from
+    primary <- grl[grl$type == "miRNA_primary_transcript" & grl$ID == primary_id]
+    miRNA_seq <- hsa_seqs[miRNA]
+    primary_name <- primary$Name
+    primary_seq <- hsa_seqs[primary_name]
+    mirna_seqs <- setNames(primary_seq, "human")
+    for(org in non_humans) {
+      hits <- readDNAStringSet(paste("../data/hits/hsa_", org,
+                                     ".fa", sep=""))
+      if(primary_name %in% names(hits)) {
+        mirna_seq_org <- setNames(hits[primary_name], org)
+        mirna_seqs <- c(mirna_seqs, mirna_seq_org)
+      }
+    }
+    if(length(mirna_seqs)>1){
+      invisible(capture.output(ma <- msa(mirna_seqs, order = "input"),
+                               type = "output"))
+      ma_res <- check_alignment(ma, miRNA_seq, onlySeed = TRUE)
+      if(ma_res$n_mismatch > 0){
+        miRNA_alignments_seed[[miRNA]] <- ma_res
+      }
+    }
+  }
+  saveRDS(miRNA_alignments_seed, "../res/miRNA_alignments_seed.rds")
+}
+
+## create data with seed alignments for all miRNAs
+if(file.exists("../res/miRNA_alignments.rds")) {
+  miRNA_alignments <- readRDS("../res/miRNA_alignments.rds")
+} else {
+  miRNA_alignments <- list()
+  for(miRNA in names(grl_mature)) {
+    primary_id <- grl_mature[miRNA]$Derives_from
+    primary <- grl[grl$type == "miRNA_primary_transcript" & grl$ID == primary_id]
+    miRNA_seq <- hsa_seqs[miRNA]
+    primary_name <- primary$Name
+    primary_seq <- hsa_seqs[primary_name]
+    mirna_seqs <- setNames(primary_seq, "human")
+    for(org in non_humans) {
+      hits <- readDNAStringSet(paste("../data/hits/hsa_", org,
+                                     ".fa", sep=""))
+      if(primary_name %in% names(hits)) {
+        mirna_seq_org <- setNames(hits[primary_name], org)
+        mirna_seqs <- c(mirna_seqs, mirna_seq_org)
+      }
+    }
+    if(length(mirna_seqs)>1){
+      invisible(capture.output(ma <- msa(mirna_seqs, order = "input"),
+                               type = "output"))
+      ma_res <- check_alignment(ma, miRNA_seq,onlySeed = FALSE)
+      if(ma_res$n_mismatch > 0){
+        miRNA_alignments[[miRNA]] <- ma_res
+      }
+    }
+  }
+  saveRDS(miRNA_alignments, "../res/miRNA_alignments.rds")
+}
+
+
+miRNA <- "hsa-miR-1229-3p"
+hsa_1229 <- hsa_kd[["hsa-miR-1229-3p"]]
+seed <- DNAString(hsa_1229$canonical.seed)
+seed <- reverseComplement(seed)
+seed <- seed[2:8]
+seed <- DNAStringSet(seed)
+names(seed) <- "seed-m8"
+
+
+## create data with both alignments for miR-1229
+if(file.exists("../res/miRNA_alignments_both_1229.rds")) {
+  miRNA_alignments <- readRDS("../res/miRNA_alignments_both_1229.rds")
+} else {
+  miRNA_alignments <- list()
+    primary_id <- grl_mature[miRNA]$Derives_from
+    primary <- grl[grl$type == "miRNA_primary_transcript" & grl$ID == primary_id]
+    miRNA_seq <- hsa_seqs[miRNA]
+    primary_name <- primary$Name
+    primary_seq <- hsa_seqs[primary_name]
+    mirna_seqs <- primary_seq
+    for(org in non_humans) {
+      hits <- readDNAStringSet(paste("../data/hits/hsa_", org,
+                                     ".fa", sep=""))
+      if(primary_name %in% names(hits)) {
+        mirna_seq_org <- setNames(hits[primary_name], org)
+        mirna_seqs <- c(mirna_seqs, mirna_seq_org)
+      }
+    }
+    mirna_seqs_full <- c(seed,miRNA_seq,mirna_seqs)
+    if(length(mirna_seqs_full)>1){
+      invisible(capture.output(ma <- msa(mirna_seqs_full, order = "input"),
+                               type = "output"))
+      ma_res <- check_alignment(ma, miRNA_seq,onlySeed = FALSE)
+      if(ma_res$n_mismatch > 0){
+        miRNA_alignments[[miRNA]] <- ma_res
+      }
+    }
+  saveRDS(miRNA_alignments, "../res/miRNA_alignments_both_1229.rds.rds")
+}
+```
+
+
+#### Add miRNAs with seed changes in human to results
+```{r}
+miRNA_alignments <- readRDS("../res/miRNA_alignments_seed.rds")
+
+if(!"overall seed changes" %in%
+  getSheetNames("../res/miRNA_conservation.xlsx")) {
+  my_miRNAs <- names(miRNA_alignments)
+  precursor_IDs <- lapply(my_miRNAs, function(m) grl_mature[grl_mature$Name==m]$Derives_from)
+  precursors <- unlist(lapply(precursor_IDs, function(ID) paste(grl[grl$ID %in% ID]$Name, collapse = ", ")))
+  
+  df_alignment <- as.data.frame(grl_mature[my_miRNAs]) %>%
+    rownames_to_column("miRNA_id") %>%
+    mutate(precursor_id = precursors) %>%
+    dplyr::select(miRNA_id, precursor_id, seqnames, strand, start, end) %>%
+    rename(Chromosome = seqnames, Strand = strand, Start = start, End = end) %>%
+    mutate(mismatches = sapply(my_miRNAs, function(m) miRNA_alignments[[m]]$n_mismatch)) %>%
+    arrange(miRNA_id)
+  
+  wb <- loadWorkbook("../res/miRNA_conservation.xlsx")
+  addWorksheet(wb, sheetName = "overall seed changes")
+  writeData(wb, sheet = "overall seed changes", df_alignment)
+  saveWorkbook(wb,"../res/miRNA_conservation.xlsx", overwrite = TRUE)
+}
+```
+
+
+#### Add number of seed mismatches to results table 
+```{r}
+if(!"seed mismatches in orthologs" %in%
+  getSheetNames("../res/miRNA_conservation.xlsx")) {
+  df_alignment <- data.frame()
+  for(org in non_humans) {
+    hits <- readDNAStringSet(paste("../data/hits/hsa_", org, ".fa", sep=""))
+    df_org <- data.frame()
+    for(miRNA in names(grl_mature)) {
+      primary_id <- grl_mature[miRNA]$Derives_from
+      primary <- grl[grl$type == "miRNA_primary_transcript" & grl$ID == primary_id]
+      miRNA_seq <- hsa_seqs[miRNA]
+      primary_name <- primary$Name
+      primary_seq <- hsa_seqs_precursor[primary_name]
+      mirna_seq_hsa <- setNames(primary_seq, "human")
+      df_miRNA <- data.frame(miRNA_id = miRNA, precursor_id = primary_name)
+      if(primary_name %in% names(hits)) {
+        mirna_seq_org <- setNames(hits[primary_name], org)
+        mirna_seqs <- c(mirna_seq_hsa, mirna_seq_org)
+      }
+      if(length(mirna_seqs)>1){
+        invisible(capture.output(ma <- msa(mirna_seqs, order = "input"),
+                                 type = "output"))
+        ma_res <- check_alignment(ma, miRNA_seq, onlySeed = TRUE)
+        df_miRNA[[org]] <- ma_res$n_mismatch
+      } else {
+        df_miRNA[[org]] <- NA
+      }
+      df_org <- rbind(df_org, df_miRNA)
+    }
+    if(ncol(df_alignment)==0) {
+      df_alignment <- df_org
+    } else {
+      df_alignment[[org]] <- df_org[[org]]
+    }
+  }
+  df_alignment <- df_alignment[order(df_alignment$miRNA_id),]
+  wb <- loadWorkbook("../res/miRNA_conservation.xlsx")
+  addWorksheet(wb, sheetName = "seed mismatches in orthologs")
+  writeData(wb, sheet = "seed mismatches in orthologs", df_alignment)
+  saveWorkbook(wb,"../res/miRNA_conservation.xlsx", overwrite = TRUE)
+}
+
+```
+
+
+#### Add number of mismatches in precursor sequence to results table 
+```{r}
+
+if(!"mismatches in orthologs" %in%
+  getSheetNames("../res/miRNA_conservation.xlsx")) {
+  df_alignment <- data.frame()
+  for(org in non_humans) {
+    hits <- readDNAStringSet(paste("../data/hits/hsa_", org,
+                                     ".fa", sep=""))
+    df_org <- data.frame()
+    for(miRNA in names(hsa_seqs_precursor)) {
+      df_miRNA <- data.frame(precursor_id = miRNA)
+      miRNA_seq <- hsa_seqs_precursor[miRNA]
+      mirna_seqs_hsa <- setNames(miRNA_seq, "human")    
+          if(miRNA %in% names(hits)) {
+            mirna_seq_org <- setNames(hits[miRNA], org)
+            mirna_seqs <- c(mirna_seqs_hsa, mirna_seq_org)
+          }
+        if(length(mirna_seqs)>1){
+          invisible(capture.output(ma <- msa(mirna_seqs, order = "input"),
+                                   type = "output"))
+          ma_res <- check_alignment(ma, miRNA_seq, onlySeed = FALSE)
+          df_miRNA[[org]] <- ma_res$n_mismatch
+        } else {
+          df_miRNA[[org]] <- NA
+        }
+      df_org <- rbind(df_org, df_miRNA)
+    }
+    if(ncol(df_alignment)==0) {
+      df_alignment <- df_org
+    } else {
+      df_alignment[[org]] <- df_org[[org]]
+    }
+  }
+  
+  wb <- loadWorkbook("../res/miRNA_conservation.xlsx")
+  addWorksheet(wb, sheetName = "mismatches in orthologs")
+  writeData(wb, sheet = "mismatches in orthologs", df_alignment)
+  saveWorkbook(wb,"../res/miRNA_conservation.xlsx", overwrite = TRUE)
+}
+```
+
+
+
+### Cluster miRNAs depending on presence of orthologs in other species
+```{r}
+# hu_no_orthologs <- read.xlsx("../res/41467_2012_BFncomms2146_MOESM1257_ESM.xlsx", sheet = 2, startRow = 2) %>%
+#   mutate_at(vars(Chimpanzee:Chicken), ~.=="x") %>%
+#   filter(!is.na(Start))
+# 
+# hu_orthologs <- read.xlsx("../res/41467_2012_BFncomms2146_MOESM1257_ESM.xlsx", startRow = 2) %>%
+#   mutate_at(vars(Chimpanzee:Chicken), ~.=="x") %>%
+#   filter(!is.na(Start)) %>%
+#   bind_rows(hu_no_orthologs) %>%
+#   dplyr::select(-Opossum)
+# 
+# org_names <- hu_orthologs %>%
+#   dplyr::select(Chimpanzee:Chicken) %>%
+#   names()
+# 
+# my_orthologs <- read.table("../res/miRNA_conservation.csv", header = TRUE) %>%
+#   mutate(expressed = miRNA_id %in% smallRNA_counts$precursor, .after = End)
+# names(my_orthologs)[7:16] <- org_names
+# 
+# orthologs <- merge(my_orthologs, hu_orthologs, by.x="miRNA_id", by.y="miRNA.Precursor.ID")
+# 
+# hu_matrix <- orthologs %>%
+#   dplyr::select(Chimpanzee.y:Chicken.y) %>%
+#   as.matrix()
+# my_matrix <- orthologs %>%
+#   dplyr::select(Chimpanzee.x:Chicken.x) %>%
+#   as.matrix()
+# 
+# clust_matrix <- my_orthologs %>% 
+#   filter(expressed) %>%
+#   dplyr::select(Chimpanzee:Chicken) %>%
+#   mutate_all(as.numeric)  %>%
+#   as.matrix()
+# 
+# p <- pheatmap(clust_matrix, color = grey.colors(2, rev = TRUE), border_color = "black", gaps_col = 1:10, cluster_cols = FALSE, legend = FALSE, clustering_method = "ward.D2")
+# ggsave("../res/ortholog_clustering.pdf", p)
+```
+
+
+### Cluster miRNAs depending on sequence identity
+```{r, fig.height = 10, fig.width= 10}
+if(file.exists("../res/seq_identity.rds")) {
+  df_seqid <- readRDS("../res/seq_identity.rds")
+} else {
+  non_humans <- orgs[orgs!=orgs["human"]]
+  df_seqid <- data.frame(miRNA = names(hsa_seqs_precursor))
+  for(org in names(non_humans)) {
+    hits <- readDNAStringSet(paste("../data/hits/hsa_", non_humans[[org]], ".fa", sep=""))
+    id_org <- numeric()
+    for(miRNA in names(hsa_seqs_precursor)) {
+      primary_seq <- hsa_seqs_precursor[miRNA]
+      if(miRNA %in% names(hits)) {
+        mirna_seq_org <- setNames(hits[miRNA], org)
+        palign <- pairwiseAlignment(primary_seq, mirna_seq_org)
+        df <- data.frame(miRNA = miRNA)
+        id_org <- c(id_org, pid(palign))
+      } else {
+        id_org <- c(id_org, 0)
+      }
+    }
+    df_seqid[[org]] <- id_org
+  }
+  saveRDS(df_seqid, "../res/seq_identity.rds")
+}
+
+df_seqid <- df_seqid %>%
+  mutate(human = 100)
+
+clust_matrix_id_all <- df_seqid %>%
+  dplyr::select(chimpanzee:human) %>%
+  as.matrix() %>%
+  t()
+
+clust_matrix_id_expressed <- df_seqid %>%
+  filter(miRNA %in% smallRNA_counts$precursor) %>%
+  dplyr::select(chimpanzee:human) %>%
+  as.matrix() %>%
+  t()
+
+ramp1 <- colorRampPalette(c("black", "black"))(0.9*100)
+ramp2 <- colorRampPalette(c("blue", "red"))(0.1*100)
+colors <- c(ramp1, ramp2)
+
+
+callback = function(hc, mat){
+    sv = svd(t(mat))$v[,1]
+    dend = reorder(as.dendrogram(hc), wts = sv)
+    as.hclust(dend)
+}
+
+
+p1 <- pheatmap(clust_matrix_id_all, color = colors, border_color = "black", gaps_col = 1:10, cluster_cols = TRUE, legend = T, silent = T, main = "All miRNAs", clustering_callback = callback)
+p2 <- pheatmap(clust_matrix_id_expressed, color = colors, border_color = "black", gaps_col = 1:10, cluster_cols = TRUE, legend = T, silent = T, main = "Expressed miRNAs", clustering_callback = callback)
+
+p <- ggarrange(p1[[4]], p2[[4]], ncol = 1)
+ggexport(p, filename = "../res/sequence_identity_heatmaps.png")
+p
+```
+
+
+### Correlation of conservation and expression
+```{r}
+# df_seqid_mean <- df_seqid %>%
+#   rowwise() %>%
+#   mutate(mean_identity=mean(c_across(chimpanzee:chicken))) %>%
+#   mutate(max_identity=max(c_across(chimpanzee:chicken))) %>%
+#   mutate(n_orthologs = factor(sum(c_across(chimpanzee:chicken)>0), levels = 0:10)) %>%
+#   mutate_if(is.numeric, ~ifelse(.==0, NA, .)) %>%
+#   mutate(mean_identity_nan=mean(c_across(chimpanzee:chicken), na.rm = T)) %>%  
+#   right_join(smallRNA_counts, by = c("miRNA" = "precursor")) %>%
+#   mutate( mean_bins = cut(mean_identity_nan, breaks = seq(0,101, 2.5))) %>%
+#   mutate( max_bins = cut(mean_identity_nan, breaks = seq(0,101, 2.5)))
+# 
+# df_seqid_mean_primates <- df_seqid %>%
+#   rowwise() %>%
+#   mutate(max_identity=max(c_across(chimpanzee:macaque))) %>%
+#   mutate(mean_identity=mean(c_across(chimpanzee:macaque))) %>%
+#   right_join(smallRNA_counts, by = c("miRNA" = "precursor")) %>%
+#   mutate( chimp_id = cut(mean_identity, breaks = seq(98,100,0.5) ))
+# 
+# p_exp1 <- ggplot(df_seqid_mean, aes(x = n_orthologs, y = mean_exp)) +
+#   geom_boxplot() +
+#   theme_bw()
+# 
+# p_exp2 <- ggplot(subset(df_seqid_mean, !is.na(df_seqid_mean$mean_bins)), aes(x = mean_bins, y = mean_exp)) +
+#   geom_boxplot() +
+#   theme_bw()
+# 
+# ggarrange(p_exp1, p_exp2, ncol = 1)
+```
+
+
+### Number of orthologs found in different species, comparison with study from 2012
+```{r, fig.width = 10, fig.height = 8}
+# my_ortholog_summary <- my_orthologs %>%
+#   pivot_longer(cols = Chimpanzee:Chicken, names_to = "species", values_to = "has_ortholog") %>%
+#   mutate(species = factor(species, levels = org_names)) %>%
+#   group_by(species) %>%
+#   summarize(n_orthologs = sum(has_ortholog), p_orthologs = sum(has_ortholog)/nrow(my_orthologs)*100) %>%
+#   mutate(year = "2021")
+# hu_ortholog_summary <- hu_orthologs %>%
+#   pivot_longer(cols = Chimpanzee:Chicken, names_to = "species", values_to = "has_ortholog") %>%
+#   mutate(species = factor(species, levels = org_names)) %>%
+#   group_by(species) %>%
+#   summarize(n_orthologs = sum(has_ortholog), p_orthologs = sum(has_ortholog)/nrow(hu_orthologs)*100) %>%
+#   mutate(year = "2012")
+# 
+# ortholog_summary <- rbind(my_ortholog_summary, hu_ortholog_summary)
+# 
+# p_orthologs <- ggplot(ortholog_summary, aes(x = species, y = p_orthologs, fill = year)) +
+#   geom_bar(stat = "identity", position = "dodge", width = 0.75) +
+#   ylab("percent orthologs found in species") +
+#   theme_bw() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# n_orthologs <- ggplot(ortholog_summary, aes(x = species, y = n_orthologs, fill = year)) +
+#   geom_bar(stat = "identity", position = "dodge", width = 0.75) +
+#   ylab("number of orthologs found in species") +
+#   theme_bw() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# 
+# 
+# main = cowplot::plot_grid(n_orthologs + theme(legend.position = "none"), p_orthologs + theme(legend.position = "none"), align = "h", axis = "lr", ncol = 1)
+# 
+# p <- cowplot::plot_grid(main, cowplot::get_legend(p_orthologs), ncol = 2, rel_widths =  c(0.8,0.2))
+# ggsave("../res/orthologs.pdf", plot = p, width = 8, height = 8)
+# p
+```
+
+### Structural Changes
+In order to get information about the structure of miRNAs, we use RNAfold and RNAz which both come from the Vienna RNA package.
+
+Here are some functions to parse the output of RNAfold:
+```{r}
+## function to read files generated by RNAfold
+readRNAfold <- function(file_path) {
+  file_string <- read_file(file_path)
+  structure_strings <- strsplit(file_string, ">")[[1]]
+  structures <- lapply(structure_strings, function(s) strsplit(s, "\n")[[1]])
+  structure_dfs <- lapply(structures, parse_structure_entry)
+  do.call(rbind, structure_dfs)
+}
+
+parse_structure_entry <- function(s) {
+  if(length(s)<3) return(data.frame())
+  id <- s[[1]]
+  sequence <- s[[2]]
+  seq_length <- nchar(sequence)
+  struc_FE <- strsplit(s[[3]], split = " \\(")[[1]]
+  structure <- struc_FE[[1]]
+  FE <- as.numeric(gsub("\\)", "", struc_FE[[2]]))
+  struct_table <- table(strsplit(structure, ""))
+  n_unpaired <- struct_table[["."]]
+  n_paired <- struct_table[["("]]*2
+  loop_size <- get_loop_size(structure)
+  return(data.frame(id, sequence, structure, length = seq_length, FE, n_unpaired, n_paired, loop_size))
+}
+
+get_loop_size <- function(struct) {
+  matches <- gregexpr("\\(\\.*\\)", struct)[[1]]
+  if(length(matches) > 1) {
+    ind_central <- which.min(abs(matches-nchar(struct)/2))
+    return(attr(matches, "match.length")[ind_central] - 2)
+  } else {
+    return(attr(matches, "match.length") - 2)
+  }
+}
+```
+
+
+#### Comparison of RNAfold information between human and chimpanzee
+RNAfold was run only for hsa and ptr. The results are found in `../data/RNAfold`.
+```{r}
+## load table with ortholog mismatches
+df_mismatches <- read.xlsx("../res/miRNA_conservation.xlsx", sheet = "mismatches in orthologs")
+has_ptr_mismatch <- df_mismatches["panTro6"]!=0 & !is.na(df_mismatches["panTro6"])
+mismatch_miRNAs <- df_mismatches$miRNA_id[has_ptr_mismatch]
+file_hsa <- "../data/RNAfold/hsa_structures"
+file_ptr <- "../data/RNAfold/hsa_ptr_structures"
+df_hsa <- readRNAfold(file_hsa)
+df_ptr <- readRNAfold(file_ptr)
+df_hsa <- df_hsa[df_hsa$id %in% mismatch_miRNAs,]
+df_ptr <- df_ptr[df_ptr$id %in% mismatch_miRNAs,]
+df_long <- bind_rows(list(hsa = df_hsa, ptr = df_ptr), .id = "organism")
+df_wide <- merge(df_hsa, df_ptr, by = "id")
+names(df_wide) <- gsub("x", "hsa", names(df_wide))
+names(df_wide) <- gsub("y", "ptr", names(df_wide))
+```
+
+#### Plot
+```{r, fig.width = 8, fig.height = 3}
+# p_FE <- ggplot(df_long, aes(x = organism, y = FE/length, group = organism, color = organism)) +
+#   geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)) +
+#   ggtitle("Free Energy/length") +
+#   theme_bw() +
+#   theme(legend.position = "none")
+# 
+# p_np <- ggplot(df_long, aes(x = organism, y = n_unpaired/length, group = organism, color = organism)) +
+#   geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)) +
+#   ggtitle("Fraction unpaired") +
+#   theme_bw() +
+#   theme(legend.position = "none")
+# 
+# p_ls <- ggplot(df_long, aes(x = organism, y = loop_size, group = organism, color = organism)) +
+#   geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)) +
+#   ggtitle("Size of terminal loop") +
+#   theme_bw() +
+#   theme(legend.position = "none")  
+# 
+# ggarrange(p_FE, p_np, p_ls, nrow = 1)
+```
+
+
+#### Alignments for all precursors with mismatches
+In order to detect structural changes between human and other species, we create
+alignments for precursors that have mismatches in their potential orthologs in 
+order to be analyzed using RNAz.
+```{r}
+mismatch_miRNAs <- df_mismatches %>%
+  filter_at(vars(panTro6:galGal6), all_vars(.>0 | is.na(.))) %>%
+  pull(precursor_id)
+
+get_alignments <- function(miRNAs, orgs) {
+  miRNA_alignments <- list()
+  for(miRNA in miRNAs) {
+    miRNA_seq <- hsa_seqs[miRNA]
+    mirna_seqs <- setNames(miRNA_seq, "human")
+    non_humans <- orgs[orgs!=orgs["human"]]
+    for(org_name in names(orgs)) {
+      if(org_name == "human") next
+      hits <- readDNAStringSet(paste("../data/hits/hsa_", orgs[[org_name]], ".fa", sep=""))
+      if(miRNA %in% names(hits)) {
+        mirna_seq_org <- setNames(hits[miRNA], org_name)
+        mirna_seqs <- c(mirna_seqs, mirna_seq_org)
+      }
+    }
+    if(length(mirna_seqs)>1){
+      invisible(capture.output(ma <- msa(mirna_seqs, order = "input"), type = "output"))
+      miRNA_alignments[[miRNA]] <- ma
+    }
+  }
+  return(miRNA_alignments)
+}
+
+## get alignments for all species
+if(file.exists("../res/miRNA_alignments_mismatch.rds")) {
+  miRNA_alignments_mismatch <- readRDS("../res/miRNA_alignments_mismatch.rds")
+} else {
+  mismatch_miRNAs <- df_mismatches %>%
+    filter_at(vars(chimpanzee:chicken), all_vars(.>0 | is.na(.))) %>%
+    pull(miRNA_id)
+  miRNA_alignments_mismatch <- get_alignments(mismatch_miRNAs, orgs)
+  saveRDS(miRNA_alignments_mismatch, "../res/miRNA_alignments_mismatch.rds")
+}
+
+## only primates
+if(file.exists("../res/miRNA_alignments_mismatch_primates.rds")) {
+  miRNA_alignments_mismatch_primates <- readRDS("../res/miRNA_alignments_mismatch_primates.rds")
+} else {
+  mismatch_miRNAs_primates <- df_mismatches %>%
+    filter_at(vars(chimpanzee:macaque), all_vars(.>0 | is.na(.))) %>%
+    pull(miRNA_id)
+  miRNA_alignments_mismatch_primates <- get_alignments(mismatch_miRNAs_primates, orgs = orgs[1:5])
+  saveRDS(miRNA_alignments_mismatch_primates, "../res/miRNA_alignments_mismatch_primates.rds")
+}
+
+# each species separately
+miRNA_alignments_mismatch_org <- list()
+for(org in non_humans) {
+  mismatch_file <- paste("../res/miRNA_alignments_mismatch_", org, ".rds", sep = "")
+ if(file.exists(mismatch_file)) {
+  miRNA_alignments_mismatch_org[[org]] <- readRDS(mismatch_file)
+  } else {
+    mismatch_miRNAs_org <- df_mismatches %>%
+      filter(.[[org]] > 0) %>%
+      pull(miRNA_id)
+    miRNA_alignments_mismatch_org[[org]] <- get_alignments(mismatch_miRNAs_org, orgs = orgs[which(orgs==org)])
+    saveRDS(miRNA_alignments_mismatch_org[[org]], mismatch_file)
+  }
+}
+```
+
+
+#### Apply RNAz to alignments
+```{r}
+if(!file.exists("../data/rnaz/rnaz_results_all.txt")) {
+  miRNA_alignments_mismatch <- readRDS("../res/miRNA_alignments_mismatch.rds")
+  tmp_file = "../data/rnaz/tmp.fa"
+  out_file = "../data/rnaz/rnaz_results_all.txt"
+  for(miRNA in names(miRNA_alignments_mismatch)) {
+    ma <- miRNA_alignments_mismatch[[miRNA]]
+    writeXStringSet(ma@unmasked, tmp_file)
+    system2("./run_rnaz.sh", c(tmp_file, miRNA, out_file))
+  }
+  invisible(file.remove(tmp_file))
+}
+
+if(!file.exists("../data/rnaz/rnaz_results_primates.txt")) {
+  miRNA_alignments_mismatch <- readRDS("../res/miRNA_alignments_mismatch_primates.rds")
+  tmp_file = "../data/rnaz/tmp.fa"
+  out_file = "../data/rnaz/rnaz_results_primates.txt"
+  for(miRNA in names(miRNA_alignments_mismatch)) {
+    ma <- miRNA_alignments_mismatch[[miRNA]]
+    writeXStringSet(ma@unmasked, tmp_file)
+    system2("./run_rnaz.sh", c(tmp_file, miRNA, out_file))
+  }
+  invisible(file.remove(tmp_file))
+}
+
+for(org in non_humans) {
+  rnaz_file <- paste("../data/rnaz/rnaz_results_", org, ".txt", sep = "")
+  if(!file.exists(rnaz_file)) {
+    mismatch_file <- paste("../res/miRNA_alignments_mismatch_", org, ".rds", sep = "")
+    miRNA_alignments_mismatch <- readRDS(mismatch_file)
+    tmp_file = "../data/rnaz/tmp.fa"
+    for(miRNA in names(miRNA_alignments_mismatch)) {
+      ma <- miRNA_alignments_mismatch[[miRNA]]
+      writeXStringSet(ma@unmasked, tmp_file)
+      system2("./run_rnaz.sh", c(tmp_file, miRNA, rnaz_file))
+    }
+    invisible(file.remove(tmp_file))
+  }
+}
+```
+
+
+#### Read RNAz results
+```{r}
+readRNAz <- function(file_name) {
+  file <- read_file(file_name)
+  entries <- strsplit(file, ">>")[[1]]  
+  rnaz_parsed <- lapply(entries, parseRNAz_entry)
+  df <- do.call(rbind, rnaz_parsed)
+  numeric_cols <- c(2:3,5:14,17:18)
+  for(i in numeric_cols) df[[i]] <- as.numeric(df[[i]])
+  return(df)
+}
+
+parseRNAz_entry <- function(entry) {
+  entry_list <- strsplit(entry, "\n")[[1]]
+  if(length(entry_list)<2) return(data.frame())
+  miRNA <- entry_list[[1]]
+  trimmed <- lapply(5:22, function(i) trimws(strsplit(entry_list[[i]], ":")[[1]]))
+  df <- as.data.frame(do.call(cbind, lapply(trimmed, `[[`, 2)))
+  names(df) <- gsub(" ", "\\.", lapply(trimmed, `[[`, 1))
+  return(cbind(miRNA = miRNA, df))
+}
+
+
+## for all organisms
+df_rnaz <- readRNAz("../data/rnaz/rnaz_results_all.txt")
+
+## for primates
+df_rnaz_primates <- readRNAz("../data/rnaz/rnaz_results_primates.txt")
+
+## pairwise rnaz for all organisms
+df_rnaz_pairwise <- data.frame()
+files <- list.files("../data/rnaz", pattern = "rnaz_results", full.names = T)
+for(file_name in files) {
+  df_rnaz_org <- readRNAz(file_name)
+  df_rnaz_org$org <- gsub(".*rnaz_results_(.*).txt", "\\1", file_name)
+  df_rnaz_pairwise <- rbind(df_rnaz_pairwise, df_rnaz_org)
+}
+saveRDS(df_rnaz_pairwise, "../res/rnaz_results_pairwise.rds")
+
+
+# filter out all miRNAs that have an identical ortholog somewhere
+df_seqid <- readRDS("../res/seq_identity.rds")
+id_miRNAs <- df_seqid %>%
+  filter_at(vars(-miRNA), any_vars(.==100)) %>%
+  pull(miRNA)
+
+df_rnaz_pairwise_filtered <- df_rnaz_pairwise %>%
+  filter(!miRNA %in% id_miRNAs) %>%
+  group_by(miRNA) %>%
+  slice(which.max(Structure.conservation.index))
+```
+
+
+#### Correlation between structural changes and mean number of mismatches in other species  
+```{r}
+df_mismatches_filt <- df_mismatches %>%
+  filter_at(vars(panTro6:galGal6), all_vars(.>0 | is.na(.))) %>%
+  mutate(mean.mismatches = rowMeans(across(panTro6:galGal6), na.rm = T))
+
+df_rnaz_merged <- merge(df_rnaz, df_mismatches_filt, by.x = "miRNA", by.y = "precursor_id")
+
+ggplot(df_rnaz_merged, aes(x = mean.mismatches, y = Structure.conservation.index, color = mean.mismatches)) +
+  geom_point(alpha=1) +
+  theme_bw()
+```
+
+#### Integrate with expression data
+```{r}
+df_rnaz_primates_exp <- df_rnaz_primates %>%
+  left_join(smallRNA_counts, by = c("miRNA" = "precursor")) %>%
+  mutate(expressed = !is.na(min_exp))
+
+sheetName <- "RNAz and expression"
+wb <- loadWorkbook("../res/miRNA_conservation.xlsx")
+if(sheetName %in% getSheetNames("../res/miRNA_conservation.xlsx")) {
+  removeWorksheet(wb, sheetName)
+}
+addWorksheet(wb, sheetName)
+writeData(wb, sheet = sheetName, df_rnaz_primates_exp)
+saveWorkbook(wb, "../res/miRNA_conservation.xlsx", overwrite = TRUE)
+```
+
+
+#### structure conservation plot for primates
+```{r}
+mature_seed_mismatch <- names(miRNA_alignments)
+precursor_IDs <- grl[grl$Name %in% mature_seed_mismatch]$Derives_from
+miRNAs_seed_mismatch <- grl[grl$ID %in% precursor_IDs]$Name
+
+df_plot <- df_rnaz_primates_exp %>%
+  filter(expressed) %>%
+  mutate(seed_mismatch = miRNA %in% miRNAs_seed_mismatch)
+
+ggplot(df_plot, aes(x = Mean.pairwise.identity, 
+                          y = Structure.conservation.index,
+                          color = seed_mismatch)) +
+  geom_point() +
+  geom_abline(slope = 0.01, intercept = 0, linetype="dashed") +
+  ggrepel::geom_text_repel(aes(label = ifelse(Structure.conservation.index < 0.975, miRNA, "")), size = 3, show.legend = F) +
+  ylim(0.5, 1) +  
+  theme_bw()
+```
+
+#### structure conservation plot for pairwise alignments
+```{r}
+
+df_rnaz_pairwise_exp <- df_rnaz_pairwise_filtered %>%
+  left_join(smallRNA_counts, by = c("miRNA" = "precursor")) %>%
+  mutate(expressed = !is.na(min_exp))
+
+mature_seed_mismatch <- names(miRNA_alignments)
+precursor_IDs <- grl[grl$Name %in% mature_seed_mismatch]$Derives_from
+miRNAs_seed_mismatch <- grl[grl$ID %in% precursor_IDs]$Name
+
+df_plot <- df_rnaz_pairwise_exp %>%
+  filter(expressed) %>%
+  mutate(seed_mismatch = miRNA %in% miRNAs_seed_mismatch)
+
+ggplot(df_plot, aes(x = Mean.pairwise.identity, 
+                          y = Structure.conservation.index,
+                          color = seed_mismatch)) +
+  geom_point() +
+  geom_abline(slope = 0.01, intercept = 0, linetype="dashed") +
+  ggrepel::geom_text_repel(aes(label = ifelse(Structure.conservation.index < 0.975, miRNA, "")), size = 3, show.legend = F) +
+  ylim(0.75, 1) +
+  theme_bw()
+```

@@ -1,0 +1,58 @@
+---
+title: "Conservation analysis of human microRNAs"
+author: "Fridolin Gross"
+date: '2021-07-08'
+output:
+  html_document:
+    df_print: paged
+---
+
+### Load required packages
+```{r}
+suppressPackageStartupMessages({
+  library(Biostrings)
+  library(SummarizedExperiment)
+  library(msa)
+  library(pheatmap)
+  library(openxlsx)
+  library(ggpubr)
+  library(tidyverse)
+})
+```
+
+
+
+```{r}
+miRNA_alignments <- readRDS("../res/miRNA_alignments_both_1229.rds.rds")
+```
+
+
+
+
+
+#### Example: Print and save alignment of miR-1229
+```{r}
+miRNA <- "hsa-miR-1229-3p"
+ma <- miRNA_alignments[[miRNA]]
+print(ma$alignment)
+
+ma <- miRNA_alignments[[miRNA]]$alignment
+
+
+## Print full alignment
+colmask(ma) <- NULL
+msaPrettyPrint(ma, 
+               file = ("hsa-miR-1229-3p.pdf"),
+               output = "pdf", 
+               showLogo = "none",
+               showLegend = F,
+               paperWidth = 10, paperHeight = 2,
+               shadingColors = c("grays"),
+               askForOverwrite = FALSE,
+               showConsensus = "bottom",
+               consensusColors = "Gray"
+               )
+
+```
+
+

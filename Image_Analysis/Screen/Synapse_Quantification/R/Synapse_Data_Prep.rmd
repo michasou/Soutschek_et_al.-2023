@@ -1,0 +1,112 @@
+---
+title: "Synpase_Data_Prep"
+author: "Michael"
+date: "6 12 2020"
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+library(data.table)
+library(readxl)
+library(stringr)
+```
+
+
+
+
+# Import Data and clean up
+```{r}
+# Import Data
+syn_res <- read.csv("../raw/TW_190620_final_mean.csv")
+
+# Get Metadata Info and clean up
+m <- str_split_fixed(syn_res$FileName_MAP2,"_",3)
+m[,3] <- gsub(".tif","",m[,3],fixed = TRUE,)
+df_m <- as.data.frame(m)
+colnames(df_m)[1] <- "Blinding"
+colnames(df_m)[2] <- "CVS_no"
+colnames(df_m)[3] <- "Picture_Info"
+syn_res <- cbind(syn_res,df_m)
+syn_res <- syn_res[,-grep("FileName",colnames(syn_res))]
+
+# Import Blinding
+Blinding <- read_excel("../../Blinding.xlsx")
+Blinding[3,2] <- "A2"
+m2 <- str_split_fixed(Blinding$Condition,"_",2)
+df_m2 <- as.data.frame(m2)
+colnames(df_m2)[1] <- "Replicate"
+colnames(df_m2)[2] <- "Day"
+df_m2$Day <- as.numeric(df_m2$Day)
+Blinding <- cbind(Blinding, df_m2)
+
+# Merge
+syn_res <- merge(syn_res,Blinding, by = "Blinding", all.x = TRUE)
+```
+
+
+# Pictures with no detected Synapses don't report an intensity
+```{r}
+syn_res[is.na(syn_res)] <- 0
+```
+
+
+# exclude pictures without detected nuclei
+```{r}
+syn_res <- syn_res[syn_res$Count_MaskedNuclei > 0,]
+```
+
+
+
+
+# save
+```{r}
+saveRDS(syn_res,"../R/Synapsecluster_Result.rds")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

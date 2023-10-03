@@ -1,0 +1,324 @@
+---
+title: "Whipple_2020_SmallRNA_Analysis"
+author: "Michael Soutschek"
+date: "7 1 2021"
+output: html_document
+---
+
+
+
+```{r libraries}
+suppressPackageStartupMessages({
+  library(edgeR)
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(cowplot)  
+  library(ggplot2)
+  library(matrixStats)
+  library(igraph)
+  library(grid)
+  library(viridis)
+  library(sechm)
+})
+source("../../../functions/clustering.R")
+```
+
+
+>> For the initial analysis, see: 
+
+#"/mnt/schratt/p1006/Whipple_2020/SmallRNA_Analysis/"
+
+#and
+
+#"../../SmallRNA_R/Whipple_2020_SmallRNA_Analysis.Rmd"
+
+#load Data
+```{r}
+mouse.se <- readRDS("../../data/Small_RNA_Mouse/Whipple_2020_SmallRNA_SE.DEA.rds")
+#get rid of 379-410 cluster ko values
+m.se <- mouse.se[,mouse.se$genotype != "Mirg(Delta/+)"]
+
+h.se <- readRDS("../../data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+```
+
+
+
+# Some exploratory figures
+```{r}
+g0 <- "mmu-miR-125b-5p"
+g1 <- "mmu-miR-181a-5p"
+g2 <- "mmu-miR-134-5p"
+g3 <- "mmu-miR-212-3p"
+g4 <- "mmu-miR-302c-5p"
+
+
+p1 <- ggplot(meltSE(m.se, g0, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(4,12) + theme(axis.title.x=element_blank())
+
+p3 <- ggplot(meltSE(m.se, g1, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(2,12.5) + theme(axis.title.x=element_blank())
+
+p5 <- ggplot(meltSE(m.se, g2, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,10) + theme(axis.title.x=element_blank())
+
+p7 <- ggplot(meltSE(m.se, g3, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,8) + theme(axis.title.x=element_blank())
+
+p9 <- ggplot(meltSE(m.se, g4, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,8) + theme(axis.title.x=element_blank())
+
+```
+
+```{r}
+g5 <- "hsa-miR-181a-5p"
+g6 <- "hsa-miR-134-5p"
+g7 <- "hsa-miR-125b-5p"
+g9 <- "hsa-miR-212-3p"
+g10 <- "hsa-miR-302c-5p"
+
+p2 <- ggplot(meltSE(h.se, g7, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(4,12) + theme(axis.title.x=element_blank())
+
+p4 <- ggplot(meltSE(h.se, g5, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(2,12.5) + theme(axis.title.x=element_blank())
+
+p6 <- ggplot(meltSE(h.se, g6, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,10) + theme(axis.title.x=element_blank())
+
+p8 <- ggplot(meltSE(h.se, g9, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,8) + theme(axis.title.x=element_blank())
+
+p10 <- ggplot(meltSE(h.se, g10, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,8) + theme(axis.title.x=element_blank())
+```
+
+
+```{r}
+pp1 <- plot_grid(p1,p2,p9,p10, ncol = 2, rel_widths = c(1, 2))
+pp2 <- plot_grid(p3,p4,p5,p6, ncol = 2, rel_widths = c(1, 2))
+
+ggsave(pp1,filename = "Figure_Output/similar_micros_comp.png", width = 8, height = 8)
+ggsave(pp2,filename = "Figure_Output/diff_micros_comp.png", width = 8, height = 8)
+```
+
+
+
+# Heatmap Comparison
+
+# Color Definitions
+```{r}
+ancols2 <- list(day=c("0"="#3F3F3F",
+                       "10" = "#898989",
+                       "21" = "#898989"
+) )
+
+ancols3 <- list(day=c("0"="#3F3F3F",
+                      "10" = "#898989",
+                       "9" ="#575757",
+                       "15" ="#707070",
+                       "21" = "#898989",
+                       "27" ="#A1A1A1",
+                       "33" ="#BABABA",
+                       "40" = "#D3D3D3" 
+) )
+
+heatcol = inferno(255)
+```
+
+
+```{r}
+# Get similar row.names
+m.se.cl <- m.se
+row.names(m.se.cl) <- sapply(row.names(m.se.cl), function(x) paste(unlist(strsplit(x, split="\\-"))[-1], collapse="_"))
+
+h.se.cl <- h.se
+h.se.cl  <- h.se.cl[!grepl("prd-",row.names(h.se.cl)),]
+row.names(h.se.cl) <- sapply(row.names(h.se.cl), function(x) paste(unlist(strsplit(x, split="\\-"))[-1], collapse="_"))
+```
+
+
+# Check which day from the human dataset is most similar
+```{r}
+# all relevant deas
+deas <- c("9v0", "15v0", "21v0", "27v0", "33v0", "40v0")
+deas <- paste0("DEA.",deas)
+
+
+cor.logFC <- c()
+cor.logcpm <- c()
+for(i in deas){
+  # human dea
+  h <- as.data.frame(rowData(h.se.cl)[[i]])
+  h <- h[!grepl("prd-",row.names(h)),]
+  h$names <- sapply(row.names(h), function(x) paste(unlist(strsplit(x, split="\\-"))[-1], collapse="_"))
+  # mouse dea
+  m <- as.data.frame(rowData(m.se.cl)$Day10vs0)
+  m$names <- sapply(row.names(m), function(x) paste(unlist(strsplit(x, split="\\-"))[-1], collapse="_"))
+  
+  com.names <- intersect(h$names,m$names)
+  com.names <- com.names[com.names != ""]
+  
+  h <- h[h$names %in% com.names,]
+  h <- h[order(h$names),]
+  m <- m[m$names %in% com.names,]
+  m <- m[order(m$names),]
+  
+  cor.logFC[i] <- cor(m$logFC,h$logFC)
+  cor.logcpm[i] <- cor(m$logCPM,h$logCPM)
+}
+
+png("Figure_Output/cor.logFC_mouse_human.png", width=5, height=5, units="in", res=300)
+ggplot(data = NULL,aes(x = names(cor.logFC),y=cor.logFC)) +
+  geom_bar(stat = "identity", width = .75) + theme(axis.title.x = element_blank()) + scale_x_discrete(limits = deas)
+dev.off()
+
+png("Figure_Output/cor.logcpm_mouse_human.png", width=5, height=5, units="in", res=300)
+ggplot(data = NULL,aes(x = names(cor.logcpm),y=cor.logcpm)) +
+  geom_bar(stat = "identity", width = .75) + theme(axis.title.x = element_blank()) + scale_x_discrete(limits = deas)
+dev.off()
+```
+
+
+
+```{r}
+# get identical mirs
+h.res.40 <- as.data.frame(rowData(h.se.cl)$DEA.40v0)
+h.res.40$names <- sapply(row.names(h.res.40), function(x) paste(unlist(strsplit(x, split="\\-"))[-1], collapse="_"))
+
+h.res.21 <- as.data.frame(rowData(h.se.cl)$DEA.21v0)
+h.res.21$names <- sapply(row.names(h.res.21), function(x) paste(unlist(strsplit(x, split="\\-"))[-1], collapse="_"))
+
+h.res.9 <- as.data.frame(rowData(h.se.cl)$DEA.9v0)
+h.res.9$names <- sapply(row.names(h.res.9), function(x) paste(unlist(strsplit(x, split="\\-"))[-1], collapse="_"))
+
+h.res <- as.data.frame(rowData(h.se.cl)$DEA.all)
+h.res$names <- sapply(row.names(h.res), function(x) paste(unlist(strsplit(x, split="\\-"))[-1], collapse="_"))
+
+m.res <- as.data.frame(rowData(m.se.cl)$Day10vs0)
+m.res$names <- sapply(row.names(m.res), function(x) paste(unlist(strsplit(x, split="\\-"))[-1], collapse="_"))
+
+com.names40 <- intersect(h.res.40$names,m.res$names)
+com.names40 <- com.names40[com.names40 != ""]
+
+com.names21 <- intersect(h.res.21$names,m.res$names)
+com.names21 <- com.names21[com.names21 != ""]
+
+com.names9 <- intersect(h.res.9$names,m.res$names)
+com.names9 <- com.names9[com.names9 != ""]
+
+com.names <- intersect(h.res$names,m.res$names)
+com.names <- com.names[com.names != ""]
+```
+
+```{r}
+# intersect with significants
+h.sig.40 <- h.res.40[h.res.40$FDR < 0.05,"names"]
+h.sig.21 <- h.res.21[h.res.21$FDR < 0.05,"names"]
+h.sig.9 <- h.res.9[h.res.9$FDR < 0.05,"names"]
+h.sig <- h.res[h.res$FDR < 0.05,"names"]
+m.sig <- m.res[m.res$FDR < 0.05,"names"]
+
+com.sig.h40 <- intersect(h.sig.40,com.names40)
+com.sig.h21 <- intersect(h.sig.21,com.names21)
+com.sig.h9 <- intersect(h.sig.9,com.names9)
+com.sig.h <- intersect(h.sig,com.names)
+com.sig.m <- intersect(m.sig,com.names)
+```
+
+#Day 9
+```{r}
+# #prepare data to plot
+# h.se.cl.9 <- h.se.cl[,h.se.cl$day %in% c(0,9)]
+# h.se.cl.9$day <- as.factor(h.se.cl.9$day)
+# m.se.cl$day <- as.factor(m.se.cl$day)
+# 
+# #plot heatmap
+# crossHm(list(Mouse=m.se.cl, Human=h.se.cl.9),assayName = "logcpm", features = com.sig.h9, do.scale = TRUE, gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol,anno_colors = ancols2)
+
+```
+
+
+
+#Day 21
+```{r}
+#prepare data to plot
+h.se.cl.21 <- h.se.cl[,h.se.cl$day %in% c(0,21)]
+h.se.cl.21$day <- as.factor(h.se.cl.21$day)
+m.se.cl$day <- as.factor(m.se.cl$day)
+
+a <- crossHm(list("Mouse-miRs"=m.se.cl, "Human-miRs"=h.se.cl.21),assayName = "logcpm", features = com.sig.h, do.scale = TRUE, gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, top_annotation = c("day"),anno_colors = ancols2)
+a@ht_list$`Human-miRs`@top_annotation@anno_list$day@name_param$show <- FALSE
+
+#plot heatmap
+png("Figure_Output/crossHM_Mouse_Human_Day21.png", width=5.5, height=7.5, units="in", res=300)
+a
+dev.off()
+```
+
+#Day 40
+```{r}
+#prepare data to plot
+h.se.cl.40 <- h.se.cl[,h.se.cl$day %in% c(0,40)]
+h.se.cl.40$day <- as.factor(h.se.cl.40$day)
+
+#plot heatmap
+crossHm(list(Mouse=m.se.cl, Human=h.se.cl.40), genes = com.sig.h40, do.scale = TRUE, gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol,anno_columns=c("day"),anno_colors = ancols2)
+```
+
+
+
+
+#All Human Days
+```{r}
+#prepare data to plot
+h.se.cl$day <- as.factor(h.se.cl$day)
+m.se.cl$day <- as.factor(m.se.cl$day)
+
+b<- crossHm(list("Mouse-miRs"=m.se.cl, "Human-miRs"=h.se.cl),assayName = "logcpm", features = com.sig.h, do.scale = TRUE, gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, top_annotation = c("day"),anno_colors = ancols3,rel.width = c(1,2.5))
+b@ht_list$`Human-miRs`@top_annotation@anno_list$day@name_param$show <- FALSE
+
+#plot heatmap
+png("Figure_Output/crossHM_Mouse_Human_all_days.png", width=10, height=7, units="in", res=300)
+b
+dev.off()
+```
+
+
+
+# merge SEs and cluster
+```{r}
+merge.se <- mergeSEs(list("Mouse" = m.se.cl, "Human" = h.se.cl.21))
+merge.se.h <- merge.se[,merge.se$Dataset == "Human"]
+merge.se.m <- merge.se[,merge.se$Dataset == "Mouse"]
+
+sm_h <- getSmoothedMeans(assays(merge.se.h)$logcpm[com.sig.h,], as.numeric(merge.se.h$day), method = "loess", f=0.8)
+colnames(sm_h) <- paste0("Hum.Day_",unique(h.se.cl.21$day))
+sm_m <- getSmoothedMeans(assays(merge.se.m)$logcpm[com.sig.h,], as.numeric(merge.se.m$day), method = "loess", f=0.8)
+colnames(sm_m) <- paste0("Mou.Day_",unique(m.se$day))
+
+sm.merge <- cbind(sm_m,sm_h)
+
+
+g <- knn.graph(compoundPatternsDist(sm.merge),5)
+merge.se <- setcl(merge.se, cluster_walktrap(g, steps = 6))
+plotClusterLFCs(sm.merge-rowMeans(sm.merge), rowData(merge.se[com.sig.h,])$cluster,ncol = 3)
+```
+
+
+
+```{r}
+png("Figure_Output/crossCluster_Day21.png", width=13, height=10, units="in", res=300)
+plotClusterLFCs(sm.merge-rowMeans(sm.merge), rowData(merge.se[com.sig.h,])$cluster)
+dev.off()
+```
+
+# Plot single neuronal Cluster
+```{r}
+clusters <- split(com.sig.h, rowData(merge.se[com.sig.h,])$cluster)
+```
+
+
+# Cluster4
+```{r}
+cluster4<- clusters[["4"]]
+
+#plot heatmap
+png("Figure_Output/crossHM_Mouse_Human_Day21_Cluster4.png", width=7, height=6, units="in", res=300)
+crossHm(list("Mouse"=m.se.cl, "Human"=h.se.cl.21), features = cluster4,assayName = "logcpm", do.scale = TRUE, gaps_at = "day", breaks=TRUE, show_rownames = TRUE, hmcols = heatcol,top_annotation = c("day"),anno_colors = ancols2,annocol_title_side=NA)
+dev.off()
+```
+
+
+
+
+

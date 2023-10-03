@@ -1,0 +1,275 @@
+---
+title: "circRNA raw SE generation"
+author: "tgermade"
+date: "`r Sys.Date()`"
+output:
+    html_document:
+        toc: true
+        toc_float: true
+        theme: 'cerulean'
+        highlight: 'tango'
+        df_print: paged
+---
+
+<style>
+  .main-container {
+    max-width: 1500px !important;
+  }
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries}
+
+suppressPackageStartupMessages({
+  library(edgeR)
+  library(SummarizedExperiment)
+  library(SEtools)
+})
+```
+
+
+## Allocation
+
+```{r allocation}
+
+# allocation
+
+### longRNA SE file
+input.long <- "../data/Long_RNA/raw/longRNA.raw.SE.rds"
+### circRNA: raw DCC output
+folder.dcc <- "/mnt/schratt/p3207/dcc_40107/output/"
+### circRNA: raw CIRCexplorer output
+folder.ce <- "/mnt/schratt/p3207/circexplorer_40107/"
+
+## output files
+
+### output for only circ SE
+output.dcc <- "../data/circRNA/raw/circRNA.dcc.raw.SE.rds"
+output.ce <- "../data/circRNA/raw/circRNA.ce.raw.SE.rds"
+### output for long & circ SE combined
+out.comb.dcc <- "../data/circRNA/raw/longRNA.circ.dcc.raw.SE.rds"
+out.comb.ce <- "../data/circRNA/raw/longRNA.circ.ce.raw.SE.rds"
+```
+
+
+## Loading
+
+### longRNA
+
+```{r load longRNA, message=FALSE, warning=FALSE}
+
+# load raw longRNA SE
+se <- readRDS(input.long)
+```
+
+
+### circRNA DCC
+
+```{r load raw circ dcc, message=FALSE, warning=FALSE}
+
+# load raw files
+setwd(folder.dcc)
+circ.counts <- read.table("CircRNACount", header = TRUE, sep = "\t")
+circ.rd <- read.table("CircCoordinates", header = TRUE, sep = "\t")
+```
+
+
+### circRNA CIRCexplorer
+
+```{r load raw circ ce, message=FALSE, warning=FALSE}
+
+# load raw files
+setwd(folder.ce)
+
+## get directory names of circexplorer output
+circ.dirs.hc <- list.files(pattern="^circularRNA_known.txt", recursive=TRUE, full.names=TRUE)
+circ.dirs.lc <- list.files(pattern="low_conf_circularRNA_known.txt", recursive=TRUE, 
+                           full.names=TRUE)
+
+## load the samples into lists
+list.circ.counts.hc <- lapply(circ.dirs.hc, header=FALSE, sep="\t", FUN=read.table)
+list.circ.counts.lc <- lapply(circ.dirs.lc, header=FALSE, sep="\t", FUN=read.table)
+```
+
+
+## SE generation
+
+### circRNA DCC
+
+```{r format raw circ dcc, eval=TRUE}
+
+# format raw data
+
+## make sure the transcript order is the same for 'circ_counts' & 'circ_rd'
+all(circ.rd[1:3] == circ.counts[1:3])
+## generate rownames
+rownames(circ.counts) <- paste( 
+  paste(circ.counts$Chr, circ.counts$Start, circ.counts$End, sep=":"), circ.rd$Gene, sep = "."
+  )
+## first three rows of counts table are no longer needed
+circ.counts <- as.matrix(circ.counts[-c(1:3)])
+## make sure 'circ.counts' colnames are same as 'cd' rownames
+colnames(circ.counts) <- gsub("_long.chimeric", "", colnames(circ.counts))
+```
+
+```{r generate se circ dcc, eval=TRUE}
+
+# generate SummarizedExperiment object
+
+## assemble 'se' object
+all(colnames(circ.counts)==colnames(se))
+all(colnames(circ.counts[,colnames(se)])==colnames(se))
+se.circ.dcc <- SummarizedExperiment(list(counts=circ.counts[,colnames(se)]), 
+                                    colData=colData(se), rowData=circ.rd)
+## re-order 'se.circ.dcc' according to 'se' (column-based)
+se.circ.dcc <- se.circ.dcc.raw <- 
+  se.circ.dcc[,order(se.circ.dcc$day, se.circ.dcc$experiment)]
+```
+
+```{r combine long & circ dcc, eval=TRUE}
+
+# combine SE datasets
+
+## select rowData we want to keep for combined dataset & make them equal
+rowData(se) <- rowData(se)[,c(1,3)]
+rowData(se.circ.dcc) <- rowData(se.circ.dcc)[,c(4,7)]
+colnames(rowData(se.circ.dcc)) <- c("symbol","biotype")
+
+## combine the datasets
+se.comb.dcc <- rbind(se, se.circ.dcc)
+## add information to rowData
+rowData(se.comb.dcc)$annotation <- as.factor(c(rep("unavailable", nrow(se)), 
+                                       as.character(rowData(se.comb.dcc)$biotype[-(1:nrow(se))])))
+levels(rowData(se.comb.dcc)$biotype) <- c(levels(rowData(se.comb.dcc)$biotype), "circRNA")
+rowData(se.comb.dcc)$biotype[-(1:nrow(se))] <- "circRNA"
+```
+
+
+### circRNA CIRCexplorer
+
+```{r format raw circ ce, eval=TRUE}
+
+# naming
+
+## name columns
+n.hc <- c("chrom","start","end","name","score","strand","thickStart","thickEnd","itemRgb",
+          "exonCount","exonSizes","exonOffsets","readNumber2","circType","geneName",
+          "isoformName","index","flankIntron")
+n.lc <- c(n.hc[1:6], "leftInfo", "rightInfo")
+
+## name datasets in the lists
+for (i in seq_along(list.circ.counts.hc)){
+  colnames(list.circ.counts.hc[[i]]) <- n.hc
+}
+names(list.circ.counts.hc) <- gsub("_long.chimeric/circularRNA_known.txt", "", 
+                                    gsub("^./", "", circ.dirs.hc))
+for (i in seq_along(list.circ.counts.lc)){
+  colnames(list.circ.counts.lc[[i]]) <- n.lc
+}
+names(list.circ.counts.lc) <- gsub("_long.chimeric/low_conf_circularRNA_known.txt", "", 
+                                    gsub("^./", "", circ.dirs.lc))
+## name rows
+setRowNames <- function(df, row.names) {
+   rownames(df) <- row.names
+   return(df)
+}
+
+list.circ.counts.hc <- lapply(
+  list.circ.counts.hc, FUN = function(x) 
+    setRowNames(x, paste(paste(x$chrom, x$start, x$end, sep = ":"), x$geneName, sep="."))
+  )
+list.circ.counts.lc <- lapply(
+  list.circ.counts.lc, FUN = function(x) 
+    setRowNames(x, paste(x$chrom, x$start, x$end, sep = ":"))
+  )
+```
+
+```{r counts matrix function, warning=FALSE, message=FALSE}
+
+# function to generate count matrices out of dataframe lists
+
+#' countsMatrix
+#'
+#' @param df_list list of dataframes
+#' @param count_column name of column that contains tx counts
+#'
+#' @return a matrix of count data for each tx
+#'
+countsMatrix <- function(df_list, count_column){
+  counts <- Reduce(
+    function(x, y) merge(x, y, by = "id", all = T),
+    lapply(df_list, function(x) { x$id <- rownames(x); x[,c("id", count_column)] }))
+  colnames(counts) <- c("id", names(df_list))
+  counts[is.na(counts)] <- 0
+  rownames(counts) <- counts$id
+  return(counts[,-1])
+}
+```
+
+```{r generate se circ ce, warning=FALSE, message=FALSE, eval=TRUE}
+
+# generate SummarizedExperiment object
+
+## generate count matrix
+circ.counts.hc <- countsMatrix(list.circ.counts.hc, "readNumber2")
+
+## generate rowData info
+all_samples <- do.call(rbind, list.circ.counts.hc)
+uniq_samples <- all_samples[rownames(unique(all_samples[,1:3])),]
+rownames(uniq_samples) <- gsub("^S.*?\\.", "", rownames(uniq_samples))
+
+### reorder count & rowData datasets
+uniq_samples <- uniq_samples[order(rownames(uniq_samples)),]
+circ.counts.hc <- circ.counts.hc[order(rownames(circ.counts.hc)),]
+
+### little sanity check:
+nrow(uniq_samples) == nrow(circ.counts.hc)
+all(rownames(uniq_samples) == rownames(circ.counts.hc))
+
+
+## generate colData info
+
+### can just take over the standard cd, but check order
+circ.counts.hc <- circ.counts.hc[,rownames(colData(se))]
+
+## assemble 'se' object
+all(colnames(circ.counts.hc)==colnames(se))
+se.circ.ce <- SummarizedExperiment( list(counts=as.matrix(circ.counts.hc)), 
+                                 colData=colData(se), rowData=uniq_samples )
+## re-order 'se.circ.ce' according to 'se' (column-based)
+se.circ.ce <- se.circ.ce.raw <- se.circ.ce[,order(se.circ.ce$day, se.circ.ce$experiment)]
+```
+
+```{r combine long & circ se, eval=TRUE}
+
+# combine SE datasets
+
+## select rowData we want to keep for combined dataset & make them equal
+rowData(se.circ.ce) <- rowData(se.circ.ce)[,c(15,14)]
+colnames(rowData(se.circ.ce)) <- c("symbol","biotype")
+
+## combine the datasets
+se.comb.ce <- rbind(se, se.circ.ce)
+## correct biotype for some circs
+rowData(se.comb.ce)$biotype[rowData(se.comb.ce)$biotype=="ciRNA"] <- "circRNA"
+```
+
+
+## Export
+
+```{r export raw se}
+
+# save the raw SE-objects
+
+## only circs DCC
+saveRDS(se.circ.dcc.raw, output.dcc)
+## only circs CIRCexplorer
+saveRDS(se.circ.ce.raw, output.ce)
+## long & circs DCC
+saveRDS(se.comb.dcc, out.comb.dcc)
+## long & circs CIRCexplorer
+saveRDS(se.comb.ce, out.comb.ce)
+```

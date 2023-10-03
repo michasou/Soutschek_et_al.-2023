@@ -1,0 +1,144 @@
+---
+title: "qPCR analysis"
+author: "Michael"
+date: "10 9 2021"
+output: html_document
+---
+
+
+libraries
+```{r}
+suppressPackageStartupMessages({
+library(dplyr)
+library(ggplot2)
+library(ggsci)
+library(scales)
+library(emmeans)
+library(lmerTest)
+library(ggpubr)
+library(rstatix)
+library(ggsignif)
+})
+```
+
+
+#colors
+```{r}
+show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
+col_vec2 <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],pal_uchicago("default")(9)[5])
+```
+
+
+
+
+#Preparation
+
+1) normalize each sample to U6
+```{r}
+data <- readRDS("qPCR_220713.rds")
+
+U6 <- data[data$Target == "U6",]
+colnames(U6)[2] <- "CQ.mean.U6"
+
+data.nU6 <- merge(data,U6[,c("CQ.mean.U6","Sample")],by="Sample")
+data.nU6$normU6 <- data.nU6$Cq.mean - data.nU6$CQ.mean.U6
+data.nU6$normU6.exp <- 2^(-data.nU6$normU6)
+
+data2 <- data.nU6[data.nU6$Target != "U6",]
+```
+
+2) normalize each Diff to Emtpy
+```{r}
+Empty <- data2[data2$Cond == "Empty",]
+colnames(Empty)[colnames(Empty)=="normU6.exp"] <- "val.Empty"
+
+data3 <- merge(data2,Empty[,c("val.Empty","Diff","Target")],by=c("Diff","Target"))
+data3$norm.emp <- data3$normU6.exp / data3$val.Empty
+
+data3.plot <- data3[data3$Cond != "Empty",]
+```
+
+
+```{r}
+#take out miR-3943
+data3.plot <- data3.plot[data3.plot$Target != "miR-3943",]
+```
+
+
+
+
+3) Statistics
+```{r message=FALSE, warning=FALSE,results="hide"}
+
+## We have a perfectly crossed design here, since we measure for each differentiation and each condition each target
+stat_df2 <- data3.plot
+
+
+# with fixed effect
+mod1 <- lm(log(normU6.exp) ~ Cond*Target + Diff*Target, data2[data2$Target != "miR-3943",])
+##summary(mod1)
+##emmeans(mod1, trt.vs.ctrl ~ Cond | Target, ref="Ctrl")
+```
+
+
+
+
+4) Plot significance values
+```{r}
+s1 <- emmeans(mod1, trt.vs.ctrl ~ Cond | Target, ref="Ctrl")
+st_df <- as.data.frame(s1$contrasts)
+st_df <- st_df[st_df$contrast != "Empty - Ctrl",]
+st_df$group1 <- "pLNA-Ctrl"
+st_df$group2 <- st_df$contrast
+st_df$group2 <-   gsub("\\) - Ctrl", "",st_df$group2)
+st_df$group2 <- gsub("\\(", "",st_df$group2)
+st_df <- add_significance(st_df,p.col = "p.value")
+
+#add y_position
+y_pos <- c()
+for(i in st_df$Target) {
+  ll <- max(stat_df2[stat_df2$Target == i,"norm.emp"])
+  y_pos <- c(y_pos,ll)
+}
+
+st_df$y_pos <- y_pos*1.1
+st_df$y_adj <- rep(c(0.085,0))
+st_df$y_pos2 <- st_df$y_pos + st_df$y_adj
+
+data3.plot$Cond[which(data3.plot$Cond == "Ctrl")] <- "pLNA-Ctrl"
+data3.plot$Cond <- factor(data3.plot$Cond, levels = c("pLNA-Ctrl","pLNA-181c","pLNA-1229","pLNA-3943"))
+
+
+#remove ns
+st_df2 <- st_df
+st_df2$p.value.signif[st_df$p.value.signif == "ns"] <- NA
+
+ggplot(data3.plot,aes(x = Cond,y=norm.emp)) + geom_boxplot() + geom_point(aes(color = Diff), size = 2) +
+  geom_signif(
+    data = st_df2,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
+    textsize = 4, vjust = -0.1, size = 0.75,na.rm = TRUE, manual = TRUE
+  ) +
+  facet_wrap(~ Target, scales = "fixed") +
+  theme_classic() + xlab("")  + ylim(0,NA) + ylab("Normalized to U6 & Empty") +
+  scale_color_manual(values = col_vec) + 
+  coord_cartesian(ylim = c(NA,1.4)) +
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.background = element_blank(),
+        strip.placement = "inside",
+        text = element_text(size = 16),
+        axis.text.x = element_text(size = rel(1)),
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 14))+
+  guides(color=guide_legend(title="Differentiation")) +
+  scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n181c","pLNA-\n1229","pLNA-\n3943"))
+  
+ggsave("./Normlized_U6andEmpty.png", width = 8, height = 4.5)
+```
+
+
+
+
+
+

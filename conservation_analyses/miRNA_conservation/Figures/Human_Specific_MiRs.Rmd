@@ -1,0 +1,191 @@
+---
+title: "HumanSpecific_MiRs"
+author: "Michael Soutschek"
+date: "7/11/2023"
+output: html_document
+---
+
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(plgINS)
+  library(viridis)
+  library(RColorBrewer)
+  library(data.table)
+  library(dplyr)
+  library(tidyr)
+  library(readxl)
+  library(scales)
+  library(ggsci)
+})
+```
+
+
+# Color Definitions
+```{r}
+ancols <- list(day=c("0"="#3F3F3F",
+                       "9" ="#575757",
+                       "15" ="#707070",
+                       "21" = "#898989",
+                       "27" ="#A1A1A1",
+                       "33" ="#BABABA",
+                       "40" = "#D3D3D3" 
+) )
+
+heatcol = inferno(256)
+```
+
+```{r}
+show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
+col <- "darkgrey"
+col <- "#36454F"
+```
+
+
+# Load Data
+```{r}
+se <- readRDS("../../../TimeCourse_GRCh38.p10_Ens91/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+se$day <- as.factor(se$day)
+se2 <- se[,se$day != 0]
+```
+
+# expressed MiRs
+```{r}
+res <- as.data.frame(rowData(se)$DEA.all)
+
+
+#Don't filter futher since the max expression is for all miRs above 2
+# smallRNA_counts <- se  %>%
+#   assays() %>%
+#   `[[`("logcpm") %>%
+#   as.data.frame() %>%
+#   rownames_to_column(var = "ID") %>%
+#   pivot_longer(cols = starts_with("SC")) %>%
+#   group_by(ID) %>%
+#   summarize(
+#     min_exp = min(value),
+#     max_exp = max(value),
+#     mean_exp = mean(value),
+#     median_exp = median(value)) %>%
+#   inner_join(mcols(grl)[c("Name", "Derives_from")], by = c("ID" = "Name"), copy=TRUE) %>%
+#   left_join(mcols(grl)[c("Name", "ID")], by = c("Derives_from" = "ID"), copy=TRUE) %>%
+#   dplyr::select(-Derives_from) %>%
+#   rename(precursor = Name)
+
+res <- res[grep("hsa-",row.names(res)),]
+res$miRNA_id <- row.names(res)
+res$miRNA_id <- gsub("-3p$|-5p$","",res$miRNA_id)
+res$miRNA_id <- gsub("miR","mir",res$miRNA_id)
+```
+
+#Get human specific miRs
+```{r}
+HS <- read_excel("../res/miRNA_conservation.xlsx", 
+    sheet = "human miR without orthologs")
+
+HS$miRNA_id_clean <- gsub("-[1-5]$","",HS$miRNA_id)
+Human_Exp <- res[res$miRNA_id %in% HS$miRNA_id_clean,]
+Human_Exp_g <- row.names(Human_Exp)
+```
+
+
+
+#Get miRs with Seed changse in human
+```{r}
+H_seed <- read_excel("../res/miRNA_conservation.xlsx", 
+    sheet = "overall seed changes")
+
+H_seed_exp <- res[row.names(res) %in% H_seed$miRNA_id,]
+H_seed_g <- row.names(H_seed_exp)
+```
+
+
+
+#HeatMap
+```{r}
+# ls <- list("*" = Human_Exp_g,"**" = H_seed_g)
+# a <- sechm(se,ls , top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = TRUE,sortRowsOn = NULL, cluster_rows = FALSE, hmcols = heatcol, anno_colors = ancols, show_colnames = FALSE, column_title = "Human Specific miRNAs")
+# a@top_annotation@anno_list$day@name_param$show <- FALSE
+# 
+# png("./Figure_Output/smallRNA_Heat_HumanSpecific_miRs.png", width=5.5, height=2, units="in", res=300)
+# draw(a, padding = unit(c(10, 2, 2, 2), "mm"))
+# decorate_heatmap_body("log2FC.neur", {
+# 	grid.text("*: Human specific miRs **: Human miRs with seed mt",unit(5, "cm"), unit(-2, "cm"))
+# })
+# dev.off()
+
+```
+
+
+
+
+```{r}
+df <- meltSE(se, c(Human_Exp_g,H_seed_g), assayName = "logcpm")
+df$conservation <- ifelse(df$feature %in% Human_Exp_g,"Human specific\nmiRNA","Human miRNA\nwith seed mt.")
+
+p1 <- ggplot(df[df$feature %in% Human_Exp_g,], aes(as.factor(day), logcpm)) + geom_violin() + facet_grid(vars(conservation), vars(feature), scale="free",) + geom_point(aes(color = experiment)) + coord_cartesian(ylim = c(0,NA)) + theme_classic() +scale_color_manual(values = col_vec) + xlab("day") +
+  theme(strip.text.y = element_text(size = 14),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.text.x = element_text(size = rel(1)),
+        axis.text.y = element_text(size = rel(1)))
+
+
+p2 <- ggplot(df[df$feature %in% H_seed_g,], aes(as.factor(day), logcpm)) + geom_violin() + facet_grid(vars(conservation), vars(feature), scale="free",) + geom_point(aes(color = experiment)) + coord_cartesian(ylim = c(0,NA)) + theme_classic() +scale_color_manual(values = col_vec) + xlab("day") +
+  theme(strip.text.y = element_text(size = 14),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.text.x = element_text(size = rel(1)),
+        axis.text.y = element_text(size = rel(1)))
+
+ 
+pp <- cowplot::plot_grid(p1,p2,ncol = 1)
+
+png("Figure_Output/Human_Specific_miRs.png", width=7, height=5, units="in", res=300)
+pp
+dev.off()
+
+```
+
+
+```{r}
+# df2 <- df[df$feature == "hsa-miR-1229-3p",]
+# df2$smooth <- "sm1"
+# 
+# p3 <- ggplot(df2, aes(as.factor(day), logcpm)) + geom_violin() + geom_point(aes(color = experiment)) + coord_cartesian(ylim = c(0,NA)) + theme_classic() +scale_color_manual(values = col_vec) + xlab("day") +
+#   geom_smooth(stat="smooth",method = "loess", aes(group = smooth), color = col,
+#               alpha = 0.1, size = 0, show.legend = FALSE) +
+#   geom_line(stat="smooth",method = "loess", aes(group = smooth), color = col,
+#               alpha = 0.3, size = 1.5) +
+#    theme(strip.text.x = element_text(size = rel(1.1)),
+#         strip.placement = "inside",
+#         text = element_text(size = 14), 
+#         axis.text.x = element_text(size = rel(1)),
+#         axis.text.y = element_text(size = rel(1)))
+# 
+# ggsave("Figure_Output/miR-1229.png",p3, width = 7, height = 3)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

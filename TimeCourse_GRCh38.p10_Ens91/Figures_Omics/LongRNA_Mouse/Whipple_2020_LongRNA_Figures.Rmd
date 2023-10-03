@@ -1,0 +1,228 @@
+---
+title: "Whipple_2020_SmallRNA_Analysis"
+author: "Michael Soutschek"
+date: "7 1 2021"
+output: html_document
+---
+
+
+
+```{r libraries}
+suppressPackageStartupMessages({
+  library(edgeR)
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(cowplot)  
+  library(ggplot2)
+  library(matrixStats)
+  library(igraph)
+  library(grid)
+  library(viridis)
+  library(sechm)
+  library(biomaRt)
+})
+source("../../../functions/clustering.R")
+```
+
+
+# Color Definitions
+```{r}
+ancols2 <- list(day=c("0"="#3F3F3F",
+                       "10" = "#898989",
+                       "21" = "#898989"
+) )
+
+ancols3 <- list(day=c("0"="#3F3F3F",
+                      "10" = "#898989",
+                       "9" ="#575757",
+                       "15" ="#707070",
+                       "21" = "#898989",
+                       "27" ="#A1A1A1",
+                       "33" ="#BABABA",
+                       "40" = "#D3D3D3" 
+) )
+
+heatcol = inferno(255, begin = 0, end = 1)
+```
+
+
+>> For the initial analysis, see: 
+
+#/mnt/schratt/externData/2020_whipple_GSE140838_RiboZero_ClusterKOMouseCulture
+
+
+#load Data
+```{r}
+mouse.se <- readRDS("../../data/Long_RNA_Mouse/SE.Gene.salmon.DEA.rds")
+#get rid of 379-410 cluster ko values
+m.se <- mouse.se[,mouse.se$condition == "WT"]
+
+h.se <- readRDS("../../data/Long_RNA/longRNA.DEA.SE.rds")
+```
+
+
+
+
+
+
+# Check which day from the human dataset is most similar
+```{r}
+# # all relevant deas
+# deas <- c("9v0", "15v0", "21v0", "27v0", "33v0", "40v0")
+# deas <- paste0("DEA.",deas)
+# 
+# 
+# cor.logFC <- c()
+# cor.logcpm <- c()
+# for(i in deas){
+#   # human dea
+#   h <- as.data.frame(rowData(h.se)[[i]])
+#   h$names <- sapply(strsplit(row.names(h),"\\."),"[",2)
+#   # mouse dea
+#   m <- as.data.frame(rowData(m.se)$DEA)
+#   m$names <- sapply(strsplit(row.names(m),"\\."),"[",2)
+#   m$names <- enrichMiR::recapitalizeGenes(m$names,gformat = "human")
+#   
+#   com.names <- intersect(h$names,m$names)
+#   com.names <- com.names[com.names != ""]
+#   
+#   h <- h[h$names %in% com.names,]
+#   h <- h[order(h$names),]
+#   m <- m[m$names %in% com.names,]
+#   m <- m[order(m$names),]
+#   
+#   cor.logFC[i] <- cor(m$logFC,h$logFC)
+#   cor.logcpm[i] <- cor(m$logCPM,h$logCPM)
+# }
+# 
+# png("Figure_Output/cor.logFC_mouse_human.png", width=5, height=5, units="in", res=300)
+# ggplot(data = NULL,aes(x = names(cor.logFC),y=cor.logFC)) +
+#   geom_bar(stat = "identity", width = .75) + theme(axis.title.x = element_blank()) + scale_x_discrete(limits = deas)
+# dev.off()
+# 
+# png("Figure_Output/cor.logcpm_mouse_human.png", width=5, height=5, units="in", res=300)
+# ggplot(data = NULL,aes(x = names(cor.logcpm),y=cor.logcpm)) +
+#   geom_bar(stat = "identity", width = .75) + theme(axis.title.x = element_blank()) + scale_x_discrete(limits = deas)
+# dev.off()
+```
+
+#filter for lncRNAs
+```{r}
+h.se.lnc <- h.se[rowData(h.se)$biotype == "lincRNA"]
+m.se.lnc <- m.se[rowData(m.se)$gene_type == "lincRNA"]
+
+
+h.lnc <- row.names(h.se[rowData(h.se)$biotype == "lincRNA"])
+h.lnc <- sapply(strsplit(h.lnc,"\\."),"[",2)
+h.lnc <- h.lnc[which(h.lnc != "NA")]
+
+
+m.lnc <- row.names(m.se[rowData(m.se)$gene_type == "lincRNA"])
+m.lnc <- sapply(strsplit(m.lnc,"\\."),"[",2)
+m.lnc.test <- m.lnc
+m.lnc <- enrichMiR::recapitalizeGenes(m.lnc,gformat = "human")
+m.lnc <- m.lnc[which(m.lnc != "NA")]
+```
+
+
+
+```{r}
+# get identical lncRNAs
+h.res.21 <- as.data.frame(rowData(h.se)$DEA.21v0)
+h.res.21$names <- sapply(strsplit(row.names(h.res.21),"\\."),"[",2)
+h.res.21 <- h.res.21[h.res.21$names != "NA",]
+h.res.21lnc <- h.res.21[h.res.21$names %in% h.lnc,]
+
+h.res <- as.data.frame(rowData(h.se)$DEA.all)
+h.res$names <- sapply(strsplit(row.names(h.res),"\\."),"[",2)
+h.res <- h.res[h.res$names != "NA",]
+h.reslnc <- h.res[h.res$names %in% h.lnc,]
+
+m.res <- as.data.frame(rowData(m.se)$DEA)
+m.res$names <- sapply(strsplit(row.names(m.res),"\\."),"[",2)
+m.res$names <- enrichMiR::recapitalizeGenes(m.res$names,gformat = "human")
+m.res <- m.res[m.res$names != "NA",]
+m.reslnc <- m.res[m.res$names %in% m.lnc,]
+```
+
+
+
+```{r}
+com.names21 <- intersect(h.res.21lnc$names,m.reslnc$names)
+com.names21 <- com.names21[com.names21 != ""]
+
+com.names <- intersect(h.reslnc$names,m.reslnc$names)
+com.names <- com.names[com.names != ""]
+```
+
+
+#it seems there are less names in common than compared to when I just do it by hand
+```{r}
+# human = useMart("ensembl", dataset = "hsapiens_gene_ensembl", host = "https://dec2021.archive.ensembl.org")
+# mouse = useMart("ensembl", dataset = "mmusculus_gene_ensembl", host = "https://dec2021.archive.ensembl.org")
+# mouse.test1 = getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", values = h.lnc, mart = human, attributesL = c("mgi_symbol"), martL = mouse)
+# mouse.test2 = getLDS(attributes = c("ensembl_gene_id"), filters = "ensembl_gene_id", values = h.lnc, mart = human, attributesL = c("ensembl_gene_id"), martL = mouse)
+# mouse.test3 = getLDS(attributes = c("mgi_symbol"), filters = "mgi_symbol", values = m.lnc.test, mart = mouse, attributesL = c("hgnc_symbol"), martL = human)
+```
+
+
+```{r}
+# intersect with significants
+h.sig.21 <- h.res.21lnc[h.res.21lnc$FDR < 0.05,"names"]
+h.sig <- h.reslnc[h.reslnc$FDR < 0.05,"names"]
+m.sig <- m.reslnc[m.reslnc$FDR < 0.05,"names"]
+
+com.sig.h21 <- intersect(h.sig.21,com.names21)
+com.sig.h <- intersect(h.sig,com.names)
+```
+
+
+#Common Row.Names
+```{r}
+#prepare data to plot
+h.se$day <- as.factor(h.se$day)
+h.se.21 <- h.se[,h.se$day %in% c(0,21)]
+m.se$day <- gsub("Day ","",m.se$Day)
+
+#common row.names
+row.names(h.se.21) <- sapply(strsplit(row.names(h.se.21),"\\."),"[",2)
+row.names(h.se) <- sapply(strsplit(row.names(h.se),"\\."),"[",2)
+
+row.names(m.se) <- sapply(strsplit(row.names(m.se),"\\."),"[",2)
+row.names(m.se) <- enrichMiR::recapitalizeGenes(row.names(m.se),gformat = "human")
+```
+
+
+
+
+#Day 21
+```{r}
+
+a <- crossHm(list("Mouse-lncRNAs"=m.se, "Human-lncRNAs"=h.se.21),assayName = "logcpm", features = com.sig.h, do.scale = TRUE, breaks=TRUE, show_rownames = TRUE, hmcols = heatcol, top_annotation = c("day"),anno_colors = ancols2,annocol_title_side=NA)
+
+#plot heatmap
+png("Figure_Output/crossHM_lncRNA_Mouse_Human_Day21.png", width=7, height=5.5, units="in", res=300)
+a
+dev.off()
+```
+
+
+
+
+#All Human Days
+```{r}
+#prepare data to plot
+a<- crossHm(list(Mouse=m.se, Human=h.se),assayName = "logcpm", features = com.sig.h, do.scale = TRUE, gaps_at = "day", breaks=TRUE, show_rownames = TRUE, hmcols = heatcol,top_annotation =c("day"),anno_colors = ancols3,rel.width = c(1,2.5),annocol_title_side=NA)
+
+#plot heatmap
+png("Figure_Output/crossHM_Mouse_Human_all_days.png", width=10, height=7, units="in", res=300)
+a
+dev.off()
+```
+
+
+
+
+
+
+

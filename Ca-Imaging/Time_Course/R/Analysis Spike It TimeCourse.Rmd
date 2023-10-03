@@ -1,0 +1,136 @@
+---
+title: "CaImaging"
+author: "Michael"
+date: '2022-10-17'
+output: html_document
+---
+
+
+#libraries
+```{r}
+suppressPackageStartupMessages({
+  library(data.table)
+  library(ggplot2)
+  library(stringr)
+  library(reshape2)
+  library(emmeans)
+  library(ggrepel)
+  library(emmeans)
+  library(dplyr)
+})
+```
+
+
+
+
+## Load Data From SpikeIt App
+```{r echo=TRUE}
+NumFrames <- 611 #Number of Frames in a video
+totalTime <- 300 #in s
+timeperFrame <- totalTime/NumFrames
+
+
+data_n1 <- read.csv("../raw/LV16_Peak-Tables_0075.csv")
+data_n2 <- read.csv("../raw/LV18_Peak-Tables_0075.csv")
+
+data <- rbind(data_n1,data_n2)
+
+#cleanup
+data <- data[!is.na(data$Baseline.Intensity.df.F.),]
+data$Table.ID <- NULL
+
+#the amplitude column is already calculated in Peak.Intensity.df.F, so "amplitude" would be calculated doubled and can be deleted
+data$Amplitude <- NULL
+
+```
+
+
+# Get Metadata Info
+```{r}
+data$Differentiation <- sapply(strsplit(data$Table,"_"),"[",2)
+data$Day <- sapply(strsplit(data$Table,"_"),"[",5)
+data$CVS <- sapply(strsplit(data$Table,"_"),"[",6)
+data$Video <- sapply(strsplit(data$Table,"_"),"[",7)
+
+
+data$Day <- str_replace(data$Day,"DAY", "Day ")
+data$Day <- str_replace(data$Day,"Day21", "Day 21")
+
+data$Experiment <- sapply(strsplit(data$Table,"_"),"[",2)
+data$Experiment <- gsub("LV16","Cell Line 1",data$Experiment)
+data$Experiment <- gsub("LV18","Cell Line 2",data$Experiment)
+```
+
+
+```{r}
+saveRDS(data,"./TC_PeakTable_075.rds")
+```
+
+
+
+#######################################
+#No subsetting
+#######################################
+
+
+
+
+# Aggregate per Cell (by median)
+```{r message=FALSE, warning=FALSE}
+#convert to data.table
+data <- as.data.table(data)
+
+#get the means per cell
+ag.data <- data[, lapply(.SD, median), by=c("Experiment","Differentiation","Day","CVS","Video","Cell.Trace"), .SDcols = -c("Peak.Start.Frame.","Peak.Time.Frame.","Peak.Stop.Frame.",
+                                                                               "Peak.Start.s.","Peak.Time.s.","Peak.Stop.s.","Table")]
+```
+
+
+# Get additional parameters
+```{r}
+#get the number of peaks per cell
+NumPeaks <- data[, .N, by=c("Cell.Trace","Table")]
+colnames(NumPeaks)[3] <- "#Peaks"
+ag.data <- merge(ag.data, NumPeaks, by=c("Cell.Trace", "Table"))
+ag.data$Frequency <- ag.data$`#Peaks` / NumFrames
+ag.data$`Frequency [hz]`<- ag.data$`#Peaks`  / totalTime
+```
+
+
+# Get CellNumbers
+```{r}
+#number of selected cells
+#per video
+NumCellsVideo <- ag.data[, .N, by=c("Table")]
+colnames(NumCellsVideo)[2] <- "#Cells_Video"
+ag.data <- merge(ag.data, NumCellsVideo, by=c("Table"))
+
+#per day & experiment
+NumCellsDayExp <- ag.data[, .N, by=c("Experiment","Day")]
+colnames(NumCellsDayExp)[3] <- "#Cells_DayExp"
+ag.data <- merge(ag.data, NumCellsDayExp, by=c("Experiment","Day"))
+
+#per day
+NumCellsDay <- ag.data[, .N, by=c("Day")]
+colnames(NumCellsDay)[2] <- "#Cells_Day"
+ag.data <- merge(ag.data, NumCellsDay, by=c("Day"))
+```
+
+
+
+
+# Prepare Condition Factor vector
+```{r}
+ag.data$Condition <- factor(ag.data$Day, levels = c("Day 15","Day 21","Day 27","Day 33","Day 40","Day 47"))
+```
+
+
+
+
+
+# SaveRDS
+```{r}
+saveRDS(ag.data,"./CaImaging_Aggregated_Data.rds")
+```
+
+

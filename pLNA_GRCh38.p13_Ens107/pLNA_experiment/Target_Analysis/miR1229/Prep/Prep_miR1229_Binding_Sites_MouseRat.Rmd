@@ -1,0 +1,140 @@
+---
+title: "Prepare Candidate Binding Sites"
+author: "Michael Soutschek"
+date: "4/18/2021"
+output: html_document
+---
+
+
+
+```{r}
+library(scanMiR)
+library(scanMiRData)
+library(SummarizedExperiment)
+library(scanMiRApp)
+library(enrichMiR)
+library(BiocParallel)
+```
+
+
+#Prepare Data to filter
+
+# Load Transcript Analysis
+# ... and filter for Transcripts that are expressed in the cell
+```{r}
+se <- readRDS("../data/SE.dea.Gene.salmon.raw.rds")
+row.names(se) <- sapply(strsplit(row.names(se),"\\."), getElement,2)
+```
+
+
+#mods
+```{r}
+hsa <- getKdModels("hsa",categories = NULL)
+
+hsa_1229 <- hsa["hsa-miR-1229-3p"]
+```
+
+
+#FullScan Mouse
+```{r}
+Mouse <- ScanMiRAnno(species = "GRCm39")
+
+Full_1229_Mouse <- runFullScan(annotation = Mouse,mods = hsa_1229,extract = "withORF",shadow = 15,cores = SnowParam(progressbar = TRUE),
+                        maxLogKd = c(-0.3,-0.3), ret = "GRanges",
+                        save.path = NULL)
+
+agg_1229_Mouse <- aggregateMatches(Full_1229_Mouse,keepSiteInfo = TRUE)
+```
+
+
+```{r}
+#Get Symbol names
+tx2symbol_m <- read.delim("/reference/Mus_musculus/Ensembl/GRCm39/Annotation/Release_108/tx2gene", header=FALSE)
+tx2symbol_m$transcript <- gsub("\\..*","",tx2symbol_m$V1)
+tx2symbol_m <- tx2symbol_m[,-1]
+colnames(tx2symbol_m)[1] <- c("gene_name")
+saveRDS(tx2symbol_m,"GRCm39_Release_108_tx2gene.rds")
+```
+
+
+```{r}
+tx2symbol_m <- readRDS("GRCm39_Release_108_tx2gene.rds")
+```
+
+
+```{r}
+#filter
+agg_1229_Mouse <- merge(agg_1229_Mouse,tx2symbol_m,by = "transcript", all.x = TRUE)
+agg_1229_Mouse <- agg_1229_Mouse[order(agg_1229_Mouse$repression),]
+agg_1229_Mouse$GENE_NAME <- recapitalizeGenes(agg_1229_Mouse$gene_name,gformat = "human")
+agg_1229_Mouse_exp <- agg_1229_Mouse[agg_1229_Mouse$GENE_NAME %in% row.names(se),]
+```
+
+
+
+```{r}
+agg_1229_Mouse_exp <- agg_1229_Mouse_exp[order(agg_1229_Mouse_exp$repression),]
+
+#save
+saveRDS(agg_1229_Mouse_exp,"./target_data/Mouse_mir-1229-3p_sites_agg_expressed.rds")
+
+
+#save all sites
+Full_1229_Mouse_df <- as.data.frame(Full_1229_Mouse)
+Full_1229_Mouse_df <- merge(Full_1229_Mouse_df,tx2symbol_m,by.x = "seqnames", by.y = "transcript", all.x = TRUE)
+saveRDS(Full_1229_Mouse_df,"./target_data/Mouse_mir-1229-3p_sites.rds")
+```
+
+
+
+
+
+#FullScan Rat
+```{r}
+Rat <- ScanMiRAnno(species = "Rnor_6")
+
+Full_1229_Rat <- runFullScan(annotation = Rat,mods = hsa_1229,extract = "withORF",shadow = 15,cores = MulticoreParam(progressbar = TRUE),
+                        maxLogKd = c(-0.3,-0.3), ret = "GRanges",
+                        save.path = NULL)
+
+agg_1229_Rat <- aggregateMatches(Full_1229_Rat,keepSiteInfo = TRUE)
+```
+
+
+```{r}
+#Get Symbol names
+tx2symbol_r <- read.delim("/reference/Rattus_norvegicus/Ensembl/Rnor6/Annotation/Ensembl99/tx_info.csv", header=FALSE)
+tx2symbol_r$transcript <- sapply(strsplit(tx2symbol_r$V1," "),"[",1)
+tx2symbol_r$gene_id <- sapply(strsplit(tx2symbol_r$V1," "),"[",2)
+tx2symbol_r$gene_name <- sapply(strsplit(tx2symbol_r$V1," "),"[",4)
+
+tx2symbol_r$transcript <- gsub("\\..*","",tx2symbol_r$transcript)
+tx2symbol_r <- tx2symbol_r[,-1]
+```
+
+```{r}
+#filter
+agg_1229_Rat <- merge(agg_1229_Rat,tx2symbol_r,by = "transcript", all.x = TRUE)
+agg_1229_Rat <- agg_1229_Rat[order(agg_1229_Rat$repression),]
+agg_1229_Rat$GENE_NAME <- recapitalizeGenes(agg_1229_Rat$gene_name,gformat = "human")
+agg_1229_Rat_exp <- agg_1229_Rat[agg_1229_Rat$GENE_NAME %in% row.names(se),]
+```
+
+
+
+```{r}
+agg_1229_Rat_exp <- agg_1229_Rat_exp[order(agg_1229_Rat_exp$repression),]
+
+#save
+saveRDS(agg_1229_Rat_exp,"./target_data/Rat_mir-1229-3p_sites_agg_expressed.rds")
+
+
+#save all sites
+Full_1229_Rat_df <- as.data.frame(Full_1229_Rat)
+Full_1229_Rat_df <- merge(Full_1229_Rat_df,tx2symbol_r,by.x = "seqnames", by.y = "transcript", all.x = TRUE)
+saveRDS(Full_1229_Rat_df,"./target_data/Rat_mir-1229-3p_sites.rds")
+```
+
+
+
+

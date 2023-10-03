@@ -1,0 +1,171 @@
+---
+title: "generateDEA_salmon"
+author: "Michael Soutschek"
+date: "12/9/2022"
+output: html_document
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(edgeR)
+  library(SummarizedExperiment)
+  library(SEtools)
+})
+```
+
+
+#Load Data
+```{r}
+se <- readRDS("./SE.Gene.star.raw.rds")
+```
+
+```{r}
+se$condition <- factor(se$condition, c("Empty", "pLNA-Ctrl", "pLNA-1229", "pLNA-181c", "pLNA-3943"))
+se$condition2 <- se$condition
+levels(se$condition2)[1:2] <- "control"
+se$isEmpty <- se$condition=="Empty"
+```
+
+
+#DEA
+```{r}
+#model matrix and filter low read counts
+mm.test <- model.matrix(~diff+isEmpty+condition2, data=colData(se))
+se.test <- se[filterByExpr(assay(se), mm.test),]
+
+
+#edgeR normalization
+dds.test <- DGEList(assay(se.test))
+dds.test <- calcNormFactors(dds.test)
+
+#add logcpm and logFC
+assays(se.test)$logcpm <- log1p(cpm(dds.test))
+```
+
+
+
+## PCA
+
+```{r pca, message=FALSE, warning=FALSE, eval=TRUE}
+# plot PCA to check for batch effect
+plgINS::plPCA(assays(se.test)$logcpm, as.data.frame(colData(se.test)), colorBy = "condition", shapeBy = "diff",
+              add.labels = FALSE, annotation_columns = colnames(colData(se.test)))
+```
+
+
+#svacor
+
+```{r}
+se.test <- svacor(se.test, ~diff+isEmpty+condition2, ~diff+isEmpty, n.sv=NULL)
+
+se.test <- SEtools::log2FC(se.test, controls = se.test$condition=="Empty", fromAssay = "corrected", toAssay = "log2FC.Emp", isLog = TRUE)
+se.test <- SEtools::log2FC(se.test, controls = se.test$condition=="pLNA-Ctrl", fromAssay = "corrected", toAssay = "log2FC.Ctrl", isLog = TRUE)
+sechm::sechm(se.test, head(row.names(se.test),1000), assayName = "log2FC.Ctrl", top_annotation="diff",gaps_at="condition")
+```
+
+
+```{r}
+plgINS::plPCA(assays(se.test)$corrected, as.data.frame(colData(se.test)), colorBy = "condition", shapeBy = "diff",
+              add.labels = FALSE, annotation_columns = colnames(colData(se.test)))
+```
+
+
+
+#Try to exclude Sample B_8 that was moderately degraded 
+```{r}
+se2 <- se[,se$Novogene != "B_8"]
+```
+
+
+
+#DEA
+```{r}
+#model matrix and filter low read counts
+mm2 <- model.matrix(~diff+isEmpty+condition2, data=colData(se2))
+se2 <- se2[filterByExpr(assay(se2), mm2),]
+
+#edgeR normalization
+dds2<- DGEList(assay(se2))
+dds2 <- calcNormFactors(dds2)
+
+#add logcpm and logFC
+assays(se2)$logcpm <- log1p(cpm(dds2))
+```
+
+
+
+## PCA
+
+```{r pca, message=FALSE, warning=FALSE, eval=TRUE}
+# plot PCA to check for batch effect
+plgINS::plPCA(assays(se2)$logcpm, as.data.frame(colData(se2)), colorBy = "condition", shapeBy = "diff",
+              add.labels = FALSE, annotation_columns = colnames(colData(se2)))
+```
+
+
+
+#svacor
+
+```{r}
+se2 <- svacor(se2, ~diff+isEmpty+condition2, ~diff+isEmpty, n.sv=NULL)
+
+se2 <- SEtools::log2FC(se2, controls = se2$condition=="Empty", fromAssay = "corrected", toAssay = "log2FC.Emp", isLog = TRUE)
+se2 <- SEtools::log2FC(se2, controls = se2$condition=="pLNA-Ctrl", fromAssay = "corrected", toAssay = "log2FC.Ctrl", isLog = TRUE)
+se2 <- SEtools::log2FC(se2, controls = se2$condition %in% c("Empty","pLNA-Ctrl"), fromAssay = "corrected", toAssay = "log2FC", isLog = TRUE)
+
+sechm::sechm(se2, head(row.names(se2),1000), assayName = "log2FC.Ctrl", top_annotation="diff",gaps_at="condition",do.scale = TRUE)
+```
+
+
+```{r}
+plgINS::plPCA(assays(se2)$corrected, as.data.frame(colData(se2)), colorBy = "condition", shapeBy = "diff",
+              add.labels = FALSE, annotation_columns = colnames(colData(se2)))
+```
+
+
+#DEA
+```{r}
+#model matrix and filter low read counts
+mm <- model.matrix(~isEmpty + condition2  +SV1+SV2+SV3, data=colData(se2))
+se2 <- se2[filterByExpr(assay(se2), mm),]
+
+#edgeR normalization
+dds <- DGEList(assay(se2))
+dds <- calcNormFactors(dds)
+
+#add logcpm and logFC
+assays(se2)$logcpm <- log1p(cpm(dds))
+
+#model fit
+dds <- estimateDisp(dds,mm)
+fit <- glmFit(dds, mm)
+```
+
+
+
+
+
+```{r}
+deas <- list()
+for(f in grep("condition", colnames(mm), value=TRUE)){
+  deas[[f]] <- as.data.frame(topTags(glmLRT(fit, f), Inf))
+  rowData(se2)[[paste0("DEA.",gsub("condition2","",f))]] <- deas[[f]][row.names(se2),]
+}
+
+deas$any <- as.data.frame(topTags(glmLRT(fit, grep("condition", colnames(mm), value=TRUE)), Inf))
+
+rowData(se2)[["DEA.any"]] <- deas$any
+
+
+sechm::sechm(se2, head(row.names(deas[[4]]), 50), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE)
+```
+
+
+```{r}
+saveRDS(se2,"./SE.dea.Gene.star.raw.rds")
+```
+
+
+

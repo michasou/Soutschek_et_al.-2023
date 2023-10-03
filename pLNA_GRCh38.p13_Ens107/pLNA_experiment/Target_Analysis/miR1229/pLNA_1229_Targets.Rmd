@@ -1,0 +1,99 @@
+---
+title: "pLNA-1229_Targets"
+author: "Michael Soutschek"
+date: "12/16/2022"
+output: html_document
+---
+
+
+
+```{r}
+library(scanMiR)
+library(SummarizedExperiment)
+library(dplyr)
+```
+
+
+
+#load data
+```{r}
+se <- readRDS("../../data/SE.dea.TX.salmon.raw.rds")
+se2 <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
+sites1229 <- readRDS("./target_data/Screen_mir-1229-3p_sites_agg.rds")
+colnames(sites1229)[colnames(sites1229) == "V3"] <- "gene_id"
+sites1229$gene_id <- sapply(strsplit(sites1229$gene_id,"\\."),"[",1)
+```
+
+
+#Transcript based
+```{r}
+dea1229 <- rowData(se)[["DEA.pLNA-1229"]]
+dea1229$transcript <- sapply(strsplit(row.names(dea1229),"\\."), getElement,1)
+dea1229$gene_id <- NULL
+
+dea1229 <- merge(dea1229,sites1229,by = "transcript",all.x = TRUE)
+#dea1229 <- dea1229[dea1229$logCPM > 0.5,]
+dea1229 <- dea1229[order(dea1229$FDR),]
+write.csv(dea1229,"./target_data/dea1229_targets_transcriptbased.csv")
+
+#genes <- dea1229[order(dea1229$repression)[1:20],unique("symbol")]
+```
+
+```{r}
+dea1229up <- dea1229[dea1229$logFC > 0,]
+dea1229up <- dea1229up[dea1229up$FDR < 0.5,]
+```
+
+
+
+#Gene based
+```{r}
+dea1229g <- rowData(se2)[["DEA.pLNA-1229"]]
+dea1229g$gene_id <- sapply(strsplit(row.names(dea1229g),"\\."),"[",1)
+dea1229g$gene_name <- sapply(strsplit(row.names(dea1229g),"\\."),"[",2)
+```
+
+
+```{r}
+sites1229filtered <- sites1229[sites1229$transcript %in% dea1229$transcript,]
+sites1229agg <- sites1229filtered %>%
+  group_by(gene_id) %>%
+  dplyr::filter(repression == min(min(repression), na.rm=TRUE))
+
+# sites1229agg$transcript <- NULL
+# sites1229agg <- distinct(sites1229agg)
+
+sites1229agg <- sites1229agg[order(sites1229agg$`8mer`, decreasing = TRUE),]
+sites1229agg <- sites1229agg[!duplicated(sites1229agg$gene_id),]
+
+dea1229g <- merge(dea1229g,sites1229agg, by = "gene_id",all.x = TRUE)
+#dea1229g <- dea1229g[dea1229g$logCPM > 0.5,]
+dea1229g <- dea1229g[order(dea1229g$FDR),]
+write.csv(dea1229g,"./target_data/dea1229_targets_genebased.csv")
+
+dea1229gup <- dea1229g[dea1229g$logFC > 0,]
+dea1229gup <- dea1229gup[dea1229gup$FDR < 0.5,]
+
+dea1229gupbs <- dea1229gup[dea1229gup$`8mer` > 0,]
+dea1229gupbs <- dea1229gupbs[!is.na(dea1229gupbs$gene_id),]
+
+#genes <- dea1229g[order(dea1229g$repression)[1:20],"gene_name"]
+```
+
+
+
+#individual sites
+```{r}
+sites_ind <- readRDS("./target_data/Screen_mir-1229-3p_sites.rds")
+sites_ind <- merge(sites_ind,dea1229,by.x = "seqnames", by.y = "transcript",all.x = TRUE)
+sites_ind <- sites_ind[sites_ind$logCPM > 1.5,]
+sites_ind <- sites_ind[order(sites_ind$log_kd),]
+
+genes  <- unique(sites_ind[1:22,"symbol.x"])
+
+write.csv(sites_ind,"./target_data/dea1229_targets_individualsites.csv")
+```
+
+
+
+

@@ -1,0 +1,167 @@
+---
+title: "Untitled"
+author: "Michael"
+date: '2022-10-21'
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+  library(ggsci)
+  library(scales)
+  library(emmeans)
+  library(lmerTest)
+  library(ggpubr)
+  library(rstatix)
+  library(ggsignif)
+  library(cowplot)
+  library(viridis)
+  library(MASS)
+})
+```
+
+
+
+#load data
+```{r}
+e <- readRDS("../DataPrep/Neurite_Result_pLNA_SingleSoma.rds")
+e <- e[e$Condition != c("Empty"),]
+e$Condition <- droplevels(e$Condition)
+
+e21 <- e[e$Day == "Day21",]
+e33 <- e[e$Day == "Day33",]
+```
+
+#Aggregate Means
+```{r}
+ag_le <- aggregate(log1p(e$TotalLength_um),e[,c("Day","Differentiation","Condition")], FUN=mean)
+ag_le21 <- ag_le[ag_le$Day == "Day21",]
+ag_le33 <- ag_le[ag_le$Day == "Day33",]
+
+ag_br <- aggregate(e$NumberBranchEnds,e[,c("Day","Differentiation","Condition")], FUN=mean)
+ag_br21 <- ag_br[ag_br$Day == "Day21",]
+ag_br33 <- ag_br[ag_br$Day == "Day33",]
+
+ag_se <- aggregate(e$NumberNonTrunkBranches,e[,c("Day","Differentiation","Condition")], FUN=mean)
+ag_se21 <- ag_se[ag_se$Day == "Day21",]
+ag_se33 <- ag_se[ag_se$Day == "Day33",]
+```
+
+
+
+
+#statistic length means
+```{r message=FALSE, warning=FALSE, paged.print=FALSE, results=FALSE}
+mod_l1 <- MASS::rlm(x ~ Condition + Differentiation,ag_le21,psi = psi.huber)
+summary(mod_l1)
+l1 <- emmeans(mod_l1, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
+
+mod_l2 <- MASS::rlm(x ~ Condition + Differentiation,ag_le33,psi = psi.huber)
+summary(mod_l2)
+l2 <- emmeans(mod_l2, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
+```
+
+
+```{r}
+st_df1 <- as.data.frame(l1$contrasts)
+st_df1$Day <- "Day21"
+st_df2 <- as.data.frame(l2$contrasts)
+st_df2$Day <- "Day33"
+
+st_df1$t.ratio <- NULL
+st_df2$t.ratio <- NULL
+
+st_df <- rbind(st_df1,st_df2)
+st_df$group1 <- "pLNA-Ctrl"
+st_df$group2 <- gsub(") - Ctrl", "",st_df$contrast)
+st_df$group2 <- gsub("\\(", "",st_df$group2)
+st_df$group2 <- gsub("\\) - pLNA-Ctrl)", "",st_df$group2)
+st_df <- add_significance(st_df,p.col = "p.value")
+
+saveRDS(st_df,"./ST_DF_Length_means.rds")
+```
+
+
+
+##################
+##################
+
+#statistic BranchEnds means
+```{r message=FALSE, warning=FALSE, paged.print=FALSE, results=FALSE}
+mod_b1 <- MASS::rlm(x ~ Condition + Differentiation,ag_br21,psi = psi.huber)
+summary(mod_b1)
+b1 <- emmeans(mod_b1, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
+
+mod_b2 <- MASS::rlm(x ~ Condition + Differentiation,ag_br33,psi = psi.huber)
+summary(mod_b2)
+b2 <- emmeans(mod_b2, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
+```
+
+
+
+```{r}
+st_df1 <- as.data.frame(b1$contrasts)
+st_df1$Day <- "Day21"
+st_df2 <- as.data.frame(b2$contrasts)
+st_df2$Day <- "Day33"
+
+st_df1$t.ratio <- NULL
+st_df2$t.ratio <- NULL
+
+st_df <- rbind(st_df1,st_df2)
+st_df$group1 <- "pLNA-Ctrl"
+st_df$group2 <- gsub(") - Ctrl", "",st_df$contrast)
+st_df$group2 <- gsub("\\(", "",st_df$group2)
+st_df$group2 <- gsub("\\) - pLNA-Ctrl)", "",st_df$group2)
+st_df <- add_significance(st_df,p.col = "p.value")
+
+saveRDS(st_df,"./ST_DF_BranchEnds_means.rds")
+```
+
+##################
+##################
+
+
+
+
+#statistic Secondary Branches means
+```{r message=FALSE, warning=FALSE, paged.print=FALSE, results=FALSE}
+mod_sb1 <- MASS::rlm(x ~ Condition + Differentiation,ag_se21,psi = psi.huber)
+summary(mod_sb1)
+sb1 <- emmeans(mod_sb1, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
+
+mod_sb2 <- MASS::rlm(x ~ Condition + Differentiation,ag_se33,psi = psi.huber)
+summary(mod_sb2)
+sb2 <- emmeans(mod_sb2, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
+```
+
+
+
+```{r}
+st_df1 <- as.data.frame(sb1$contrasts)
+st_df1$Day <- "Day21"
+st_df2 <- as.data.frame(sb2$contrasts)
+st_df2$Day <- "Day33"
+
+st_df1$t.ratio <- NULL
+st_df2$t.ratio <- NULL
+
+st_df <- rbind(st_df1,st_df2)
+st_df$group1 <- "pLNA-Ctrl"
+st_df$group2 <- gsub(") - Ctrl", "",st_df$contrast)
+st_df$group2 <- gsub("\\(", "",st_df$group2)
+st_df$group2 <- gsub("\\) - pLNA-Ctrl)", "",st_df$group2)
+st_df <- add_significance(st_df,p.col = "p.value")
+
+saveRDS(st_df,"./ST_DF_SecondaryBranches_means.rds")
+```
+
+
+
+

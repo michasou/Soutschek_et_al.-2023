@@ -1,0 +1,88 @@
+---
+title: "Prepare Candidate Binding Sites"
+author: "Michael Soutschek"
+date: "4/18/2021"
+output: html_document
+---
+
+
+
+```{r}
+library(scanMiR)
+library(scanMiRData)
+library(SummarizedExperiment)
+library(scanMiRApp)
+```
+
+
+#Prepare Data to filter
+
+# Load Transcript Analysis
+# ... and filter for Transcripts that are expressed in the cell
+```{r}
+se <- readRDS("../../../data/SE.dea.TX.salmon.raw.rds")
+row.names(se) <- sapply(strsplit(row.names(se),"\\."), getElement,1)
+```
+
+
+#mods
+```{r}
+hsa <- getKdModels("hsa",categories = NULL)
+
+hsa_1229 <- hsa["hsa-miR-1229-3p"]
+```
+
+
+#FullScan
+```{r}
+Human <- ScanMiRAnno(species = "GRCh38")
+
+Full_1229 <- runFullScan(annotation = Human,mods = hsa_1229,extract = "withORF",shadow = 15,cores = 12,
+                        maxLogKd = c(-0.3,-0.3), ret = "GRanges",
+                        save.path = NULL)
+```
+
+
+
+#Filter
+```{r}
+Screen_1229 <- Full_1229[seqnames(Full_1229) %in% row.names(se),]
+
+agg_1229 <- aggregateMatches(Screen_1229,keepSiteInfo = TRUE)
+
+gc()
+```
+
+
+#Get Symbol names
+```{r}
+tx2symbol <- read.delim("/reference/Homo_sapiens/Ensembl/GRCh38.p13/Annotation/Release_107-2022/tx2gene", header=FALSE)
+tx2symbol$transcript <- gsub("\\..*","",tx2symbol$V1)
+tx2symbol <- tx2symbol[,-1]
+colnames(tx2symbol)[1] <- c("symbol")
+```
+
+```{r}
+agg_1229 <- merge(agg_1229,tx2symbol,by = "transcript", all.x = TRUE)
+```
+
+
+#save
+```{r}
+agg_1229 <- agg_1229[order(agg_1229$repression),]
+
+saveRDS(agg_1229,"../target_data/Screen_mir-1229-3p_sites_agg.rds")
+
+Screen_1229 <- as.data.frame(Screen_1229)
+Screen_1229 <- merge(Screen_1229,tx2symbol,by.x = "seqnames", by.y = "transcript", all.x = TRUE)
+saveRDS(Screen_1229,"../target_data/Screen_mir-1229-3p_sites.rds")
+```
+
+
+
+
+
+
+
+
+

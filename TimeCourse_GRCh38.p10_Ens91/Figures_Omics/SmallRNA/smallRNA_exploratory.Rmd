@@ -1,0 +1,124 @@
+---
+title: "longRNA-exploratory"
+author: "Michael Soutschek"
+date: "11 1 2021"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(plgINS)
+  library(viridis)
+  library(RColorBrewer)
+  library(data.table)
+  library(dplyr)
+  library(tidyr)
+  library(plotly)
+  library(edgeR)
+})
+```
+
+
+# Load Data
+```{r}
+se <- readRDS("../../data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+se$Day <- paste0("Day ",se$day)
+se$Day[which(se$Day == "Day 9")] <- "Day 09"
+se$Day <- factor(se$Day, levels = c("Day 0","Day 09","Day 15","Day 21","Day 27","Day 33","Day 40"))
+se$day <- as.factor(se$day)
+se$day2 <- paste0("Day_",se$day)
+se$replicate <- as.integer(gsub("SC","",se$experiment))
+se2 <- se[,se$day != 0]
+```
+
+
+
+# Violine Figures:
+```{r}
+# example to get genes:
+g1 <- grep("-410-3p|-411-5p|-132-3p|-134-5p|-889|-181a-|-137",row.names(se),value=TRUE)
+
+png("Figure_Output/Single_Genes/Mouse_micro_example1.png", width=7, height=6, units="in", res=300)
+ggplot(meltSE(se, g1, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + geom_point(aes(color = experiment))
+dev.off()
+```
+
+
+
+## PCA
+
+```{r pca, message=FALSE, warning=FALSE, eval=TRUE}
+## all stages
+p <- plPCA(assays(se)$logcpm, as.data.frame(colData(se)), colorBy = "Day", shapeBy = "replicate",add.labels = FALSE)
+
+orca(p, file = "Figure_Output/Exploratory/smallRNA_PCA.png")
+orca(p, file = "Figure_Output/Exploratory/smallRNA_PCA.pdf")
+```
+
+
+```{r}
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
+col_vec2 <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
+
+
+#assay
+x <- assays(se)$logcpm
+
+#preparation
+x <- t(x[which(!(apply(x, 1, var) == 0)), ])
+pca <- prcomp(x)
+
+#annotation
+samples_data = as.data.frame(colData(se))
+annotation_columns = colnames(colData(se))
+
+samples_data <- samples_data[row.names(pca$x), ]
+samples_data$names <- row.names(samples_data)
+labs <- annotation_columns
+labs[which(labs == "names")] <- ""
+text <- apply(samples_data[, annotation_columns, drop = F], 
+                  1, labs = labs, FUN = function(x, labs) {
+                    paste(paste(labs, x), collapse = "\n")
+                  })
+
+#annotation
+colorBy = "Day"
+shapeBy = "replicate"
+
+cb <- samples_data[, colorBy]
+if (is.numeric(cb)) cb <- as.character(cb)
+
+sb <- samples_data[, shapeBy]
+if (is.numeric(sb)) sb <- as.factor(as.character(sb))
+
+
+#plot components
+xlab <- paste("PC ", "1", " (", round(pca$sdev[1]/sum(pca$sdev) *
+                                                       100, 0), "%)", sep = "")
+ylab <- paste("PC ", "2", " (", round(pca$sdev[2]/sum(pca$sdev) *
+                                                       100, 0), "%)", sep = "")
+
+df <- data.frame(x = pca$x[,1],y = pca$x[,2])
+
+p1 <- ggplot(df, aes(x = x, y = y)) +
+  geom_hline(yintercept=0, linewidth = 0.25) +
+  geom_vline(xintercept=0, linewidth = 0.25) + 
+  geom_point(aes(color = cb, shape = sb),size = 3) +
+  theme_classic() +
+  xlab(xlab) + ylab(ylab) + 
+  #scale_color_manual(values = col_vec2) +
+  scale_color_uchicago()+
+  theme(text = element_text(size = 14), 
+        axis.text.x = element_text(size = rel(1)),
+        axis.text.y = element_text(size = rel(1))) +
+  guides(color=guide_legend(title="Day"),shape=guide_legend(title="Differentiation"))
+  
+
+ggsave("./Figure_Output/Exploratory/PCA_man.png",p1, width = 6.5,height = 4.5, bg = "white")
+
+```
+
+

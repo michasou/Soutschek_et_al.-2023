@@ -1,0 +1,162 @@
+---
+title: "DataPrep_Ephys"
+author: "Michael"
+date: "2023-07-05"
+output: html_document
+---
+
+
+```{r}
+library(dplyr)
+library(readxl)
+library(GenomicRanges)
+```
+
+
+
+#Import Data 
+
+#EPSC
+```{r}
+ls <- list.files("../raw",full.names = TRUE)
+ls <- ls[-grep("bursts",ls)]
+ls <- ls[-grep("resistance",ls)]
+ls <- ls[-grep("blinding",ls)]
+
+ls_name <- list.files("../raw/")
+ls_name <- ls_name[-grep("bursts",ls_name)]
+ls_name <- ls_name[-grep("resistance",ls_name)]
+ls_name <- ls_name[-grep("blinding",ls_name)]
+ls_name <- gsub(".atf.csv","",ls_name)
+
+names(ls) <- ls_name
+```
+
+```{r}
+ll <- list()
+
+for (i in seq(ls)) {
+  df <- read.csv(ls[i],skip = 2)
+  df$X <- NULL
+  df$X.1 <- NULL
+  df$X.2 <- NULL
+  df$S.D..of.Fit <- NULL
+  df$State <- NULL
+  df[df == "Not found"] <- NA
+  df[df == "N/A"] <- NA
+  cols <- grep("G[1-4]..|g[1-4]..",colnames(df))
+  if(length(cols) > 0) df <- df[,-cols]
+  df <- lapply(df,as.numeric)
+  n <- names(ls)[i]
+  ll[[n]] <- df
+}
+
+e <- bind_rows(ll,.id = "file_name")
+e <- as.data.frame(e)
+```
+
+```{r}
+e$file_name <- substring(e$file_name, 1, nchar(e$file_name)-2)
+```
+
+```{r}
+#exclude cells that should not be taken
+
+# 2023_05_31_0008
+# 2023_05_31_0004
+# 2023_05_22_0001
+
+e <- e[! e$file_name %in% c("2023_05_31_0008","2023_05_31_0004","2023_05_22_0001"),]
+```
+
+
+```{r}
+saveRDS(e,"EPSC_raw.rds")
+```
+
+
+#bursts
+```{r}
+b <- read_excel("../raw/bursts_ineurons.xlsx")
+colnames(b)[which(colnames(b) == "file name")] <- "file_name"
+b$file_name <- gsub("\\.abf","",b$file_name)
+b$condition <- gsub("pLNA Ctrl","pLNA-Ctrl",b$condition)
+b$condition <- gsub("pLNA1229","pLNA-1229",b$condition)
+```
+
+```{r}
+#exclude cells that should not be taken
+
+# 2023_05_31_0008
+# 2023_05_31_0004
+# 2023_05_22_0001
+
+b <- b[! b$file_name %in% c("2023_05_31_0008","2023_05_31_0004","2023_05_22_0001"),]
+```
+
+
+
+```{r}
+saveRDS(b,"bursts_raw.rds")
+```
+
+
+
+
+##########
+##########
+
+## Exclude the bursts from the EPSC data
+
+#Granges bursts
+```{r}
+gr_b <- makeGRangesFromDataFrame(df = b,keep.extra.columns = FALSE, ignore.strand = TRUE,seqnames.field = "file_name",start.field = "start time", end.field = "end time")
+```
+
+
+```{r}
+gr_e <- makeGRangesFromDataFrame(df = e,keep.extra.columns = TRUE, ignore.strand = TRUE,seqnames.field = "file_name",start.field = "Event.Start.Time..ms.", end.field = "Event.End.Time..ms.")
+```
+
+
+#exclude bursts
+```{r}
+e_filt <- subsetByOverlaps(gr_e,gr_b,invert = TRUE)
+identical(e_filt, gr_e[!overlapsAny(gr_e, gr_b)])
+```
+
+
+
+#as.data.frame
+```{r}
+e_filt <- as.data.frame(e_filt)
+colnames(e_filt)[which(colnames(e_filt)=="seqnames")] <- "file_name"
+```
+
+
+#read in resistance file for all blindings
+```{r}
+blind <- read.csv("../raw/blinding2.csv")
+blind$file_name <- gsub("\\.abf","",blind$file_name)
+blind$condition <- gsub("pLNA Ctrl","pLNA-Ctrl",blind$condition)
+blind$condition <- gsub("pLNA1229","pLNA-1229",blind$condition)
+
+blind <- rbind(b[,c("file_name","Differentiation","condition")],blind[,c("file_name","Differentiation","condition")])
+```
+
+
+
+#blinding
+```{r}
+e_filt <- merge(e_filt,blind[,c("file_name","Differentiation","condition")], by = "file_name",all.x = TRUE)
+```
+
+
+#save
+```{r}
+saveRDS(e_filt,"EPSC_filtered.rds")
+```
+
+
+
+

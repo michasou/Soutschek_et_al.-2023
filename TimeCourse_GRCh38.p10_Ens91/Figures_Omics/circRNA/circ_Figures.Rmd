@@ -1,0 +1,158 @@
+---
+title: "circ-Figures"
+author: "Michael"
+date: "4 12 2020"
+output: html_document
+---
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(plgINS)
+  library(viridis)
+  library(RColorBrewer)
+  library(data.table)
+  library(tidyverse)
+  library(limma)
+})
+```
+
+
+
+
+# Get SE file
+```{r}
+long.se <- readRDS("../../data/circRNA/longRNA.circ.ce.DEA.SE.rds")
+circ.se <- long.se[rowData(long.se)$biotype == "circRNA"]
+circ.se$day <- as.factor(circ.se$day)
+circ.se.neu <- circ.se[,circ.se$day != 0]
+```
+
+
+
+# Get DEAs and sig
+```{r}
+circ.DEA.all <- rowData(circ.se)$DEA.all
+circ.DEA.neu <- rowData(circ.se)$DEA.neuronal
+
+circ.sig.all05 <- circ.DEA.all[circ.DEA.all$FDR < 0.05,]
+circ.sig.all <- circ.DEA.all[circ.DEA.all$FDR < 0.01,]
+circ.sig.neu <- circ.DEA.neu[circ.DEA.neu$FDR < 0.01,]
+
+sig.all05 <- row.names(circ.sig.all05)
+sig.all <- row.names(circ.sig.all)
+sig.neu <- row.names(circ.sig.neu)
+
+top15.neu <- row.names(head(circ.sig.neu[order(circ.sig.neu$FDR),],15))
+top15.all <- row.names(head(circ.sig.all[order(circ.sig.all$FDR),],15))
+```
+
+
+
+# Heatmap colors
+```{r}
+heatcol = inferno(255)
+
+
+ancols <- list(day = c("0"="#3F3F3F",
+                      "9" ="#575757",
+                      "15" ="#707070",
+                      "21" = "#898989",
+                      "27" ="#A1A1A1",
+                      "33" ="#BABABA",
+                      "40" = "#D3D3D3" 
+                      ) )
+
+```
+
+
+
+# Heatmaps
+```{r}
+# # all days
+# sehm(circ.se, sig.all, anno_columns=c("day"), assayName = "log2FC.all", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE
+# )
+# 
+# png("Figure Output/Heat_alldays.png", width=7, height=5, units="in", res=300)
+# sehm(circ.se, sig.all, anno_columns=c("day"), assayName = "log2FC.all", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE)
+# dev.off()
+
+
+
+# all days, normalized Day9
+a <- sechm(circ.se, sig.all, top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, anno_colors = ancols, column_title = "circRNA", annocol_title_side=NA, name = "logFC")
+
+png("Figure Output/Heat_alldays_normDay9.png", width=7, height=5, units="in", res=300)
+a
+dev.off()
+png("Figure Output/Heat_alldays_normDay9_defense.png", width=6, height=4.5, units="in", res=300)
+a
+dev.off()
+
+
+# 
+# # neuronal days
+# sehm(circ.se.neu, sig.neu, anno_columns=c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE)
+# 
+# png("Figure Output/Heat_neudays.png", width=7, height=5, units="in", res=300)
+# sehm(circ.se.neu, sig.neu, anno_columns=c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE)
+# dev.off()
+
+row.names(circ.se) <- sapply(strsplit(row.names(circ.se),"\\."),"[",2)
+top15.neu <- sapply(strsplit(top15.neu,"\\."),"[",2)
+top15.all <- sapply(strsplit(top15.all,"\\."),"[",2)
+
+# top 15 candidates neuronal
+a <- sechm(circ.se, top15.neu, top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = TRUE, hmcols = heatcol, anno_colors = ancols, sortRowsOn = NULL, cluster_rows = FALSE ,column_title = "circRNA Top 15 sig. neuronal",annocol_title_side=NA, name = "logFC")
+
+png("Figure Output/Heat_top15_neuronal.png", width=5.5, height=5, units="in", res=300)
+a
+dev.off()
+
+# top 15 candidates all
+b <- sechm(circ.se, top15.all, top_annotation =c("day"), assayName = "log2FC.all", gaps_at = "day", breaks=TRUE, show_rownames = TRUE, hmcols = heatcol, anno_colors = ancols, sortRowsOn = NULL, cluster_rows = FALSE ,column_title = "circRNA Top 15 sig. all", annocol_title_side=NA, name = "logFC")
+
+png("Figure Output/Heat_top15_all.png", width=5.5, height=5, units="in", res=300)
+b
+dev.off()
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,54 @@
+---
+title: "mouse_longRNA_Whipple"
+author: "Michael Soutschek"
+date: "3/25/2021"
+output: html_document
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(plgINS)
+  library(viridis)
+  library(RColorBrewer)
+  library(data.table)
+  library(dplyr)
+  library(tidyr)
+  library(plotly)
+})
+```
+
+
+## Loading
+```{r import, message=FALSE, warning=FALSE, eval=TRUE}
+
+# load SE and filter
+se_mouse <- readRDS("/mnt/schratt/p1006/Whipple_2020/R/whipple.raw.SE.rds")
+se_mouse <- se_mouse[which(rowSums(assay(se_mouse) >= 10) >= 2),]
+
+# modify colData
+se_mouse$cell <- factor(c(rep("ESC",6),rep("iN",5)))
+se_mouse$miRNA <- factor(c(rep("ctrl",3),rep("miR-379/410",3),rep("ctrl",3),rep("miR-379/410",2)))
+se_mouse$rep <- factor(c(rep(LETTERS[1:3],3), "B","C"))
+se_mouse$isRepA <- factor(se_mouse$rep=="A")
+
+assays(se_mouse)$logcpm <- log1p(cpm(calcNormFactors(DGEList(assay(se_mouse)))))
+
+# Get Control
+se_mouse_ctrl <- se_mouse[,se_mouse$miRNA == "ctrl"]
+```
+
+# Plot control
+```{r}
+g4 <- row.names(se_mouse_ctrl)[ grep("Tenm4",row.names(se_mouse_ctrl))]
+
+
+png("Figure_Output/Single_Genes_Mouse//Tenm4_Mouse.png", width=7, height=5, units="in", res=300)
+ggplot(meltSE(se_mouse_ctrl, g4, assayName = "logcpm"), aes(as.factor(cell), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ggtitle("Whipple et al., 2020") + ylim(0,8)
+dev.off()
+```
+

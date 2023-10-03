@@ -1,0 +1,104 @@
+---
+title: "smallRNA.datagen.DEA.SynCoCluster.SE"
+author: "Michael Soutschek"
+date: "14 1 2021"
+output: html_document
+---
+
+
+
+```{r libraries, warning=FALSE, message=FALSE}
+suppressPackageStartupMessages({
+  library(edgeR)
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(dplyr)
+})
+```
+
+
+
+## Allocation
+
+```{r allocation}
+
+# allocation
+
+## input/output files
+input <- "../data/Small_RNA/raw/smallRNA_oasis.raw.SE.rds"
+output <- "../data/Small_RNA/smallRNA_oasis.DEA.SynCoClust_Shift_normcell.SE.rds"
+```
+
+
+## Loading
+
+```{r load se, warning=FALSE, message=FALSE}
+
+# load raw SE file
+se <- readRDS(input)
+# remove first 5 rows (they're overall dataset stats)
+se <- se[-c(1:5)]
+
+# filter: AT LEAST how many counts in AT LEAST how many samples? e.g. counts >= 20, samples >= 1
+se <- se[rowSums(assay(se)>=20)>=1,]
+
+# Get to days from 15 and above
+se2 <- se[,se$day > 0]
+se3 <- se2[,se2$day < 40]
+```
+
+
+```{r add assays function, message=FALSE, warning=FALSE, eval=TRUE}
+logAssays <- function(se, control,output){
+  ## SE object with logCPM & logFC assays
+  assays(se)$logcpm <- log1p(cpm(calcNormFactors(DGEList(assay(se)))))
+  se <- SEtools::log2FC(se, controls = se$stage==control, fromAssay = "logcpm", toAssay = output)
+  return(se)
+}
+```
+
+```{r add assays, message=FALSE, warning=FALSE, eval=TRUE}
+se2 <- logAssays(se2, 9, output = "log2FC.neur")
+se3 <- logAssays(se3, 9, output = "log2FC.neur2")
+```
+
+
+
+# Get the SynCoCluster values
+```{r}
+syn.res <- readRDS("../../Image_Analysis/Screen/Synapse_Quantification/R/Synapsecluster_Result_with_anno.rds")
+syn.res$Co_Cluster_perArea_um_10 <- syn.res$Co_Cluster_perArea_um*10
+
+SynCoClust <- syn.res %>% group_by(Day) %>%
+  summarise(SynCoClust = mean(Co_Cluster_perArea_um_10))
+
+# shift the time points by one prior:
+SynCoClust2 <- SynCoClust
+SynCoClust2$Day <- c(9,15,21,27,33)
+
+
+colData(se3) <- merge(colData(se3),SynCoClust2,by.x = "day",by.y = "Day")
+```
+
+
+# DEA against SynCoCluster Values
+```{r}
+# run DEA
+source("../../functions/dea.R")
+
+se3 <- DEA(se3, name = "SynCoCluster_Shift", model = ~ SynCoClust)
+```
+
+
+## Export
+
+```{r export se no_round, eval=TRUE}
+# export unrounded
+saveRDS(se3, output)
+```
+
+
+
+
+
+

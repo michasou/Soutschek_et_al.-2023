@@ -1,0 +1,108 @@
+---
+title: "Untitled"
+author: "Michael"
+date: '2022-10-21'
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+  library(ggsci)
+  library(scales)
+  library(emmeans)
+  library(lmerTest)
+  library(ggpubr)
+  library(rstatix)
+  library(ggsignif)
+  library(cowplot)
+  library(viridis)
+  library(grid)
+  library(gtable)
+})
+```
+
+
+
+
+#Load Data
+```{r}
+e <- readRDS("../DataPrep/SomaMito_LV21.rds")
+e$Blinding <- factor(e$Blinding,levels = c("pLNA-Ctrl","pLNA-1229"))
+```
+
+
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3])
+```
+
+
+##################
+##################
+#Puncta
+```{r}
+p1 <- ggplot(e,aes(x = Blinding, y = Count_SomaMitoPuncta_perCell)) +
+  geom_violin(show.legend = FALSE,adjust = 1.5) +
+  stat_summary(
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  stat_summary(
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  ylab("MitoPuncta per Cell") +
+  theme_classic(base_size = 12)+
+  scale_color_manual(values = col_vec) +
+  theme(text = element_text(size = 16),
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+
+
+ggsave2("../Figures/MitoPuncta_perCell.png",p1, width = 4,height = 4.5, bg = "white")
+```
+
+
+
+```{r}
+p2 <- ggplot(e,aes(x = Blinding, y = sqrt(Count_SomaMitoPuncta_perArea))) + 
+  geom_violin(show.legend = FALSE) +
+  stat_summary(
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  stat_summary(
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  ylab("MitoPuncta per Area (sqrt)") +
+  theme_classic(base_size = 12)+
+  scale_color_manual(values = col_vec) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+
+
+ggsave2("../Figures/MitoPuncta_perArea.png",p2, width = 8,height = 6.5, bg = "white")
+```
+
+

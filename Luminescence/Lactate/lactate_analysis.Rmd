@@ -1,0 +1,162 @@
+---
+title: "Lactate"
+author: "Michael"
+date: "2023-07-20"
+output: html_document
+---
+
+
+```{r}
+library(readxl)
+library(scales)
+library(ggsci)
+library(ggplot2)
+library(MASS)
+library(emmeans)
+library(cowplot)
+library(rstatix)
+```
+
+
+```{r}
+show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],pal_uchicago("default")(9)[2])
+```
+
+
+#load data
+```{r}
+res <- read_excel("./230719_Lactate_Experiment.xlsx")
+
+#take out background
+res <- res[-1,]
+
+res$Day <- sapply(strsplit(res$Condtion,"_"),"[",1)
+res$Diff <- sapply(strsplit(res$Condtion,"_"),"[",2)
+res$Cond <- sapply(strsplit(res$Condtion,"_"),"[",3)
+res$repl <- sapply(strsplit(res$Condtion,"_"),"[",4)
+colnames(res)[which(colnames(res)=="Mean-Glo")] <- "Val"
+
+res$Cond <- paste0("pLNA-",res$Cond)
+res$Cond <- factor(res$Cond, levels = c("pLNA-Ctrl","pLNA-1229"))
+
+res$Day <- gsub("D","Day ",res$Day)
+```
+
+
+#split
+```{r}
+res1 <- res[res$Day == "Day 27",]
+res2 <- res[res$Day == "Day 36",]
+```
+
+#aggregate Day 27
+```{r}
+res1b <- aggregate(res1$Val, res1[,c("Day","Diff","Cond")],mean)
+colnames(res1b)[which(colnames(res1b)=="x")] <- "Val"
+```
+
+
+#stat
+```{r}
+res1b <- res1b[order(res1b$Diff),]
+res2 <- res2[order(res2$Diff),]
+```
+
+```{r}
+#Day27
+Day27_Ctrl <- res1b[res1b$Cond == "pLNA-Ctrl","Val"]
+Day27_1229 <- res1b[res1b$Cond == "pLNA-1229","Val"]
+
+t.test(Day27_Ctrl,Day27_1229, paired = TRUE, alternative = "two.sided")
+
+mod1 <- lm(Val ~ Cond + Diff,res1b)
+s1 <- emmeans(mod1, trt.vs.ctrl ~ Cond , ref="pLNA-Ctrl")
+
+s1_df <- as.data.frame(s1$contrasts)
+s1_df$group1 <- "pLNA-Ctrl"
+s1_df$group2 <- s1_df$contrast
+s1_df$group2 <- gsub("\\) - \\(pLNA-Ctrl\\)","",s1_df$group2)
+s1_df$group2 <- gsub("\\(", "",s1_df$group2)
+s1_df <- add_significance(s1_df,p.col = "p.value")
+s1_df$Day <- "Day 27"
+```
+
+```{r}
+#Day36
+Day36_Ctrl <- res2[res2$Cond == "pLNA-Ctrl","Val", drop = TRUE]
+Day36_1229 <- res2[res2$Cond == "pLNA-1229","Val", drop = TRUE]
+
+t.test(Day36_Ctrl,Day36_1229, paired = TRUE, alternative = "two.sided")
+
+mod2 <- lm(Val ~ Cond + Diff,res2)
+s2 <- emmeans(mod2, trt.vs.ctrl ~ Cond , ref="pLNA-Ctrl")
+
+s2_df <- as.data.frame(s2$contrasts)
+s2_df$group1 <- "pLNA-Ctrl"
+s2_df$group2 <- s2_df$contrast
+s2_df$group2 <- gsub("\\) - \\(pLNA-Ctrl\\)","",s2_df$group2)
+s2_df$group2 <- gsub("\\(", "",s2_df$group2)
+s2_df <- add_significance(s2_df,p.col = "p.value")
+s2_df$Day <- "Day 36"
+```
+
+
+```{r}
+st_df <- rbind(s1_df,s2_df)
+```
+
+
+
+##plot
+```{r}
+res_plot <- rbind(res1b,res2[,c("Day","Diff","Cond","Val")])
+
+y_pos <- c()
+for(i in st_df$Day) {
+  ll <- max(res_plot[res_plot$Day == i,"Val"])
+  y_pos <- c(y_pos,ll)
+}
+
+st_df$y_pos <- y_pos*1.075
+```
+
+
+
+```{r}
+p1 <- ggplot(res_plot, aes(x = Cond, y = Val)) +
+  geom_bar(stat = "summary", fun = "mean", color = "gray7",
+           fill = "white", linewidth = 1, show.legend = FALSE) +
+  geom_point(aes(colour = Diff), 
+             size = 2, show.legend = TRUE) +
+  ylab("Lactate Luminescence") +
+  theme_classic()+
+  scale_color_manual(values = col_vec) +
+  ggsignif::geom_signif(
+    data = st_df,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  facet_wrap(~Day) +
+  scale_y_continuous(labels = scales::label_scientific()) + 
+  coord_cartesian(ylim = c(NA,9500000)) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1))) +
+  guides(color = guide_legend(title = "Diff.")) +
+  scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
+
+ggsave2("./Lactate.png",p1, width = 6,height = 5, bg = "white")
+```
+
+
+
+
+
+
+
+
+
+

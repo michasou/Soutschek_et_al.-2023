@@ -1,0 +1,68 @@
+---
+title: "longRNA raw SE generation"
+author: "tgermade"
+date: "`r Sys.Date()`"
+output:
+    html_document:
+        toc: true
+        toc_float: true
+        theme: 'cerulean'
+        highlight: 'tango'
+        df_print: paged
+---
+
+<style>
+  .main-container {
+    max-width: 1500px !important;
+  }
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries}
+
+suppressPackageStartupMessages({
+  library(edgeR)
+  library(SummarizedExperiment)
+  library(SEtools)
+})
+```
+
+## Allocation
+
+```{r allocation}
+
+# allocation
+
+## input/output files
+input <- "../data/Long_RNA/raw/long.RData"
+output <- "../data/Long_RNA/raw/longRNA.raw.SE.rds"
+```
+
+## Loading
+
+```{r import long RNA, warning=FALSE, message=FALSE, eval=TRUE}
+
+# load raw
+load(input)
+```
+
+
+## SE generation
+
+```{r create raw se, warning=FALSE, message=FALSE, eval=TRUE}
+
+se <- SummarizedExperiment( list(counts=e), colData=cd, rowData=rd ) 
+se <- se[,order(se$day, se$experiment)]
+rowData(se) <- subset(rowData(se), select = -cluster)
+```
+
+
+## Export
+
+```{r export raw se, warning=FALSE, message=FALSE, eval=TRUE}
+
+saveRDS(se, output)
+```

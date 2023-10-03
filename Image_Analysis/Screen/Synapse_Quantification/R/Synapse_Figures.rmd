@@ -1,0 +1,229 @@
+---
+title: "Synpase_Figures"
+author: "Michael"
+date: "6 12 2020"
+output: html_document
+---
+
+
+```{r}
+library(ggplot2)
+library(ggsci)
+library(scales)
+library(MASS)
+library(emmeans)
+library(rstatix)
+```
+
+# get data
+```{r}
+res <- readRDS("../R/Synapsecluster_Result.rds")
+```
+
+
+# And some normalization
+## Factor: 13.1359 px/micron
+```{r}
+#Soma Area
+res$SomaArea_per_Cell_px <- res$AreaOccupied_AreaOccupied_Soma / res$Count_MaskedNuclei
+res$SomaArea_per_Cell_um <- res$SomaArea_per_Cell_px / (13.1359^2)
+
+#Dendrite Area
+res$DendArea_per_Cell_px <- res$AreaOccupied_AreaOccupied_DendMapTubeSomaRm / res$Count_MaskedNuclei
+res$DendArea_per_Cell_um <- res$DendArea_per_Cell_px / (13.1359^2)
+
+#Length
+res$Length <- res$Intensity_TotalIntensity_SkelSomaRm
+res$Lenth_um <- res$Length / 13.1359
+
+#PSD per micron
+res$PSD_per_length_micron <- res$Count_PSDMaskByDEND / res$Lenth_um
+
+#Syn Per micron
+res$Syn_per_length_micron <- res$Count_SynMaskByDend / res$Lenth_um
+
+#Co-Cluster per cell
+res$Co_Cluster_perCell <- res$Count_MaskedSynByPSDdend / res$Count_MaskedNuclei
+
+#Co-Cluster per cell per micron
+res$Co_Cluster_perArea_px <- res$Co_Cluster_perCell / res$AreaOccupied_AreaOccupied_DendMapTubeSomaRm
+res$Co_Cluster_perArea_um <- res$Co_Cluster_perArea_px * (13.1359^2)
+
+#Co-Cluster per cell per length
+res$Co_Cluster_perLength_px <- res$Co_Cluster_perCell / res$Intensity_TotalIntensity_SkelSomaRm
+res$Co_Cluster_perLength_um <- res$Co_Cluster_perLength_px * (13.1359^2)
+
+
+
+saveRDS(res,"../R/Synapsecluster_Result_with_anno.rds")
+```
+
+
+```{r}
+res <- readRDS("../R/Synapsecluster_Result_with_anno.rds")
+res$smooth <- "sm1"
+```
+
+
+```{r}
+ag_s <- aggregate(sqrt(res$Co_Cluster_perArea_um),res[,c("Day","Replicate")], FUN=mean)
+```
+
+```{r}
+col <- "darkgrey"
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[2])
+```
+
+
+
+# PSD Density per Length
+```{r}
+ggplot(res,aes(x = as.factor(Day),y = PSD_per_length_micron * 10)) +
+  geom_violin(show.legend = FALSE,adjust = 0.75) +
+  stat_summary(
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  stat_summary(aes(color = Replicate),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ylab("PSD Density [per 10micron]") +
+  xlab("Day") +
+  theme_classic(base_size = 13) +
+  scale_color_uchicago()
+
+ggsave("../Figures/PSD_Density.png", width = 7, height = 5)
+```
+
+
+
+
+# Syn Density per Length
+```{r}
+ggplot(res,aes(x = as.factor(Day),y = Syn_per_length_micron * 10)) +
+  geom_violin(show.legend = FALSE,adjust = 0.75) +
+  stat_summary(
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  stat_summary(aes(color = Replicate),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ylab("Syn Density [per 10micron]") +
+  xlab("Day") +
+  theme_classic(base_size = 13) +
+  scale_color_uchicago()
+
+ggsave("../Figures/Syn_Density.png", width = 7, height = 5)
+```
+
+
+
+
+#paper
+```{r}
+mod_s1 <- MASS::rlm(x ~ as.factor(Day) + Replicate ,ag_s,psi = psi.huber)
+summary(mod_s1)
+s1 <- emmeans(mod_s1, pairwise ~ Day)
+
+
+st_df1 <- as.data.frame(s1$contrasts)
+st_df1$group1 <- sapply(strsplit(st_df1$contrast," - "),"[",1)
+st_df1$group2 <- sapply(strsplit(st_df1$contrast," - "),"[",2)
+st_df1$group1 <- gsub("Day","",st_df1$group1)
+st_df1$group2 <- gsub("Day","",st_df1$group2)
+st_df1 <- add_significance(st_df1,p.col = "p.value")
+
+#show only statistical comparisons between neighboring time points
+st_df_plot <- st_df1[c(1,5,8,10),]
+
+
+#add y_position
+y_pos <-sqrt(max(res[,"Co_Cluster_perArea_um"]))
+st_df_plot $y_pos <- y_pos*1.05
+st_df_plot$y_adj <- rep(c(0,0.05,0,0.05))
+st_df_plot$y_pos2 <- st_df_plot$y_pos + st_df_plot$y_adj
+
+
+
+
+
+ggplot(res,aes(x = as.factor(Day),y = sqrt(Co_Cluster_perArea_um))) +
+  geom_smooth(stat="smooth",method = "loess", aes(group = smooth), color = col,
+              alpha = 0.1, size = 0, show.legend = FALSE) +
+  geom_line(stat="smooth",method = "loess", aes(group = smooth), color = col,
+              alpha = 0.3, size = 1.5) +
+  geom_violin(show.legend = FALSE,adjust = 0.75) +
+  stat_summary(
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  stat_summary(aes(color = Replicate),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(
+    data = st_df_plot,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  ylab("Synapses per µm2 area per cell (sqrt)") +
+  xlab("Day") +
+  scale_color_manual(values = col_vec)+
+  theme_classic(base_size = 12)+
+  scale_x_discrete(labels=c("Day 15","Day 21","Day 27","Day 33","Day 40")) +
+  #coord_cartesian(ylim = c(NA,10)) +
+  guides(color = guide_legend(title = "Differentiation")) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        axis.text.y = element_text(size = rel(1)))
+
+ggsave("../Figures/Co_Cluster_overlay_mean_paper.png", width = 7, height = 5)
+ggsave("../Figures/Co_Cluster_overlay_mean_paper_defense.png", width = 7, height = 4)
+```
+
+
+
+```{r}
+col2 <- pal_uchicago("default")(9)[2]
+
+ggplot(res,aes(x = as.factor(Day),y = sqrt(Co_Cluster_perArea_um))) +
+  geom_smooth(stat="smooth",method = "loess", aes(group = smooth), color = col2,
+              alpha = 0.1, size = 0, show.legend = FALSE) +
+  geom_line(stat="smooth",method = "loess", aes(group = smooth), color = col2,
+              alpha = 0.3, size = 1.5) +
+  ylab("Synapses per µm2 area per cell (sqrt)") +
+  xlab("Day") +
+  scale_color_manual(values = col_vec)+
+  theme_classic(base_size = 12)+
+  scale_x_discrete(labels=c("Day 15","Day 21","Day 27","Day 33","Day 40")) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        axis.text.y = element_text(size = rel(1)))
+
+ggsave("../Figures/Co_Cluster_smooth_defense.png", width = 7, height = 4)
+```
+
+
+
+

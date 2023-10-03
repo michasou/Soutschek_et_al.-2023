@@ -1,0 +1,90 @@
+---
+title: "pLNA-3943_Targets"
+author: "Michael Soutschek"
+date: "12/16/2022"
+output: html_document
+---
+
+
+
+```{r}
+library(scanMiR)
+library(SummarizedExperiment)
+library(dplyr)
+```
+
+
+
+#load data
+```{r}
+se <- readRDS("../../data/SE.dea.TX.salmon.raw.rds")
+se2 <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
+sites3943 <- readRDS("./target_data/Screen_mir-3943_sites_agg.rds")
+colnames(sites3943)[colnames(sites3943) == "V3"] <- "gene_id"
+sites3943$gene_id <- sapply(strsplit(sites3943$gene_id,"\\."),"[",1)
+```
+
+
+#Transcript based
+```{r}
+dea3943 <- rowData(se)[["DEA.pLNA-3943"]]
+dea3943$transcript <- sapply(strsplit(row.names(dea3943),"\\."), getElement,1)
+dea3943$gene_id <- NULL
+
+dea3943 <- merge(dea3943,sites3943,by = "transcript",all.x = TRUE)
+dea3943 <- dea3943[dea3943$logCPM > 0.5,]
+dea3943 <- dea3943[order(dea3943$FDR),]
+write.csv(dea3943,"dea3943_targets_transcriptbased.csv")
+
+genes <- dea3943[order(dea3943$repression)[1:20],unique("symbol")]
+```
+
+```{r}
+dea3943up <- dea3943[dea3943$logFC > 0,]
+dea3943up <- dea3943up[dea3943up$FDR < 0.5,]
+```
+
+
+
+#Gene based
+```{r}
+dea3943g <- rowData(se2)[["DEA.pLNA-3943"]]
+dea3943g$gene_id <- sapply(strsplit(row.names(dea3943g),"\\."),"[",1)
+dea3943g$gene_name <- sapply(strsplit(row.names(dea3943g),"\\."),"[",2)
+```
+
+
+```{r}
+sites3943filtered <- sites3943[sites3943$transcript %in% dea3943$transcript,]
+sites3943agg <- sites3943filtered %>%
+  group_by(gene_id) %>%
+  dplyr::filter(repression == min(min(repression), na.rm=TRUE))
+
+sites3943agg$transcript <- NULL
+sites3943agg <- distinct(sites3943agg)
+
+dea3943g <- merge(dea3943g,sites3943agg, by = "gene_id",all.x = TRUE)
+#dea3943g <- dea3943g[dea3943g$logCPM > 0.5,]
+dea3943g <- dea3943g[order(dea3943g$FDR),]
+write.csv(dea3943g,"dea3943_targets_genebased.csv")
+
+genes <- dea3943g[order(dea3943g$repression)[1:20],"gene_name"]
+```
+
+
+
+#individual sites
+```{r}
+sites_ind <- readRDS("./target_data/Screen_mir-3943_sites.rds")
+sites_ind <- merge(sites_ind,dea3943,by.x = "seqnames", by.y = "transcript",all.x = TRUE)
+sites_ind <- sites_ind[sites_ind$logCPM > 1.5,]
+sites_ind <- sites_ind[order(sites_ind$log_kd),]
+
+genes  <- unique(sites_ind[1:22,"symbol.x"])
+
+write.csv(sites_ind,"dea3943_targets_individualsites.csv")
+```
+
+
+
+
