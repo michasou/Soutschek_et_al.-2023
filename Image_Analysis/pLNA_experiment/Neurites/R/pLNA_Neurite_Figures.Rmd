@@ -111,7 +111,7 @@ for(i in st_df_med$Day) {
 }
 
 st_df_med$y_pos <- y_pos*1.025
-st_df_med$y_adj <- rep(c(0,0,3.5,0))
+st_df_med$y_adj <- rep(c(0,0,3.25,0))
 st_df_med$y_pos2 <- st_df_med$y_pos + st_df_med$y_adj
 
 st_df_med$p.value.signif[st_df_med$p.value.signif == "ns"] <- NA
@@ -153,12 +153,15 @@ p1b <- ggplot(e,aes(x = Condition, y = log1p(TotalLength_um))) +
   ylab("Dendrite Length in µm (log)") +
   theme_classic(base_size = 12)+
   coord_cartesian(ylim = c(0,7)) +
-  theme(strip.text.x = element_text(size = rel(1.1)),
+  theme(strip.text.x = element_text(size = rel(1)),
         strip.placement = "inside",
-        text = element_text(size = 14), 
+        text = element_text(size = 16), 
         axis.title.x=element_blank(),
         axis.text.x = element_text(size = rel(1)),
-        legend.position = "bottom")
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
+        legend.text = element_text(size = 16),
+        legend.position = "bottom") +
+  scale_x_discrete(labels=c("Empty","pLNA-\nCtrl","pLNA-\n1229","pLNA-\n181c"))
 
 
 gt1 <- ggplotGrob(p1b)
@@ -190,7 +193,7 @@ grid.draw(gt1)
 
 #p1
 
-ggsave2("../Figures/pLNA_Length.png",gt1, width = 8,height = 6.5, bg = "white")
+ggsave2("../Figures/pLNA_Length.png",gt1, width = 8,height = 6, bg = "white")
 ```
 
 
@@ -255,12 +258,15 @@ p10 <- ggplot(e,aes(x = Condition, y= sqrt(NumberBranchEnds))) +
   ylab("Number of Branch Ends (sqrt)") +
   theme_classic(base_size = 12)+
   coord_cartesian(ylim = c(0,3.75)) +
-  theme(strip.text.x = element_text(size = rel(1.1)),
+theme(strip.text.x = element_text(size = rel(1)),
         strip.placement = "inside",
-        text = element_text(size = 14), 
+        text = element_text(size = 16), 
         axis.title.x=element_blank(),
-        axis.text.x = element_text(size = rel(0.85)),
-        legend.position = "bottom")
+        axis.text.x = element_text(size = rel(1)),
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
+        legend.text = element_text(size = 16),
+        legend.position = "bottom") +
+  scale_x_discrete(labels=c("Empty","pLNA-\nCtrl","pLNA-\n1229","pLNA-\n181c"))
 
 
 gt10 <- ggplotGrob(p10)
@@ -291,7 +297,7 @@ grid.newpage()
 grid.draw(gt10)
 #p7
 
-ggsave2("../Figures/pLNA_BranchEnds.png",gt10, width = 8,height = 6.5, bg = "white")
+ggsave2("../Figures/pLNA_BranchEnds.png",gt10, width = 8,height = 6, bg = "white")
 ```
 
 
@@ -423,12 +429,15 @@ p11 <- ggplot(ag_se_norm, aes(x = Condition, y = Normalized)) +
   geom_hline(yintercept = 1,linetype = "dashed") +
   theme_classic(base_size = 12)+
   #coord_cartesian(ylim = c(NA,10)) +
-  theme(strip.text.x = element_text(size = rel(1.1)),
+  theme(strip.text.x = element_text(size = rel(1)),
         strip.placement = "inside",
-        text = element_text(size = 14), 
+        text = element_text(size = 16), 
         axis.title.x=element_blank(),
-        axis.text.x = element_text(size = rel(0.8)),
-        legend.position = "bottom")
+        axis.text.x = element_text(size = rel(1)),
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
+        legend.text = element_text(size = 16),
+        legend.position = "bottom") +
+  scale_x_discrete(labels=c("Empty","pLNA-\nCtrl","pLNA-\n1229","pLNA-\n181c"))
 
 
 gt11 <- ggplotGrob(p11)
@@ -460,7 +469,7 @@ grid.draw(gt11)
 
 #p1b
 
-ggsave("../Figures/pLNA_SecBranches_normtoCtrl.png",gt11, width = 8,height = 5.5, bg = "white")
+ggsave("../Figures/pLNA_SecBranches_normtoCtrl.png",gt11, width = 8,height = 6, bg = "white")
 
 
 ```

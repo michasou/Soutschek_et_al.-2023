@@ -147,7 +147,7 @@ p2 <- ggplot(df[df$feature %in% H_seed_g,], aes(as.factor(day), logcpm)) + geom_
  
 pp <- cowplot::plot_grid(p1,p2,ncol = 1)
 
-png("Figure_Output/Human_Specific_miRs.png", width=7, height=5, units="in", res=300)
+png("Figure_Output/Human_Specific_miRs.png", width=7, height=6, units="in", res=300)
 pp
 dev.off()
 

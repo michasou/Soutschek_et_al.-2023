@@ -48,8 +48,8 @@ g1
 g2 <- row.names(se)[ rowData(se)$symbol %in% c("SYN1","GRIA2","GRIA4","GRIN2B","GRIN2A")]
 g2
 
-g3 <- row.names(se)[ rowData(se)$symbol %in% c("SLC1A3","SOX10","SOX9","GFAP","ALDH1L1","S100B","AQP4","MOG","OLIG2")]
-g3
+# g3 <- row.names(se)[ rowData(se)$symbol %in% c("SLC1A3","SOX10","SOX9","GFAP","ALDH1L1","S100B","AQP4","MOG","OLIG2")]
+# g3
 
 g4 <- row.names(se)[ rowData(se)$symbol %in% c("MGAT4B")]
 g4
@@ -65,8 +65,14 @@ geom_point(aes(color = experiment)) + xlab("Day") + theme_classic()
 dev.off()
 
 
-png("Figure_Output/Single_Genes/Paper/longRNA_glia-marker.png", width=9, height=9, units="in", res=300)
-ggplot(meltSE(se, g3, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") +
+se2 <- se
+row.names(se2) <- sapply(strsplit(row.names(se),"\\."),"[",2)
+g3 <- row.names(se2)[ rowData(se2)$symbol %in% c("SLC1A3","SOX10","SOX9","GFAP","ALDH1L1","S100B","AQP4","MOG","OLIG2")]
+g3
+
+
+png("Figure_Output/Single_Genes/Paper/longRNA_glia-marker.png", width=6, height=6, units="in", res=300)
+ggplot(meltSE(se2, g3, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") +
 geom_point(aes(color = experiment)) + xlab("Day") + theme_classic()
 dev.off()
 
