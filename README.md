@@ -33,4 +33,4 @@ Custom developed Shiny Apps for Ca-Imaging analysis (https://ethz-ins.org/SpikeI
 or microRNA enrichment analysis (https://ethz-ins.org/enrichMiR/) are freely available online.
 
 ## igNeuron time course data
-The different igNeuron time course datasets can be accessed at https://ethz-ins.org/igNeuronsTimeCourse/
+The different igNeuron time course datasets can be accessed at https://ethz-ins.org/igNeuronsTimeCourse/.
