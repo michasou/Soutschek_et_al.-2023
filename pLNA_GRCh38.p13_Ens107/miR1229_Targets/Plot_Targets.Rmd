@@ -20,10 +20,8 @@ suppressPackageStartupMessages({
 ```
 
 ```{r}
-dea1229 <- read.csv("../pLNA_GRCh38.p13_Ens107/pLNA_experiment/Target_Analysis/miR1229/target_data/dea1229_targets_genebased.csv")
+dea1229 <- read.csv("../pLNA_experiment/Target_Analysis/miR1229/target_data/dea1229_targets_genebased.csv")
 ```
-
-
 
 
 ```{r}
