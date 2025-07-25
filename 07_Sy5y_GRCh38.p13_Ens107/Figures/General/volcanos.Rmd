@@ -1,0 +1,132 @@
+---
+title: "smallRNA_volcano"
+author: "Michael Soutschek"
+date: "11 1 2021"
+output: html_document
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(plgINS)
+  library(viridis)
+  library(RColorBrewer)
+  library(data.table)
+  library(dplyr)
+  library(tidyr)
+  library(scales)
+  library(ggplot2)
+  library(ggsci)
+  library(cowplot)
+  library(ggrepel)
+  library(ggnewscale)
+  library(ggbreak) 
+})
+source("../../../../functions/plotVolcano.R")
+```
+
+
+
+
+# set colors
+```{r}
+show_col(pal_uchicago("default")(9))
+red <- pal_uchicago("default")(3)[1]
+grey <- pal_uchicago("default")(3)[2]
+yellow <- pal_uchicago("default")(3)[3]
+blue <- pal_uchicago("default")(9)[5]
+```
+
+
+# Load Data
+```{r}
+se <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
+```
+
+```{r}
+# Plot volcano function
+
+plotVolcano <- function(df,sig = 0.05, text.size = 20, log.base = exp(1), anno,
+                        colors = c("blue","red","grey"),
+                        text_color = c("black","white"),
+                        ...){
+
+  # trans function
+  reverselog_trans <- function(base = log.base) {
+    trans <- function(x) -log(x, base)
+    inv <- function(x) base^(-x)
+    trans_new(paste0("reverselog-", format(base)), trans, inv,
+              log_breaks(base = base),
+              domain = c(-Inf, Inf))
+  }
+
+  if(class(df) == "DFrame") df <- as.data.frame(df)
+  df$`FDR < 0.05` <- ifelse(df$FDR >= sig, "not",ifelse(df$logFC > 0,"up","down"))
+  df$`FDR < 0.05` <- factor(df$`FDR < 0.05`, levels = c("up", "down", "not"))
+  if(is.null(df$names)) df$names <- row.names(df)
+  df$dir <- ifelse(df$logFC < 0, "downr","upr")
+
+  # add little FDR value
+  df$FDR <- ifelse(df$FDR < 1e-300,df$FDR + 1e-300,df$FDR)
+
+  p <- ggplot(df, aes(logFC, FDR)) +
+    geom_point(aes(alpha = 0.7, color=`FDR < 0.05`)) +
+    scale_color_manual(values = c("up" = colors[1],"down" = colors[2],
+                                  "not" = colors[3])) +
+    scale_y_continuous(trans = reverselog_trans()) +
+    new_scale_color() +
+    geom_label_repel(segment.colour = "black",
+                    aes(label=ifelse(names %in% anno, names, "")),
+                    show.legend = FALSE,
+                    max.overlaps = 100,
+                    force_pull = 1,
+                    ...) +
+    scale_color_manual(values = c("upr" = text_color[1],"downr"  = text_color[2])) +
+    scale_fill_manual(values = c("up" = colors[1],"down" = colors[2],
+                                 "not" = colors[3])) +
+    xlab("log2-Fold Change") + ylab("FDR") +
+    theme_classic(base_size = text.size) +
+    labs(alpha = NULL) +
+    theme(legend.title=element_text(size=text.size-1),
+          legend.text=element_text(size=text.size-3),
+          axis.title =element_text(size=text.size)) +
+    guides(alpha = "none")
+
+
+
+
+
+  p
+}
+```
+
+
+
+# dea 1229
+```{r}
+#no label
+dea1229 <- rowData(se)[["DEA.ind.Ctrl-MiR"]]
+dea1229$names <- row.names(dea1229)
+dea1229$dir <- ifelse(dea1229$logFC < 0, "downr","upr")
+dea1229$symbol <- sapply(strsplit(row.names(dea1229),"\\."),"[",2)
+
+#load targets
+mir1229targets <- read.csv("../../Target_Analysis/target_data/dea1229_targets_genebased.csv")
+mir1229targets <- mir1229targets[mir1229targets$FDR < 0.05,]
+mir1229targetsfil <- mir1229targets[which(mir1229targets$X7mer > 0 | mir1229targets$X8mer > 0), ]
+anno1229 <- mir1229targetsfil$symbol
+
+# plot Volcano
+p <- plotVolcano(df = dea1229 , text.size = 12, sig = 0.05,log.base = 10, anno = NULL, colors = c(yellow,blue,grey)) + ggtitle("miR-1229-3p (10nM)")
+p <- p + coord_cartesian(xlim = c(-3,3))
+ggsave(p,filename = "../Figure_Output/Volcanos/dea1229_10nM.png", width = 5, height = 4)
+```
+
+
+
+
+

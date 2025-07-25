@@ -1,0 +1,297 @@
+---
+title: "staging ms"
+output: html_document
+date: "2025-04-23"
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(sechm)
+  library(edgeR)
+  library(viridis)
+  library(scuttle)
+  library(grid)
+})
+```
+
+#prepare
+```{r}
+stage <- function(what, against, comp=cor, correction=c("min","mean","none"), ...){
+  i <- intersect(row.names(what), row.names(against))
+  what <- what[i,]
+  against <- against[i,]
+  correction <- match.arg(correction)
+  if(correction=="mean"){
+    diff <- apply( against-rowMeans(what), 1, FUN=function(x){
+      x[order(abs(x))[1]]
+    })
+  }else if(correction=="min"){
+    diff <- sapply(seq_along(i), FUN=function(x){
+      x <- outer(what[x,], against[x,], FUN=`-`)
+      x[which.min(abs(x))]
+    })
+  }else{
+    diff <- 0
+  }
+  t(apply(against-diff, 2, FUN=function(x){
+    apply(what, 2, y=x, FUN=comp, ...)
+  }))
+}
+```
+
+
+```{r}
+full_col <- inferno(255)
+colors <- full_col[25:230]
+
+#scales::show_col(colors)
+```
+
+
+#load data
+
+```{r}
+# se <- readRDS("../GRCh38.p10_Ens91_Sushi-mapping/data/Long_RNA/longRNA.DEA.SE.rds")
+# head(row.names(se),20)
+```
+
+
+```{r}
+se_sal <- readRDS("V:/Michael/Bioinformatics/Internal_Data/2019_soutschek_Ngn2Timecourse_Human_RiboZero/02_R_TimeCourse_GRC38.p14_Ens112/data/SE.DEA.salmon.raw_ens112.rds")
+se_sal <- se_sal[,order(se_sal$day)]
+head(row.names(se_sal),20)
+```
+
+
+
+```{r}
+# segn <- se
+# row.names(se) <- gsub("\\..+","",row.names(se))
+# row.names(segn) <- sapply(strsplit(row.names(segn),"\\."),"[",2)
+```
+
+
+```{r}
+segn <- se_sal
+row.names(se_sal) <- gsub("\\..+","",row.names(se_sal))
+row.names(segn) <- sapply(strsplit(row.names(segn),"\\."),"[",2)
+```
+
+
+
+# Lin et al, 2021:
+
+```{r}
+ref_li <- readRDS("data/LinNgn2scRNA.PB.rds")
+ccp <- stage(assay(segn, "TPM"), exp(assay(ref_li, "logcpm"))-1, correction = "mean")
+colnames(ccp) <- gsub("_long","",colnames(ccp))
+colnames(ccp) <- gsub("_","_Day",colnames(ccp))
+colnames(ccp) <- gsub("SC","A",colnames(ccp))
+ccs <- stage(assay(segn, "TPM"), exp(assay(ref_li, "logcpm"))-1, method="spearman", correction = "mean")
+colnames(ccs) <- gsub("_long","",colnames(ccs))
+colnames(ccs) <- gsub("_","_Day",colnames(ccs))
+colnames(ccs) <- gsub("SC","A",colnames(ccs))
+
+#plot
+Heatmap(ccp, cluster_rows = FALSE, cluster_columns = FALSE, name="Pearson", column_title="Pearson correlation", row_title="Lin et al., Stem Cell Rep. 2021") + 
+  Heatmap(ccs, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman", column_title="Spearman correlation")
+```
+
+
+
+rank all entries individually
+```{r}
+ccpr <- matrix(rank(ccp), nrow=nrow(ccp))
+rownames(ccpr) <- rownames(ccp)
+colnames(ccpr) <- colnames(ccp)
+
+ccsr <- matrix(rank(ccs), nrow=nrow(ccs))
+rownames(ccsr) <- rownames(ccs)
+colnames(ccsr) <- colnames(ccs)
+
+ccsr_li <- ccsr
+
+Heatmap(ccpr, cluster_rows = FALSE, cluster_columns = FALSE, name="Pearson rank", column_title="Pearson correlation rank", row_title="Lin et al., Stem Cell Rep. 2021") + 
+  Heatmap(ccsr, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=10))
+```
+
+```{r}
+png("./FigureOutput/Lin_et_al_2021.png", width=9, height=5, units = "in", res=300)
+draw(
+  Heatmap(ccs, col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman", column_title="Spearman correlation", row_title="Lin et al., Stem Cell Rep. 2021") + 
+  Heatmap(ccsr, col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=10))
+  )
+dev.off()
+```
+```{r}
+h1 <- Heatmap(ccsr, col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=10), row_title="Lin et al., Stem Cell Rep. 2021", heatmap_legend_param = list(direction = "horizontal"))
+```
+
+
+# Mayer et al., 2019
+```{r}
+# ref_ma <- readRDS("/mnt/schratt/externData/MayerNeuron2019_human_fetal_neocortex.SCE.rds")
+# ref_ma <- ref_ma[,!grepl("RG$|pericyte|Endothelial|microglia|OPC|Unknown|TWIST1|IPC",ref_ma$cluster_id)]
+# ref_ma <- scuttle::sumCountsAcrossCells(ref_ma, colData(ref_ma)[,c("age","cluster_id")])
+# colnames(ref_ma) <- paste(ref_ma$cluster_id, ref_ma$age)
+# saveRDS(ref_ma, "Mayer2019.PB.rds")
+```
+
+```{r, fig.width=8, fig.height=6}
+ref_ma <- readRDS("data/Mayer2019.PB.rds")
+
+#filter for at leasat 5Mio counts
+sum_of_reads <- colSums(assay(ref_ma))
+sum_of_reads <- sum_of_reads[sum_of_reads >= 5e6]
+
+ref_ma <- ref_ma[,names(sum_of_reads)]
+
+#normalize
+nr <- t(1000000*t(assay(ref_ma))/colSums(assay(ref_ma)))
+ccp <- stage(exp(assay(se_sal, "logcpm"))-1, nr, correction = "mean")
+colnames(ccp) <- gsub("_long","",colnames(ccp))
+colnames(ccp) <- gsub("_","_Day",colnames(ccp))
+colnames(ccp) <- gsub("SC","A",colnames(ccp))
+ccp <- ccp[order(row.names(ccp)),]
+ccs <- stage(exp(assay(se_sal, "logcpm"))-1, nr, method="spearman", correction = "mean")
+colnames(ccs) <- gsub("_long","",colnames(ccs))
+colnames(ccs) <- gsub("_","_Day",colnames(ccs))
+colnames(ccs) <- gsub("SC","A",colnames(ccs))
+ccs <- ccs[order(row.names(ccs)),]
+
+#plot
+Heatmap(ccp, cluster_rows = FALSE, cluster_columns = FALSE, name="Pearson", column_title="Pearson correlation", row_title="Mayer et al., Neuron 2019") + 
+  Heatmap(ccs, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman", column_title="Spearman correlation", row_names_gp=gpar(fontsize=10))
+```
+
+
+rank all entries individually
+```{r}
+ccpr <- matrix(rank(ccp), nrow=nrow(ccp))
+rownames(ccpr) <- rownames(ccp)
+colnames(ccpr) <- colnames(ccp)
+
+ccsr <- matrix(rank(ccs), nrow=nrow(ccs))
+rownames(ccsr) <- rownames(ccs)
+colnames(ccsr) <- colnames(ccs)
+
+ccsr_ma <- ccsr
+
+# Heatmap(apply(ccp,2,rank), cluster_rows = FALSE, cluster_columns = FALSE, name="Pearson", column_title="Pearson correlation", row_title="Trevino et al., 2021") + 
+#   Heatmap(apply(ccs,2,rank), cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman", column_title="Spearman correlation", row_names_gp=gpar(fontsize=10))
+
+Heatmap(ccpr, cluster_rows = FALSE, cluster_columns = FALSE, name="Pearson rank", column_title="Pearson correlation rank", row_title="Mayer et al., Neuron 2019") + 
+  Heatmap(ccsr, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=10))
+```
+
+
+```{r}
+png("./FigureOutput/Mayer_et_al_2019.png", width=9, height=5, units = "in", res=300)
+draw(
+ Heatmap(ccs,col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman", column_title="Spearman correlation", row_title="Mayer et al., Neuron 2019") + 
+  Heatmap(ccsr,col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=10))
+  )
+dev.off()
+```
+
+
+# Trevino et al :
+
+```{r}
+ref_tre <- readRDS("./data/Trevino_pseudobulk.rds")
+colnames(colData(ref_tre))[5] <- "Name_long"
+ref_tre <- ref_tre[,!grepl("Oligo|Pericyte|Blood|Subplate|Glia|Endothelial|Vascular|Microglia",ref_tre$Name_long)]
+ref_tre$Name <- gsub("[0-9]$","",ref_tre$Name)
+assayNames(ref_tre) <- "counts"
+ref_tre <- scuttle::sumCountsAcrossCells(ref_tre, colData(ref_tre)[,c("Name","Age")])
+colnames(ref_tre) <- paste(ref_tre$Name, ref_tre$Age)
+ref_tre <- ref_tre[,order(ref_tre$Name, ref_tre$Age)]
+saveRDS(ref_tre, file="./data/Trevino2021.PB.rds")
+```
+
+
+
+```{r}
+ref_tre <- readRDS("./data/Trevino2021.PB.rds")
+
+#filter for at leasat 1Mio counts
+sum_of_reads <- colSums(assay(ref_tre))
+sum_of_reads <- sum_of_reads[sum_of_reads >= 1e6]
+
+ref_tre <- ref_tre[,names(sum_of_reads)]
+
+#normalize
+nr <- t(1000000*t(assay(ref_tre))/colSums(assay(ref_tre)))
+
+ccp <- stage(assay(se_sal, "TPM"), nr, correction = "mean")
+colnames(ccp) <- gsub("_long","",colnames(ccp))
+colnames(ccp) <- gsub("_","_Day",colnames(ccp))
+colnames(ccp) <- gsub("SC","A",colnames(ccp))
+ccs <- stage(assay(se_sal, "TPM"), nr, method="spearman", correction = "mean")
+colnames(ccs) <- gsub("_long","",colnames(ccs))
+colnames(ccs) <- gsub("_","_Day",colnames(ccs))
+colnames(ccs) <- gsub("SC","A",colnames(ccs))
+
+#plot
+Heatmap(ccp, cluster_rows = FALSE, cluster_columns = FALSE, name="Pearson", column_title="Pearson correlation", row_title="Trevino et al., 2021") + 
+  Heatmap(ccs, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman", column_title="Spearman correlation", row_names_gp=gpar(fontsize=10))
+```
+
+
+rank all entries individually
+```{r}
+ccpr <- matrix(rank(ccp), nrow=nrow(ccp))
+rownames(ccpr) <- rownames(ccp)
+colnames(ccpr) <- colnames(ccp)
+
+ccsr <- matrix(rank(ccs), nrow=nrow(ccs))
+rownames(ccsr) <- rownames(ccs)
+colnames(ccsr) <- colnames(ccs)
+
+ccsr_tre <- ccsr
+
+# Heatmap(apply(ccp,2,rank), cluster_rows = FALSE, cluster_columns = FALSE, name="Pearson", column_title="Pearson correlation", row_title="Trevino et al., 2021") + 
+#   Heatmap(apply(ccs,2,rank), cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman", column_title="Spearman correlation", row_names_gp=gpar(fontsize=10))
+
+Heatmap(ccpr, cluster_rows = FALSE, cluster_columns = FALSE, name="Pearson rank", column_title="Pearson correlation", row_title="Trevino et al., 2021") + 
+  Heatmap(ccsr, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=10))
+```
+
+
+
+```{r}
+png("./FigureOutput/Trevino_et_al_2021.png", width=9, height=5, units = "in", res=300)
+draw(
+  Heatmap(ccs,col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman", column_title="Spearman correlation", row_title="Trevino et al., Cell, 2021") +
+  Heatmap(ccsr,col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=10))
+  )
+dev.off()
+```
+
+```{r}
+ccs2 <- ccs[grep("GluN",row.names(ccs)),]
+ccsr2 <- matrix(rank(ccs2), nrow=nrow(ccs2))
+rownames(ccsr2) <- rownames(ccs2)
+colnames(ccsr2) <- colnames(ccs2)
+
+Heatmap(ccsr2,col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=10))
+```
+
+
+
+
+```{r}
+h2 <- Heatmap(ccsr_tre,col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=10), row_title= "Trevino et al., Cell, 2021", heatmap_legend_param = list(direction = "horizontal"))
+```
+
+
+### Paper main figure
+```{r}
+png("./FigureOutput/Main_Lin.png", width=4, height=6, units = "in", res=300)
+draw(h1,heatmap_legend_side = "bottom")
+dev.off()
+
+png("./FigureOutput/Main_Trevino.png", width=4.5, height=6, units = "in", res=300)
+draw(h2,heatmap_legend_side = "bottom")
+dev.off()
+```

@@ -1,0 +1,131 @@
+---
+title: "longRNA-exploratory"
+author: "Michael Soutschek"
+date: "11 1 2021"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(viridis)
+  library(RColorBrewer)
+  library(data.table)
+  library(dplyr)
+  library(tidyr)
+  library(plotly)
+  library(cowplot)
+  library(ggsci)
+})
+```
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],pal_uchicago("default")(9)[2])
+```
+
+
+##somehow only works on the server at the moment
+
+# Load Data
+```{r}
+se_sy <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
+se_sy$cond_name <- gsub("NegCtrl","Ctrl.",se_sy$cond_name)
+se_sy$cond_name <- gsub("miR_20pmol","miR-1229 (10nM)",se_sy$cond_name)
+se_sy$cond_name <- gsub("miR_40pmol","miR-1229 (20nM)",se_sy$cond_name)
+
+rowData(se_sy)$`DEA.ind.Ctrl-MiR` <- NULL
+
+se_pl <- readRDS("../../../pLNA_experiment/data/SE.dea.Gene.salmon.raw.rds")
+se_pl <- se_pl[,se_pl$condition %in% c("Empty","pLNA-Ctrl","pLNA-1229")]
+se_pl$Differentiation <- se_pl$diff
+
+rowData(se_pl)$`DEA.pLNA-1229` <- NULL
+rowData(se_pl)$`DEA.pLNA-181c` <- NULL
+rowData(se_pl)$`DEA.pLNA-3943` <- NULL
+```
+
+
+
+# Violine Figures:
+```{r}
+# example to get genes:
+g1 <- row.names(se_sy)[rowData(se_sy)$gene_name %in% c("BCL2L11")]
+g2 <- row.names(se_pl)[rowData(se_pl)$gene_name %in% c("BCL2L11")]
+
+df <- meltSE(se_sy, g1, assayName = "logcpm")
+
+p1 <- ggplot(meltSE(se_sy, g1, assayName = "logcpm"), aes(cond_name, logcpm)) + geom_violin() + geom_point(aes(color = experiment)) + ggtitle("BCL2L11 - miR-1229 mimic") + theme_classic() + xlab("") +
+  theme_classic(base_size = 12)+
+  scale_color_manual(values = col_vec) +
+  #coord_cartesian(ylim = c(0,7)) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+p2 <- ggplot(meltSE(se_pl, g2, assayName = "logcpm"), aes(condition, logcpm)) + geom_violin() + geom_point(aes(color = Differentiation)) + ggtitle("BCL2L11 - miR-1229 pLNA") + theme_classic() + xlab("") +
+  theme_classic(base_size = 12)+
+  scale_color_manual(values = col_vec) +
+  #coord_cartesian(ylim = c(0,7)) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+pp <- plot_grid(p1,p2)
+
+png("../Figure_Output/Exploratory/BCL2L11.png", width=10, height=6, units="in", res=300)
+pp
+dev.off()
+```
+
+
+# Violine Figures Pink1
+```{r}
+# example to get genes:
+g1 <- row.names(se_sy)[rowData(se_sy)$gene_name %in% c("PINK1")]
+
+df <- meltSE(se_sy, g1, assayName = "corrected",colDat.columns = c("cond_name","experiment") )
+
+p1 <- ggplot(meltSE(se_sy, g1, assayName = "logcpm"), aes(cond_name, logcpm)) + geom_violin() + geom_point(aes(color = experiment)) + ggtitle("Pink1 - miR-1229 mimic") + theme_classic() + xlab("") +
+  theme_classic(base_size = 12)+
+  scale_color_manual(values = col_vec) +
+  coord_cartesian(ylim = c(0,4.5)) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+png("../Figure_Output/Exploratory/Pink1.png", width=6, height=4, units="in", res=300)
+p1
+dev.off()
+```
+
+
+
+## PCA
+
+```{r pca, message=FALSE, warning=FALSE, eval=TRUE}
+
+## all stages
+p <- plgINS::plPCA(assays(se)$corrected, as.data.frame(colData(se)), colorBy = "condition", shapeBy = "diff",
+              add.labels = FALSE, annotation_columns = colnames(colData(se)))
+
+orca(p, file = "Figure_Output/Exploratory/LongRNA_star_PCA.png")
+orca(p, file = "Figure_Output/Exploratory/LongRNA_PCA.pdf")
+```
+
+
+
+## Heatmaps
+```{r}
+sechm::sechm(se, head(row.names(rowData(se)$DEA.any), 50), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE)
+```
+
+

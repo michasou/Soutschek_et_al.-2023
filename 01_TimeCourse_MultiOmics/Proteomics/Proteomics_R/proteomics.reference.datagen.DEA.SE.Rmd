@@ -1,0 +1,259 @@
+---
+title: "ms_proteomics_all-tp_DEG"
+author: "Michael"
+date: "08 01 2020"
+output: 
+    html_document:
+        toc: true
+        toc_float: true
+        theme: 'cerulean'
+        highlight: 'tango'
+        code_folding: hide
+        df_print: paged
+---
+
+<style>
+  .main-container {
+    max-width: 1500px !important;
+  }
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(viridis)
+  library(RColorBrewer)
+  library(data.table)
+  library(dplyr)
+  library(tidyr)
+  library(DEP)
+  library(limma)
+  library(readr)
+  library(data.table)
+})
+```
+
+
+##Load protein data
+```{r}
+#load spectronaut
+data <- read_delim("../../Spectronaut/20241126_084036_20241122_Michael_referenceprot/20241127_135223_20241122_Michael_referenceprot_Report.tsv",delim = "\t",escape_double = FALSE, trim_ws = TRUE)
+
+#metadata
+s2c <- read.table("../data/metadata.csv", sep =";", header = T)
+s2c$Day <- as.character(s2c$Day)
+
+#assign metadata
+assign <- match(data$R.FileName,s2c$filename)
+data$Condition <- s2c$Condition[assign]
+data$Experiment <- s2c$Experiment[assign]
+data$Celltype <- s2c$CellType[assign]
+data$Day <- s2c$Day[assign]
+data$expReplicate <- s2c$expReplicate[assign]
+data <- as.data.frame(data)
+data <- data[grep("_HUMAN",data$PG.ProteinNames),]
+```
+
+Create a Matrix of Expression Data
+## convert as data.table
+```{r}
+data_dt <- setDT(data[,c("R.FileName","PG.ProteinAccessions","PG.Quantity")])
+
+matr <- dcast(data = data_dt,PG.ProteinAccessions ~ R.FileName, value.var = c("PG.Quantity")) 
+matr <- matr %>% mutate_all(~ifelse(is.nan(.), NA, .))
+matr <- as.data.frame(matr)
+row.names(matr) <- matr[,1]
+matr[,1] <- NULL
+keep <- apply(matr, 1, function(x) sum(!is.na(x))> 0)
+matr <- matr[keep,]
+
+saveRDS(matr, file = "../data/20241127_iPSCScreen_Report_Protein_Expression_Matrix.rds")
+```
+
+
+##################
+##Optionally, to also load Peptide Data
+```{r}
+# data_pep <- read_delim("../../Spectronaut/20241126_084036_20241122_Michael_referenceprot/20241127_135223_20241122_Michael_referenceprot_Report_Peptide.tsv",delim = "\t",escape_double = FALSE, trim_ws = TRUE)
+# 
+# s2c <- read.table("../data/metadata.csv", sep =";", header = T)
+# s2c$Day <- as.character(s2c$Day)
+# assign <- match(data_pep$R.FileName,s2c$filename)
+# data_pep$Condition <- s2c$Condition[assign]
+# data_pep$Experiment <- s2c$Experiment[assign]
+# data_pep$Celltype <- s2c$CellType[assign]
+# data_pep$Day <- s2c$Day[assign]
+# data_pep$expReplicate <- s2c$expReplicate[assign]
+# data_pep <- as.data.frame(data_pep)
+# data_pep <- data_pep[grep("_HUMAN",data_pep$PG.ProteinNames),]
+# data_pep$Peptide <- paste(data_pep$PG.ProteinAccessions,data_pep$EG.PrecursorId,data_pep$PG.Genes,sep = ",,")
+```
+
+
+## convert as data.table
+```{r}
+# data_pep_dt <- setDT(data_pep[,c("R.FileName","Peptide","PG.Quantity")])
+# 
+# matr_pep <- dcast(data = data_pep_dt,Peptide ~ R.FileName, value.var = c("PG.Quantity")) 
+# matr_pep <- matr_pep %>% mutate_all(~ifelse(is.nan(.), NA, .))
+# matr_pep <- as.data.frame(matr_pep)
+# row.names(matr_pep) <- matr_pep[,1]
+# matr_pep[,1] <- NULL
+# keep_pep <- apply(matr_pep, 1, function(x) sum(!is.na(x))> 0)
+# matr_pep <- matr_pep[keep_pep,]
+# 
+# matr_pep <- as.data.frame(matr_pep)
+# matr_pep$PG.ProteinAccessions <- sapply(strsplit(row.names(matr_pep),",,"),"[",1)
+# matr_pep$EG.PrecursorId <- sapply(strsplit(row.names(matr_pep),",,"),"[",2)
+# matr_pep$PG.Genes <- sapply(strsplit(row.names(matr_pep),",,"),"[",3)
+# saveRDS(matr_pep, file = "../data/20241127_iPSCScreen_Report_Peptide_Expression_Matrix.rds")
+```
+
+
+
+DEP, Prepare SE and Impute
+```{r}
+set.seed(1234)
+matr$Protein.names <- row.names(matr)
+matr$Protein.IDs <- paste("ID_",c(1:nrow(matr)),sep = "")
+data_unique <- make_unique(matr, "Protein.names", "Protein.IDs", delim = ";")
+
+experimental_design <- data.frame(label = as.character(s2c[,"filename"]), 
+                                  condition = as.character(s2c[,"Condition"]), 
+                                  replicate = as.integer(s2c[,"expReplicate"]))
+experimental_design[,c("label","condition")] <- lapply(experimental_design[,c("label","condition")], as.character)
+
+LFQ_columns <- na.omit(match(s2c$filename,colnames(data_unique)))
+data_se <- make_se(data_unique, LFQ_columns, experimental_design)
+data_filt <- filter_missval(data_se, thr = 0)
+assayNames(data_filt) <- "intensity"
+data_norm <- normalize_vsn(data_filt)
+assays(data_filt)$vsn <- assay(data_norm)
+#normalization is not absolutely necessary because we normalize already with the spectronaut
+se_imp <- impute(data_norm, fun = "MinProb", q = 0.01)
+assays(data_filt)$imputed <- assay(se_imp)
+se_prot <- data_filt
+se_prot <- se_prot[,order(se_prot$condition, se_prot$replicate)]
+
+#get the "day" info
+se_prot$condition[1:3] <- paste0(se_prot$condition[1:3],"_0")
+se_prot$day <- sapply(strsplit(se_prot$condition,"_"),"[",2)
+se_prot$day[4:6] <- gsub("0","",se_prot$day[4:6])
+se_prot$day <- as.numeric(se_prot$day)
+se_prot$stage <- as.factor(se_prot$day)
+names(se_prot) <- rowData(se_prot)$Protein.names
+
+#add further info
+assign_info <- match(names(se_prot), data$PG.ProteinAccessions)
+rowData(se_prot)$StrippedSequences <- data[assign_info, "PG.NrOfStrippedSequencesMeasured"]
+rowData(se_prot)$GeneName <- data[assign_info,"PG.Genes"]
+rowData(se_prot)$UniProtName <- data[assign_info, "PG.ProteinNames"]
+rowData(se_prot)$ProteinName <- data[assign_info, "PG.ProteinAccessions"]
+rowData(se_prot)$GeneName <- sub("^;{1,3}", "", rowData(se_prot)$GeneName)
+rowData(se_prot)$GeneName <- ifelse(is.na(rowData(se_prot)$GeneName),rowData(se_prot)$UniProtName,rowData(se_prot)$GeneName)
+rowData(se_prot)$GeneName <- gsub("_HUMAN","",x = rowData(se_prot)$GeneName)
+row.names(se_prot) <- paste0(rowData(se_prot)$name,".",rowData(se_prot)$GeneName)
+
+#Safe the raw SE-object
+saveRDS(se_prot, file="../data/Proteomics.Reference_SE_raw.rds")
+saveRDS(data, file="../data/data.reference.raw.rds")
+```
+
+
+
+#################################################################
+# Statistical Analysis
+#################################################################
+
+#load data
+```{r}
+se <- readRDS("../data/Proteomics.Reference_SE_raw.rds")
+data <- readRDS("../data/data.reference.raw.rds")
+data$Protein.IDs <- paste("ID_",c(1:nrow(data)),sep = "")
+data <- make_unique(data, "PG.ProteinAccessions", "Protein.IDs", delim = ";")
+data$ID <- paste0(data$name,".",data$PG.Genes)
+```
+
+#LogFC
+```{r}
+assays(se)$log2FC.all <-
+  assays(se)$imputed-rowMeans(assays(se)$imputed[,which(se$day=="0")])
+
+assays(se)$log2FC.neur <-
+  assays(se)$imputed-rowMeans(assays(se)$imputed[,which(se$day=="9")])
+```
+
+
+#Proteomics DEA function
+```{r}
+prot.dea <- function(se,data,use = NULL,name,model){
+  #filter
+  if(!is.null(use) ){
+    se.sub <- se[,use]
+  }else{
+    se.sub <- se
+  }
+  colData(se.sub) <- droplevels(colData(se.sub))
+  
+  #DEA
+  dfp <- as.data.frame(assays(se.sub)$imputed)
+  mmp <- model.matrix(model, data=as.data.frame(colData(se.sub)))
+  fitp <- eBayes(lmFit(dfp, mmp))
+  resp <- as.data.frame(topTable(fitp, number=Inf))
+  resp$ID <- row.names(resp)
+  assign2 <- match(resp$ID, data$ID)
+  resp$StrippedSequences <- data[assign2,"PG.NrOfStrippedSequencesMeasured"]
+  resp$GeneName <- data[assign2,"PG.Genes"]
+  resp$UniProtName <- data[assign2,"PG.ProteinNames"]
+  resp <- resp[rownames(se.sub),]
+  resp$GeneName <- sub("^;{1,3}", "", resp$GeneName)
+  resp$GeneName <- ifelse(is.na(resp$GeneName),resp$UniProtName,resp$GeneName)
+  resp$GeneName <- gsub("_HUMAN","",x = resp$GeneName)
+   # add DEA results to SE
+  dea_name <- paste0("DEA.", name)
+  rowData(se)[[dea_name]] <- DataFrame(resp)
+  
+  return(se)
+}
+```
+
+
+## dea over all days
+```{r}
+se <- prot.dea(se = se,data = data, name = "all", model = ~stage)
+```
+
+## dea over neuronal days
+```{r}
+se <- prot.dea(se = se, data = data, use = which(se$day > 0), name = "neuronal", model = ~stage)
+```
+
+
+## pairwise DEA over all stages
+
+```{r variables, eval=TRUE}
+# define variables
+stages <- unique(as.numeric(as.character(se$stage)))
+dea.names <- c("9v0", "15v9", "21v15", "27v21", "33v27", "40v33")
+```
+
+```{r dea pairwise, eval=TRUE}
+# do pairwise differential expression analysis for all stages
+for(i in 1:length(dea.names)){
+  se <- prot.dea(se = se, data = data, name = dea.names[i], 
+                 use = se$stage %in% c(stages[i],stages[i+1]), model = ~stage)
+}
+```
+
+Safe the object
+```{r}
+saveRDS(se, file="../data/Proteomics.Reference.SE_DEA.rds")
+```
+
+

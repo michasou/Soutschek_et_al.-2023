@@ -1,0 +1,147 @@
+---
+title: "Pink1_HEK"
+author: "Michael"
+date: "2023-07-18"
+output: html_document
+---
+
+
+```{r}
+suppressPackageStartupMessages({
+library(tidyr)
+library(ggplot2)
+library(emmeans)
+library(readxl)
+library(scales)
+library(ggsci)
+library(ggplot2)
+library(MASS)
+library(emmeans)
+library(cowplot)
+library(rstatix)
+library(ggpattern)
+})
+```
+
+
+
+#import data
+
+```{r}
+res <- read.csv("./CTX_Pink1_mimic.csv")
+```
+
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],pal_uchicago("default")(9)[2],"#607345FF")
+```
+
+#Format table
+```{r}
+res <- as.data.frame(t(as.matrix(res)))
+colnames(res) <- c("exp1","exp2","exp3","exp4","exp5")
+res$info <- row.names(res)
+res1 <-  gather(res, key = "experiment", value = "value", exp1:exp5, factor_key=TRUE)
+```
+
+```{r}
+res1$sequence <- sapply(strsplit(res1$info,"\\_"),"[",1)
+res1$condition <- sapply(strsplit(res1$info,"\\_"),"[",2)
+res1$amount <- sapply(strsplit(res1$info,"\\_"),"[",3)
+res1$sequence <- gsub("Pink1.3.UTR","Pink1 3'UTR",res1$sequence)
+res1$sequence <- gsub(".mut."," mut.",res1$sequence)
+res1$condition <- gsub("miR.1229","miR-1229",res1$condition)
+res1$condition <- gsub("Ctrl","Ctrl.",res1$condition)
+```
+
+```{r}
+res1$sequence <- factor(res1$sequence, levels = c("Pink1 3'UTR","Pink1 3'UTR mut."))
+res1$condition <- factor(res1$condition, levels = c("Ctrl.","miR-1229"))
+res1$group <- paste0(res1$sequence," _ ",res1$condition)
+res1$group <- factor(res1$group,levels = c("Pink1 3'UTR _ Ctrl.","Pink1 3'UTR _ miR-1229","Pink1 3'UTR mut. _ Ctrl.","Pink1 3'UTR mut. _ miR-1229"))
+```
+
+
+#stats
+```{r}
+mod <- lm(value ~ condition*sequence + experiment, data = res1)
+s1 <- emmeans(mod, trt.vs.ctrl ~ condition|sequence , ref="Ctrl.")
+```
+
+```{r}
+s1_df <- as.data.frame(s1$contrasts)
+s1_df$group1 <- s1_df$contrast
+s1_df$group1 <- gsub("\\(miR-1229\\) - ","",s1_df$group1)
+s1_df$group1 <- paste0(s1_df$sequence," _ ",s1_df$group1)
+
+s1_df$group2 <- s1_df$contrast
+s1_df$group2 <- gsub("\\) - Ctrl\\.","",s1_df$group2)
+s1_df$group2 <- gsub("\\(", "",s1_df$group2)
+s1_df$group2 <- paste0(s1_df$sequence," _ ",s1_df$group2)
+
+s1_df <- add_significance(s1_df,p.col = "p.value")
+
+
+y_pos <- max(res1[,"value"])
+
+s1_df$y_pos <- y_pos*1.05
+# s_df$y_adj <- rep(c(0,0.01))
+# s_df$y_pos2 <- s_df$y_pos + s_df$y_adj
+s1_df$p.value.signif[s1_df$p.value.signif == "ns"] <- NA
+```
+
+
+
+
+
+#plot
+```{r}
+p1 <- ggplot(res1, aes(x = group, y = value)) +
+  geom_bar_pattern(aes(pattern = condition),
+    position = position_dodge(preserve = "single"),
+                   pattern_fill = "black",
+                   pattern_angle = 45,
+                   pattern_density = 0.1,
+                   pattern_spacing = 0.025,
+                   pattern_key_scale_factor = 0.6,
+                   stat = "summary", fun = "mean",
+                   fill = "white", color = "black") + 
+   geom_point(aes(colour = experiment),
+             size = 2, show.legend = TRUE
+             ) +
+  ylab("Luminescence") +
+  theme_classic(base_size = 12)+
+  scale_colour_manual(values = col_vec) +
+  scale_pattern_manual(values = c('miR-1229' = "none", 'Ctrl.' = "stripe")) +
+  ggsignif::geom_signif(
+    data = s1_df,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  scale_y_continuous(labels = scales::label_scientific()) + 
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1))) +
+  guides(pattern = guide_legend(override.aes = list(shape = NA))
+         ) +
+  scale_x_discrete(labels=c("Pink1\n3'UTR","Pink1\n3'UTR","Pink1\n3'UTR mut.","Pink1\n3'UTR mut."))
+
+ggsave2("./Ctx_Pink1.png",p1, width = 6,height = 6.5, bg = "white")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+

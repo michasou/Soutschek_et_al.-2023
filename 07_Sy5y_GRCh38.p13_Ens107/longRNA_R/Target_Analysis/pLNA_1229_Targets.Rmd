@@ -1,0 +1,144 @@
+---
+title: "pLNA-1229_Targets"
+author: "Michael Soutschek"
+date: "12/16/2022"
+output: html_document
+---
+
+
+
+```{r}
+library(scanMiR)
+library(SummarizedExperiment)
+library(dplyr)
+```
+
+
+
+#load data
+```{r}
+se <- readRDS("../data/SE.dea.TX.salmon.raw.rds")
+se2 <- readRDS("../data/SE.dea.Gene.salmon.raw.rds")
+sites1229 <- readRDS("../../pLNA_experiment/Target_Analysis/miR1229/target_data/Screen_mir-1229-3p_sites_agg.rds")
+colnames(sites1229)[colnames(sites1229) == "V3"] <- "gene_id"
+sites1229$gene_id <- sapply(strsplit(sites1229$gene_id,"\\."),"[",1)
+```
+
+#10nm
+
+#Transcript based
+```{r}
+dea1229 <- rowData(se)[["DEA.ind.Ctrl-MiR"]]
+dea1229$transcript <- sapply(strsplit(row.names(dea1229),"\\."), getElement,1)
+dea1229$gene_id <- NULL
+
+dea1229 <- merge(dea1229,sites1229,by = "transcript",all.x = TRUE)
+dea1229 <- dea1229[dea1229$logCPM > 0.5,]
+dea1229 <- dea1229[order(dea1229$FDR),]
+write.csv(dea1229,"./target_data/dea1229_targets_transcriptbased_10nm.csv")
+```
+
+
+#Gene based
+```{r}
+dea1229g <- rowData(se2)[["DEA.ind.Ctrl-MiR"]]
+dea1229g$gene_id <- sapply(strsplit(row.names(dea1229g),"\\."),"[",1)
+dea1229g$gene_name <- sapply(strsplit(row.names(dea1229g),"\\."),"[",2)
+```
+
+
+```{r}
+sites1229filtered <- sites1229[sites1229$transcript %in% dea1229$transcript,]
+sites1229agg <- sites1229filtered %>%
+  group_by(gene_id) %>%
+  dplyr::filter(repression == min(min(repression), na.rm=TRUE))
+
+sites1229agg$transcript <- NULL
+sites1229agg <- distinct(sites1229agg)
+
+dea1229g <- merge(dea1229g,sites1229agg, by = "gene_id",all.x = TRUE)
+dea1229g <- dea1229g[dea1229g$logCPM > 0.5,]
+dea1229g <- dea1229g[order(dea1229g$FDR),]
+write.csv(dea1229g,"./target_data/dea1229_targets_genebased_10nm.csv")
+```
+
+
+
+#20nm
+
+#Transcript based
+```{r}
+dea1229 <- rowData(se)[["DEA.ind.MiR"]]
+dea1229$transcript <- sapply(strsplit(row.names(dea1229),"\\."), getElement,1)
+dea1229$gene_id <- NULL
+
+dea1229 <- merge(dea1229,sites1229,by = "transcript",all.x = TRUE)
+dea1229 <- dea1229[dea1229$logCPM > 0.5,]
+dea1229 <- dea1229[order(dea1229$FDR),]
+write.csv(dea1229,"./target_data/dea1229_targets_transcriptbased_20nm.csv")
+```
+
+
+#Gene based
+```{r}
+dea1229g <- rowData(se2)[["DEA.ind.MiR"]]
+dea1229g$gene_id <- sapply(strsplit(row.names(dea1229g),"\\."),"[",1)
+dea1229g$gene_name <- sapply(strsplit(row.names(dea1229g),"\\."),"[",2)
+```
+
+
+```{r}
+sites1229filtered <- sites1229[sites1229$transcript %in% dea1229$transcript,]
+sites1229agg <- sites1229filtered %>%
+  group_by(gene_id) %>%
+  dplyr::filter(repression == min(min(repression), na.rm=TRUE))
+
+sites1229agg$transcript <- NULL
+sites1229agg <- distinct(sites1229agg)
+
+dea1229g <- merge(dea1229g,sites1229agg, by = "gene_id",all.x = TRUE)
+dea1229g <- dea1229g[dea1229g$logCPM > 0.5,]
+dea1229g <- dea1229g[order(dea1229g$FDR),]
+write.csv(dea1229g,"./target_data/dea1229_targets_genebased_20nm.csv")
+```
+
+
+
+#Combined
+
+#Transcript based
+```{r}
+dea1229 <- rowData(se)[["DEA"]]
+dea1229$transcript <- sapply(strsplit(row.names(dea1229),"\\."), getElement,1)
+dea1229$gene_id <- NULL
+
+dea1229 <- merge(dea1229,sites1229,by = "transcript",all.x = TRUE)
+dea1229 <- dea1229[dea1229$logCPM > 0.5,]
+dea1229 <- dea1229[order(dea1229$FDR),]
+write.csv(dea1229,"./target_data/dea1229_targets_transcriptbased_combined.csv")
+```
+
+
+#Gene based
+```{r}
+dea1229g <- rowData(se2)[["DEA"]]
+dea1229g$gene_id <- sapply(strsplit(row.names(dea1229g),"\\."),"[",1)
+dea1229g$gene_name <- sapply(strsplit(row.names(dea1229g),"\\."),"[",2)
+```
+
+
+```{r}
+sites1229filtered <- sites1229[sites1229$transcript %in% dea1229$transcript,]
+sites1229agg <- sites1229filtered %>%
+  group_by(gene_id) %>%
+  dplyr::filter(repression == min(min(repression), na.rm=TRUE))
+
+sites1229agg$transcript <- NULL
+sites1229agg <- distinct(sites1229agg)
+
+dea1229g <- merge(dea1229g,sites1229agg, by = "gene_id",all.x = TRUE)
+dea1229g <- dea1229g[dea1229g$logCPM > 0.5,]
+dea1229g <- dea1229g[order(dea1229g$FDR),]
+write.csv(dea1229g,"./target_data/dea1229_targets_genebased_combined.csv")
+```
+

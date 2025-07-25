@@ -1,0 +1,589 @@
+---
+title: "Untitled"
+author: "Michael"
+date: '2022-10-21'
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+  library(ggsci)
+  library(scales)
+  library(emmeans)
+  library(lmerTest)
+  library(ggpubr)
+  library(rstatix)
+  library(ggsignif)
+  library(cowplot)
+  library(viridis)
+  library(grid)
+  library(gtable)
+  library(ggnewscale)
+})
+```
+
+
+```{r}
+norm_to <- function(df,norm_to){
+  nn <- df[df$Condition == norm_to,]
+  nn$Condition <- NULL
+  name <- paste0("Norm_",norm_to)
+  colnames(nn)[colnames(nn) == "x"] <- name
+  df <- merge(df,nn, by = c("Day","Differentiation"))
+  df$Normalized <- df$x / df[[name]]
+  df <- df[df$Condition != norm_to,]
+}
+```
+
+
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c("darkgrey","black","lightgrey","darkgrey")
+col_vec2 <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
+```
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec3 <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],"darkgrey","black","lightgrey","darkgrey")
+```
+
+#Load Data
+```{r}
+e <- readRDS("./DataPrep/Synapsecluster_Result_pLNA.rds")
+e$Condition <- gsub("pLNA-181","pLNA-181c",e$Condition)
+e$Condition <- factor(e$Condition, levels = c("Empty","pLNA-Ctrl","pLNA-1229","pLNA-181c"))
+e$isEmpty <- ifelse(e$Condition == "Empty","p5","p6")
+e$isEmpty2 <- ifelse(e$Condition == "Empty","p7","p8")
+
+
+e21 <- e[e$Day == "Day21",]
+e33 <- e[e$Day == "Day33",]
+```
+
+
+#Aggregate Means
+```{r}
+#Synapses per DendArea per Nuclei (sqrt)
+ag_s <- aggregate(sqrt(e$Synapses_per_DendArea_um2_per_Nuclei),e[,c("Day","Differentiation","Condition")], FUN=mean)
+ag_s$isEmpty <- ifelse(ag_s$Condition == "Empty","p5","p6")
+ag_s$isEmpty2 <- ifelse(ag_s$Condition == "Empty","p7","p8")
+ag_s21 <- ag_s[ag_s$Day == "Day21",]
+ag_s33 <- ag_s[ag_s$Day == "Day33",]
+
+#Syn per DendArea per Nuclei (sqrt)
+ag_syn <- aggregate(sqrt(e$Syn_per_area_um2_per_Nuclei),e[,c("Day","Differentiation","Condition")], FUN=mean)
+ag_syn$isEmpty <- ifelse(ag_syn$Condition == "Empty","p7","p8")
+ag_syn21 <- ag_syn[ag_syn$Day == "Day21",]
+ag_syn33 <- ag_syn[ag_syn$Day == "Day33",]
+
+#PSD per DendArea per Nuclei (sqrt)
+ag_psd <- aggregate(sqrt(e$PSD_per_area_um2_per_Nuclei),e[,c("Day","Differentiation","Condition")], FUN=mean)
+ag_psd$isEmpty <- ifelse(ag_psd$Condition == "Empty","p7","p8")
+ag_psd21 <- ag_psd[ag_psd$Day == "Day21",]
+ag_psd33 <- ag_psd[ag_psd$Day == "Day33",]
+```
+
+
+
+##################
+##################
+#Synapses
+
+## All Points with mean statistic
+#get statistics
+```{r}
+##All Points, One Model
+st_df_mea <- readRDS("./stats/ST_DF_Synapses_means.rds")
+
+
+#add y_position
+y_pos <- c()
+for(i in st_df_mea$Day) {
+  ll <- sqrt(max(e[e$Day == i,"Synapses_per_DendArea_um2_per_Nuclei"]))
+  y_pos <- c(y_pos,ll)
+}
+
+st_df_mea$y_pos <- y_pos*1.075
+st_df_mea$y_adj <- rep(c(0,0.05))
+st_df_mea$y_pos2 <- st_df_mea$y_pos + st_df_mea$y_adj
+st_df_mea$p.value.signif[which(st_df_mea$p.value < 0.10 & st_df_mea$p.value > 0.05)] <- round(st_df_mea$p.value[which(st_df_mea$p.value < 0.10 & st_df_mea$p.value > 0.05)],2)
+st_df_mea$p.value.signif[st_df_mea$p.value.signif == "ns"] <- NA
+
+```
+
+
+
+```{r}
+st_df_mea2 <- st_df_mea[st_df_mea$group1 != "Empty",]
+
+p1b <- ggplot(e,aes(x = Condition, y = sqrt(Synapses_per_DendArea_um2_per_Nuclei))) + 
+  geom_violin(aes(colour = isEmpty2),show.legend = FALSE) +
+  stat_summary(
+    aes(color = isEmpty),
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = col_vec,guide = "none") +
+  new_scale_color() +
+  stat_summary(aes(color = Differentiation, alpha = isEmpty),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  scale_alpha_discrete(range = c(0.3, 0.6), guide = "none") +
+  scale_color_manual(values = col_vec2) +
+  ggsignif::geom_signif(
+    data = st_df_mea2,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  facet_wrap(~ Day) +
+  ylab("Synapses per µm2 area per cell (sqrt)") +
+  theme_classic()+
+  #coord_cartesian(ylim = c(NA,10)) +
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        legend.position = "bottom",
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
+        legend.text = element_text(size = 16)) +
+  scale_x_discrete(labels=c("Empty","pLNA-\nCtrl","pLNA-\n1229","pLNA-\n181c"))
+
+
+gt1b <- ggplotGrob(p1b)
+
+
+panels = subset(gt1b$layout, grepl("panel", gt1b$layout$name), t:r)
+
+# The span of the vertical gap
+Bmin = min(panels$t) - 1
+Bmax = max(panels$t)
+
+# The columns of the gaps (two to the right of the panels
+cols = unique(panels$r)[-length(unique(panels$r))] + 2
+
+# The grob
+g <- linesGrob(x = unit(c(.5, .5), "npc"),
+              y = unit(c(0.01,0.94), "npc"),
+              gp = gpar(col = "black", lty = "dotted", lwd = 1.5) )
+
+
+## Add lines into the vertical gaps
+gt1b <- gtable_add_grob(gt1b, 
+      rep(list(g), length(cols)),
+      t=Bmin, l = cols, b=Bmax)
+
+## Draw it
+grid.newpage()
+grid.draw(gt1b)
+
+#p1b
+
+ggsave("../Figures/pLNA_Synapses.png",gt1b, width = 8,height = 5, bg = "white")
+ggsave("../Figures/pLNA_Synapses.pdf",gt1b, width = 8,height = 5, bg = "white")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec3 <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],"darkgrey","black","lightgrey","darkgrey")
+```
+
+
+#Normalized to control
+```{r}
+ag_s_norm <- norm_to(ag_s,"pLNA-Ctrl")
+
+p1c <- ggplot(ag_s_norm, aes(x = Condition, y = Normalized)) +
+  geom_bar(stat = "summary", fun = "mean", aes(colour = isEmpty2.x),
+           fill = "white", linewidth = 1, show.legend = FALSE) +
+  scale_color_manual(values = col_vec,guide = "none") +
+  new_scale_color() +
+  geom_point(aes(colour = Differentiation, alpha = isEmpty.x), 
+             size = 2, show.legend = TRUE) +
+  scale_color_manual(values = col_vec2) +
+  scale_alpha_discrete(range = c(0.3, 0.6),guide = "none") +
+  facet_wrap(~ Day) +
+  ylab("Synapses per µm2 area per cell\n(Normalized to Ctrl.)") +
+  geom_hline(yintercept = 1,linetype = "dashed") +
+  theme_classic(base_size = 12)+
+
+  #coord_cartesian(ylim = c(NA,10)) +
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        legend.position = "bottom",
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
+        legend.text = element_text(size = 16)) +
+  scale_x_discrete(labels=c("Empty","pLNA-\nCtrl","pLNA-\n1229","pLNA-\n181c"))
+
+gt1c <- ggplotGrob(p1c)
+
+
+panels = subset(gt1c$layout, grepl("panel", gt1c$layout$name), t:r)
+
+# The span of the vertical gap
+Bmin = min(panels$t) - 1
+Bmax = max(panels$t)
+
+# The columns of the gaps (two to the right of the panels
+cols = unique(panels$r)[-length(unique(panels$r))] + 2
+
+# The grob
+g <- linesGrob(x = unit(c(.5, .5), "npc"),
+              y = unit(c(0.01,0.94), "npc"),
+              gp = gpar(col = "darkgrey", lty = "dotted", lwd = 1.5) )
+
+
+## Add lines into the vertical gaps
+gt1c <- gtable_add_grob(gt1c, 
+      rep(list(g), length(cols)),
+      t=Bmin, l = cols, b=Bmax)
+
+## Draw it
+grid.newpage()
+grid.draw(gt1c)
+
+#p1b
+
+ggsave("../Figures/pLNA_Synapses_normtoCtrl.png",gt1c, width = 8,height = 6, bg = "white")
+```
+
+
+
+
+
+
+##################
+##################
+#Syn Density
+
+#get statistics
+```{r}
+##Means
+st_df_mea <- readRDS("./stats/ST_DF_SynDensity_means.rds")
+
+
+#add y_position
+y_pos <- c()
+for(i in st_df_mea$Day) {
+  ll <- sqrt(max(e[e$Day == i,"Syn_per_area_um2_per_Nuclei"]))
+  y_pos <- c(y_pos,ll)
+}
+
+st_df_mea$y_pos <- y_pos*1.05
+st_df_mea$y_adj <- c(0.05,0,0.1,0)
+st_df_mea$y_pos2 <- st_df_mea$y_pos + st_df_mea$y_adj
+
+st_df_mea$p.value.signif[st_df_mea$p.value.signif == "ns"] <- NA
+st_df_mea$p.value.signif[which(st_df_mea$p.value < 0.15 & st_df_mea$p.value > 0.05)] <- round(st_df_mea$p.value[which(st_df_mea$p.value < 0.15 & st_df_mea$p.value > 0.05)],2)
+```
+
+```{r}
+#On all datapoints
+
+p4c <- ggplot(e,aes(x = Condition, y = sqrt(Syn_per_area_um2_per_Nuclei))) + 
+  geom_violin(aes(color = isEmpty2),show.legend = FALSE) +
+  stat_summary(
+    aes(color = isEmpty),
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = col_vec,guide = "none") +
+  new_scale_color() +
+  stat_summary(aes(color = Differentiation, alpha = isEmpty),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  scale_alpha_discrete(range = c(0.3, 0.6), guide = "none") +
+  scale_color_manual(values = col_vec2) +
+  ggsignif::geom_signif(
+    data = st_df_mea,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  facet_wrap(~ Day) +
+  ylab("Dendritic Syn1 counts\nper µm2 area per cell (sqrt)") +
+  theme_classic(base_size = 12)+
+  coord_cartesian(ylim = c(NA,1.3)) +
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        legend.position = "bottom",
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
+        legend.text = element_text(size = 16)) +
+  scale_x_discrete(labels=c("Empty","pLNA-\nCtrl","pLNA-\n1229","pLNA-\n181c"))
+
+
+gt4 <- ggplotGrob(p4c)
+
+
+panels = subset(gt4$layout, grepl("panel", gt4$layout$name), t:r)
+
+# The span of the vertical gap
+Bmin = min(panels$t) - 1
+Bmax = max(panels$t)
+
+# The columns of the gaps (two to the right of the panels
+cols = unique(panels$r)[-length(unique(panels$r))] + 2
+
+# The grob
+g <- linesGrob(x = unit(c(.5, .5), "npc"),
+              y = unit(c(0.01,0.94), "npc"),
+              gp = gpar(col = "black", lty = "dotted", lwd = 1.5) )
+
+
+## Add lines into the vertical gaps
+gt4 <- gtable_add_grob(gt4, 
+      rep(list(g), length(cols)),
+      t=Bmin, l = cols, b=Bmax)
+
+## Draw it
+grid.newpage()
+grid.draw(gt4)
+
+#p1
+
+ggsave("../Figures/pLNA_SynDensity.png",gt4, width = 8,height = 6, bg = "white")
+```
+
+
+
+
+
+
+##################
+##################
+#PSD Density
+
+```{r}
+##Means
+st_df_mea <- readRDS("./stats/ST_DF_PSDDensity_means.rds")
+
+#add y_position
+y_pos <- c()
+for(i in st_df_mea$Day) {
+  ll <- sqrt(max(e[e$Day == i,"PSD_per_area_um2_per_Nuclei"]))
+  y_pos <- c(y_pos,ll)
+}
+
+st_df_mea$y_pos <- y_pos*1
+st_df_mea$y_adj <- rep(c(0,0.1,0.1,0.2))
+st_df_mea$y_pos2 <- st_df_mea$y_pos + st_df_mea$y_adj
+
+st_df_mea$p.value.signif[st_df_mea$p.value.signif == "ns"] <- NA
+st_df_mea$p.value.signif[which(st_df_mea$p.value < 0.1 & st_df_mea$p.value > 0.05)] <- round(st_df_mea$p.value[which(st_df_mea$p.value < 0.15 & st_df_mea$p.value > 0.05)],2)
+```
+
+
+```{r}
+#On all datapoints
+
+
+p5 <- ggplot(e,aes(x = Condition, y = sqrt(PSD_per_area_um2_per_Nuclei))) + 
+  geom_violin(aes(colour = isEmpty2),show.legend = FALSE) +
+  stat_summary(
+    aes(color = isEmpty),
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = col_vec,guide = "none") +
+  new_scale_color() +
+  stat_summary(aes(color = Differentiation, alpha = isEmpty),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  scale_alpha_discrete(range = c(0.3, 0.6), guide = "none") +
+  scale_color_manual(values = col_vec2) +
+  ggsignif::geom_signif(
+    data = st_df_mea,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE,tip_length = 0.015
+  ) +
+  facet_wrap(~ Day) +
+  ylab("Dendritic PSD counts\nper µm2 area per cell (sqrt)") +
+  theme_classic(base_size = 12)+
+  #coord_cartesian(ylim = c(NA,0.8)) +
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        legend.position = "bottom",
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
+        legend.text = element_text(size = 16)) +
+  scale_x_discrete(labels=c("Empty","pLNA-\nCtrl","pLNA-\n1229","pLNA-\n181c"))
+
+
+gt5 <- ggplotGrob(p5)
+
+
+panels = subset(gt5$layout, grepl("panel", gt5$layout$name), t:r)
+
+# The span of the vertical gap
+Bmin = min(panels$t) - 1
+Bmax = max(panels$t)
+
+# The columns of the gaps (two to the right of the panels
+cols = unique(panels$r)[-length(unique(panels$r))] + 2
+
+# The grob
+g <- linesGrob(x = unit(c(.5, .5), "npc"),
+              y = unit(c(0.01,0.94), "npc"),
+              gp = gpar(col = "black", lty = "dotted", lwd = 1.5) )
+
+
+## Add lines into the vertical gaps
+gt5 <- gtable_add_grob(gt5, 
+      rep(list(g), length(cols)),
+      t=Bmin, l = cols, b=Bmax)
+
+## Draw it
+grid.newpage()
+grid.draw(gt5)
+
+#p1
+
+ggsave("../Figures/pLNA_PSDDensity.png",gt5, width = 8,height = 6, bg = "white")
+```
+
+
+
+##################
+##################
+#PSD intensities
+```{r}
+psd <- readRDS("./DataPrep/Synapsecluster_Result_pLNA_Intensities_psd.rds")
+psd$isEmpty <- ifelse(psd$Condition == "Empty","p5","p6")
+psd$isEmpty2 <- ifelse(psd$Condition == "Empty","p7","p8")
+```
+
+
+# All Points
+```{r}
+p_psd <- ggplot(psd,aes(x = Condition, y = log(IntegratedIntensity_PSD95))) + 
+  geom_violin(aes(colour = isEmpty2),show.legend = FALSE) +
+  stat_summary(
+    aes(color = isEmpty),
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = col_vec,guide = "none") +
+  new_scale_color() +
+  stat_summary(aes(color = Differentiation, alpha = isEmpty),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  scale_alpha_discrete(range = c(0.3, 0.6), guide = "none") +
+  scale_color_manual(values = col_vec2) +
+  facet_wrap(~ Day) +
+  ylab("Integrated Intensity PSD95 (log)") +
+  theme_classic(base_size = 12)+
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        legend.position = "bottom",
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
+        legend.text = element_text(size = 16)) +
+  scale_x_discrete(labels=c("Empty","pLNA-\nCtrl","pLNA-\n1229","pLNA-\n181c"))
+
+p_psd
+
+ggsave2("../Figures/pLNA_psd_IntegratedIntensity.png",p_psd, width = 8,height = 6, bg = "white")
+```
+
+
+##################
+##################
+#Syn intensities
+```{r}
+syn <- readRDS("./DataPrep/Synapsecluster_Result_pLNA_Intensities_syn.rds")
+syn$isEmpty <- ifelse(syn$Condition == "Empty","p5","p6")
+syn$isEmpty2 <- ifelse(syn$Condition == "Empty","p7","p8")
+```
+
+
+# All Points
+```{r}
+p_syn <- ggplot(syn,aes(x = Condition, y = log(IntegratedIntensity_SYN))) + 
+  geom_violin(aes(colour = isEmpty2),show.legend = FALSE) +
+  stat_summary(
+    aes(color = isEmpty),
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = col_vec,guide = "none") +
+  new_scale_color() +
+  stat_summary(aes(color = Differentiation, alpha = isEmpty),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  scale_alpha_discrete(range = c(0.3, 0.6), guide = "none") +
+  scale_color_manual(values = col_vec2) +
+  facet_wrap(~ Day) +
+  ylab("Integrated Intensity SYN (log)") +
+  theme_classic(base_size = 12)+
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        legend.position = "bottom",
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
+        legend.text = element_text(size = 16)) +
+  scale_x_discrete(labels=c("Empty","pLNA-\nCtrl","pLNA-\n1229","pLNA-\n181c"))
+p_syn
+
+ggsave2("../Figures/pLNA_syn_IntegratedIntensity.png",p_syn, width = 8,height = 6, bg = "white")
+```
+
+
+
+

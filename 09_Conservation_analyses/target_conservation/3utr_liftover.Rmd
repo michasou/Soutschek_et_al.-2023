@@ -1,0 +1,128 @@
+---
+title: "liftover example"
+author: "Pierre-Luc Germain"
+date: "7/7/2023"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(GenomicRanges)
+  library(rtracklayer)
+  library(BSgenome.Ptroglodytes.UCSC.panTro6)
+  library(BSgenome.Hsapiens.UCSC.hg38)
+  library(GenomicFeatures)
+})
+```
+
+
+```{r, eval=FALSE}
+download.file("https://hgdownload.soe.ucsc.edu/goldenPath/hg38/liftOver/hg38ToPanTro6.over.chain.gz",
+              "hg38ToPanTro6.over.chain.gz")
+R.utils::gunzip("hg38ToPanTro6.over.chain.gz")
+```
+
+
+#get human 3'UTR
+```{r}
+txdb_human <- TxDb.Hsapiens.UCSC.hg38.knownGene::TxDb.Hsapiens.UCSC.hg38.knownGene
+txdb_human_3utr <- threeUTRsByTranscript(txdb_human, use.names = TRUE)
+all_txdb_human_3utr <- unlist(txdb_human_3utr)
+names(all_txdb_human_3utr) <- sapply(strsplit(names(all_txdb_human_3utr),"\\."), getElement,1)
+
+
+canonical_chroms <- seqlevels(BSgenome.Hsapiens.UCSC.hg38)[!grepl('_', seqlevels(BSgenome.Hsapiens.UCSC.hg38))]
+all_txdb_human_3utr <- all_txdb_human_3utr[seqnames(all_txdb_human_3utr) %in% canonical_chroms]
+```
+
+
+# Load Transcript Analysis
+# ... and filter for Transcripts that are expressed in the cell
+```{r}
+se <- readRDS("../../pLNA_GRCh38.p13_Ens107/pLNA_experiment/data/SE.dea.TX.salmon.raw.rds")
+row.names(se) <- sapply(strsplit(row.names(se),"\\."), getElement,1)
+```
+
+```{r}
+all_txdb_human_3utr_filt <- all_txdb_human_3utr[which(names(all_txdb_human_3utr) %in% row.names(se))]
+```
+
+
+#filter for transcripts with exons only on one chromosome
+```{r}
+all_txdb_human_3utr_filt_ls <- split(all_txdb_human_3utr_filt,names(all_txdb_human_3utr_filt))
+
+number_chrom <- lapply(all_txdb_human_3utr_filt_ls, function(x){
+  dd <- as.character(seqnames(x))
+  return(length(unique(dd)))
+})
+number_chrom_un <- number_chrom[number_chrom < 2]
+
+all_txdb_human_3utr_filt_un <- all_txdb_human_3utr_filt_ls[number_chrom_un]
+all_txdb_human_3utr_filt_un <- unlist(all_txdb_human_3utr_filt_un)
+```
+
+
+
+
+#liftover
+```{r}
+# # random regions for the example:
+# human.gr <- GRanges("chr1", IRanges(c(1500,30000,100000), width=300), strand="+")
+# names(human.gr) <- paste0("r",1:3) # make sure the regions have names...
+
+chain <- import(ChainFile("hg38ToPanTro6.over.chain"))
+lo <- rtracklayer::liftOver(all_txdb_human_3utr_filt_un, chain=chain)
+head(lo)
+```
+Each list element represents the corresponding region in the Pan Troglodyte genome. The first one has not counterpart, hence the GRanges is empty. The second one has a single matching region, while the third has many. This typically happens when the region is 'broken', for instance when there was an insertion or an inversion in the middle. However this is often tiny, so what I'd normally do is merge smalls gaps (say 1-2bp):
+
+```{r}
+(lo <- reduce(lo, min.gap=10L))
+```
+
+In this case this gives us exactly one match again for the 3rd region.
+
+Then I'd exclude those elements that do no have exactly one matching regions:
+
+```{r}
+lo <- unlist(lo[lengths(lo)==1])
+```
+
+
+#filter the human 3'utrs for those where there is a single region in chimp found
+```{r}
+all_txdb_human_3utr_filt_lo <- all_txdb_human_3utr_filt_un[which(names(all_txdb_human_3utr_filt_un) %in% names(lo))]
+```
+
+
+#create GeneRanges Lists
+```{r}
+human_gr <- as.list(split(all_txdb_human_3utr_filt_lo,strand(all_txdb_human_3utr_filt_lo)))
+human_gr[["+"]] <- human_gr[["+"]][order(start(human_gr[["+"]]))]
+human_gr[["-"]] <- human_gr[["-"]][order(end(human_gr[["-"]]),decreasing=TRUE)]
+human_gr <- c(human_gr[["+"]],human_gr[["-"]])
+
+
+
+chimp_gr <- as.list(split(lo,strand(lo)))
+chimp_gr[["+"]] <- chimp_gr[["+"]][order(start(chimp_gr[["+"]]))]
+chimp_gr[["-"]] <- chimp_gr[["-"]][order(end(chimp_gr[["-"]]),decreasing=TRUE)]
+chimp_gr <- c(chimp_gr[["+"]],chimp_gr[["-"]])
+```
+
+##how to deal with transcripts that are located on two genomes
+
+#extract sequences
+```{r}
+human_seqs <- extractTranscriptSeqs(BSgenome.Hsapiens.UCSC.hg38, split(human_gr,names(human_gr)))
+saveRDS(human_seqs,"human_3utr_seqs.rds")
+```
+
+```{r}
+chimp_seqs <- extractTranscriptSeqs(BSgenome.Ptroglodytes.UCSC.panTro6, split(chimp_gr,names(chimp_gr)))
+saveRDS(chimp_seqs,"chimp_3utr_seqs.rds")
+```
+
+
+

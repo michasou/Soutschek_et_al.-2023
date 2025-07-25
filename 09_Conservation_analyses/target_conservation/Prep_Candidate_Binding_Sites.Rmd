@@ -1,0 +1,317 @@
+---
+title: "Prepare Candidate Binding Sites"
+author: "Michael Soutschek"
+date: "4/18/2021"
+output: html_document
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  suppressWarnings({
+    library(scanMiR)
+    library(scanMiRData)
+    library(SummarizedExperiment)
+    library(scanMiRApp)
+    library(smplot2)
+    library(cowplot)
+    library(ggsci)
+    library(GenomicFeatures)
+    library(scanMiRApp)
+    library(scanMiRData)
+    library(BiocParallel)
+    library(biomaRt)
+    library(ggplot2)
+    library(viridis)
+    library(dplyr)
+  })
+})
+
+```
+
+
+
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],"darkgrey","black","lightgrey","darkgrey")
+```
+
+
+```{r}
+ensembl_107 <- useEnsembl(biomart = "ensembl", 
+                          dataset = "hsapiens_gene_ensembl",
+                          version = 107)
+
+# Get gene + transcript IDs
+tx2ge <- getBM(attributes = c("ensembl_gene_id", "ensembl_transcript_id","external_gene_name"),
+                            mart = ensembl_107)
+
+colnames(tx2ge) <- c("gene_id","transcript","symbol")
+tx2ge <- tx2ge[!duplicated(tx2ge$transcript) & !is.na(tx2ge$transcript),]
+```
+
+
+
+
+#mods & species
+```{r}
+hsa <- getKdModels("hsa",categories = NULL)
+
+hsa_1229 <- hsa["hsa-miR-1229-3p"]
+hsa_134 <- hsa["hsa-miR-134-5p"]
+```
+
+
+#seqs
+```{r}
+hsa_seq <- readRDS("./human_3utr_seqs.rds")
+chi_seq <- readRDS("./chimp_3utr_seqs.rds")
+```
+
+
+
+#Scan miR-1229
+```{r}
+#Human
+m1_1229 <- findSeedMatches(hsa_seq, hsa_1229, maxLogKd=NULL, BP = MulticoreParam(12, progressbar=TRUE), p3.extra =TRUE, ret="GRanges")
+m1_1229_agg <- aggregateMatches(m1_1229)
+m1_1229_agg$transcript <- sapply(strsplit(as.character(m1_1229_agg$transcript),"\\."),"[",1)
+colnames(m1_1229_agg)[2:6] <- paste0("hsa_",colnames(m1_1229_agg)[2:6])
+m1_1229_agg <- m1_1229_agg[!is.na(m1_1229_agg$hsa_repression),]
+
+
+#Chimp
+m2_1229 <- findSeedMatches(chi_seq, hsa_1229, maxLogKd=NULL, BP = MulticoreParam(12, progressbar=TRUE), p3.extra =TRUE, ret="GRanges")
+m2_1229_agg <- aggregateMatches(m2_1229)
+m2_1229_agg$transcript <- sapply(strsplit(as.character(m2_1229_agg$transcript),"\\."),"[",1)
+colnames(m2_1229_agg)[2:6] <- paste0("chi_",colnames(m2_1229_agg)[2:6])
+m2_1229_agg <- m2_1229_agg[!is.na(m2_1229_agg$chi_repression),]
+```
+
+
+```{r}
+m <- merge(m1_1229_agg,m2_1229_agg,by = "transcript",all = TRUE)
+m <- merge(m,tx2ge,by ="transcript",all.x = TRUE)
+```
+
+```{r}
+m$diff <- m$hsa_repression - m$chi_repression
+```
+
+```{r}
+#Number of transcripts without corresponding BS
+d <- length(m[is.na(m$hsa_repression),"transcript"]) + length(m[is.na(m$chi_repression),"transcript"])
+
+#correlation
+m <- m[!is.na(m$hsa_repression) & !is.na(m$chi_repression),]
+a <- cor.test(m$hsa_repression,m$chi_repression,method = "pearson")
+a$p.value
+a$estimate
+
+p1 <- ggplot(m,aes(x = hsa_repression,y = chi_repression)) +
+  geom_point(color = col_vec[2], alpha = 0.6) +
+  stat_smooth(method = "lm",
+              formula = y ~ x,
+              geom = "smooth", color = col_vec[1]) +
+  ggtitle("miR-1229-3p") +
+  xlab("Human predicted repression") +
+  ylab("Chimp predicted repression") +
+  theme_classic()+
+  annotate("text", label = paste0(d," transcripts w/o corresp. BS"),x = -0.5, y = -2.3) +
+  annotate("text", label = paste0("R: ",round(a$estimate,2)),x = -2, y = 0,color = col_vec[1]) 
+
+ggsave2("./Figure_Output/miR-1229.png",p1, width = 6.5,height = 5, bg = "white")
+```
+
+
+
+```{r}
+se_tx <- readRDS("../../pLNA_GRCh38.p13_Ens107/pLNA_experiment/data/SE.dea.TX.salmon.raw.rds")
+dea1229tx <- rowData(se_tx)[["DEA.pLNA-1229"]]
+dea1229tx$transcript <- sapply(strsplit(row.names(dea1229tx),"\\."), getElement,1)
+```
+
+```{r}
+f <- merge(m,dea1229tx,by = "transcript",all.x = TRUE)
+f2 <- f[f$logCPM > 1.5,]
+```
+
+```{r}
+p1b <- ggplot(f2,aes(x = hsa_repression,y = chi_repression, color = logFC)) +
+  geom_point() +
+  stat_smooth(method = "lm",
+              formula = y ~ x,
+              geom = "smooth", color = col_vec[1]) +
+  ggtitle("miR-1229-3p") +
+  xlab("Human predicted repression") +
+  ylab("Chimp predicted repression") +
+  theme_classic()+
+  scale_color_viridis() +
+  annotate("text", label = paste0(d," transcripts w/o corresp. BS"),x = -0.5, y = -2.3) +
+  annotate("text", label = paste0("R: ",round(a$estimate,2)),x = -2.15, y = 0) 
+
+ggsave2("./Figure_Output/miR-1229_logFC.png",p1b, width = 6.5,height = 5, bg = "white")
+```
+
+
+
+#Scan miR-134
+```{r}
+#Human
+m1_134 <- findSeedMatches(hsa_seq, hsa_134, maxLogKd=NULL, BP = MulticoreParam(12, progressbar=TRUE), p3.extra =TRUE, ret="GRanges")
+m1_134_agg <- aggregateMatches(m1_134)
+m1_134_agg$transcript <- sapply(strsplit(as.character(m1_134_agg$transcript),"\\."),"[",1)
+colnames(m1_134_agg)[2:6] <- paste0("hsa_",colnames(m1_134_agg)[2:6])
+m1_134_agg <- m1_134_agg[!is.na(m1_134_agg$hsa_repression),]
+
+
+#Chimp
+m2_134 <- findSeedMatches(chi_seq, hsa_134, maxLogKd=NULL, BP = MulticoreParam(12, progressbar=TRUE), p3.extra =TRUE, ret="GRanges")
+m2_134_agg <- aggregateMatches(m2_134)
+m2_134_agg$transcript <- sapply(strsplit(as.character(m2_134_agg$transcript),"\\."),"[",1)
+colnames(m2_134_agg)[2:6] <- paste0("chi_",colnames(m2_134_agg)[2:6])
+m2_134_agg <- m2_134_agg[!is.na(m2_134_agg$chi_repression),]
+```
+
+
+```{r}
+n <- merge(m1_134_agg,m2_134_agg,by = "transcript",all = TRUE)
+n <- merge(n,tx2ge,by ="transcript",all.x = TRUE)
+```
+
+```{r}
+n$diff <- n$hsa_repression - n$chi_repression
+```
+
+
+```{r}
+#Number of transcripts without corresponding BS
+d <- length(n[is.na(n$hsa_repression),"transcript"]) + length(n[is.na(n$chi_repression),"transcript"])
+
+#correlation
+n <- n[!is.na(n$hsa_repression) & !is.na(n$chi_repression),]
+a <- cor.test(n$hsa_repression,n$chi_repression)
+a$p.value
+a$estimate
+
+p2 <- ggplot(n,aes(x = hsa_repression,y = chi_repression)) +
+  geom_point(color = col_vec[2], alpha = 0.6) +
+  stat_smooth(method = "lm",
+              formula = y ~ x,
+              geom = "smooth", color = col_vec[1]) +
+  ggtitle("miR-134-5p") +
+  xlab("Human predicted repression") +
+  ylab("Chimp predicted repression") +
+  theme_classic()+
+  annotate("text", label = paste0(d," transcripts w/o corresp. BS"),x = -0.5, y = -2.3) +
+  annotate("text", label = paste0("R: ",round(a$estimate,2)),x = -2.15, y = 0) 
+
+ggsave2("./Figure_Output/miR-134.png",p2, width = 6.5,height = 5, bg = "white")
+```
+
+
+
+#Scan all
+
+#Load Data
+```{r}
+se <- readRDS("../GRCh38.p10_Ens91_Sushi-mapping/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+se$day <- as.factor(se$day)
+res <- as.data.frame(rowData(se)$DEA.all)
+res <- res[grep("hsa-",row.names(res)),]
+```
+
+
+```{r}
+hsa_exp <- hsa[names(hsa) %in% row.names(res)]
+```
+
+
+
+#Scan
+```{r}
+ll <- list()
+for(i in names(hsa_exp)){
+  hsa_scan <- hsa_exp[[i]]
+  #human
+  mh <- findSeedMatches(hsa_seq, hsa_scan, maxLogKd=NULL, BP = MulticoreParam(12, progressbar=TRUE), p3.extra =TRUE, ret="GRanges")
+  mha <- aggregateMatches(mh)
+  mha$transcript <- sapply(strsplit(as.character(mha$transcript),"\\."),"[",1)
+  colnames(mha)[2:6] <- paste0("hsa_",colnames(mha)[2:6])
+  mha <- mha[!is.na(mha$hsa_repression),]
+  #chimp
+  mc <- findSeedMatches(chi_seq, hsa_scan, maxLogKd=NULL, BP = MulticoreParam(12, progressbar=TRUE), p3.extra =TRUE, ret="GRanges")
+  mca <- aggregateMatches(mc)
+  mca$transcript <- sapply(strsplit(as.character(mca$transcript),"\\."),"[",1)
+  colnames(mca)[2:6] <- paste0("chi_",colnames(mca)[2:6])
+  mca <- mca[!is.na(mca$chi_repression),]
+  #merge
+  dd <- merge(mha,mca,by = "transcript",all = TRUE)
+  
+  ne <- length(dd[is.na(dd$hsa_repression),"transcript"]) + length(dd[is.na(dd$chi_repression),"transcript"])
+
+  #correlation
+  dd2 <- dd[!is.na(dd$hsa_repression) & !is.na(dd$chi_repression),]
+  cor <- cor.test(dd2$hsa_repression,dd2$chi_repression)
+  
+  vec <- c(i,ne,round(cor$estimate,3),cor$p.value, hsa_scan$conservation)
+  names(vec) <- c("miRNA","transcript_wo_BS","cor_R","cor_p","conservation")
+  ll[[i]] <- vec
+}
+
+df <- do.call(rbind,ll)
+
+saveRDS(df,"miRNA_correlationvales_humanchimp.rds")
+```
+
+
+
+#plot
+```{r}
+df <- readRDS("./miRNA_correlationvales_humanchimp.rds")
+df <- as.data.frame(df)
+df <- df[!is.na(df$conservation),]
+
+tt <- scanMiR:::.conservation_levels()
+tt <- as.data.frame(tt)
+colnames(tt) <- "cons_info"
+tt$conservation <- row.names(tt)
+
+df <- merge(df,tt,by = "conservation",all.x = TRUE)
+df$cons_info <- factor(df$cons_info, levels = c("Low-confidence","Poorly conserved","Conserved across mammals", "Conserved across vertebrates"))
+df$cor_R <- as.numeric(df$cor_R)
+df$color <- ifelse(df$miRNA == "hsa-miR-1229-3p","hsa-miR-1229-3p","other miRs")
+```
+
+
+
+```{r}
+p3 <- ggplot(df,aes(x = cons_info, y = cor_R)) +
+  geom_violin() +
+  geom_point(alpha = 0.4, color = col_vec[2]) + theme_classic() + 
+  geom_point(data = df[df$miRNA == "hsa-miR-1229-3p",], aes(color = color)) +
+  theme_classic() + 
+  geom_point(data = df[df$miRNA == "hsa-miR-1229-3p",], color= col_vec[1], shape = 1, size = 4, show.legend = TRUE) +
+  scale_color_manual(values = col_vec[1]) + ylab("Correlation of predictet repression\nbetween human & chimp") + 
+  xlab("") + labs(color = "") +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14),
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1))) +
+  scale_x_discrete(labels=c("Low-confidence" = "Low-confidence", "Poorly conserved" ="Poorly conserved","Conserved across mammals" = "Conserved\nacross mammals",
+                              "Conserved across vertebrates" = "Conserved\nacross vertebrates"))
+
+ggsave2("./Figure_Output/All_correlation.png",p3, width = 10,height = 6, bg = "white")
+```
+
+
+
+
+
+
+
+
+

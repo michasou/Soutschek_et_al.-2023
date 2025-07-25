@@ -1,0 +1,153 @@
+---
+title: "Untitled"
+author: "Michael Soutschek"
+date: "4/14/2021"
+output: html_document
+---
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(edgeR)
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(matrixStats)
+  library(igraph)
+  library(RUVSeq)
+  library(pheatmap)
+  library(ggplot2)
+  library(ggsci)
+  library(cowplot)
+  library(ggrepel)
+  library(ggnewscale)
+  library(scales)
+})
+source("../../../functions/clustering.R")
+source("../../../functions/clusterEnrichment.R")
+```
+
+
+# set colors
+```{r}
+show_col(pal_nejm("default")(6))
+red <- pal_nejm("default")(6)[1]
+green <- pal_nejm("default")(6)[4]
+grey <- pal_nejm("default")(6)[6]
+```
+
+#longRNA
+```{r}
+cl9 <- readRDS("../../data/Long_RNA/longRNA_noRound.DEA.SE_cluster9.rds")
+assays(cl9)$z <- t(scale(t(assays(cl9)$logcpm)))
+d <- meltSE(cl9, features = row.names(cl9))
+d$Day <- as.numeric(as.character(d$day))
+d$cond <- "Sequencing"
+ggplot(d, aes(x = Day, z)) + geom_smooth(method = "loess")
+```
+
+
+# image analysis
+```{r}
+res <- readRDS("../../../Image_Analysis/Screen/Synapse_Quantification/R/Synapsecluster_Result_with_anno.rds")
+
+res$log.Clus_area <- log(res$Co_Cluster_perArea_um*10)
+res2 <- res[is.finite(res$log.Clus_area),]
+res2$z <- scale(res2$log.Clus_area)
+res2$cond <- "Synaptic Clusters\n(per area)"
+```
+
+
+# proteins
+```{r}
+prot <- readRDS("../../data/Proteomics/Proteomics.SE_DEA.rds")
+prot2 <- prot[,prot$day != 0]
+names_cl9 <- sapply(strsplit(row.names(cl9),"\\."),"[",2)
+prot_cl9 <- prot2[rowData(prot2)$GeneName %in% names_cl9,]
+```
+
+
+```{r}
+prot_cl9 <- prot2[rowData(prot2)$GeneName %in% names_cl9,]
+assays(prot_cl9)$z <- t(scale(t(assays(prot_cl9)$imputed)))
+d2 <- meltSE(prot_cl9, features = row.names(prot_cl9))
+d2$Day <- as.numeric(as.character(d2$day))
+d2$cond <- "Proteomics"
+ggplot(d2, aes(x = Day,y = z)) + geom_smooth(method = "loess")
+```
+
+
+
+# Plot combined cluster per area
+```{r}
+Over2 <- rbind(d[,colnames(d) %in% c("Day","z","cond")],
+                d2[,colnames(d2) %in% c("Day","z","cond")],
+                res2[,colnames(res2) %in% c("Day","z","cond")])
+
+#Plot
+p4 <- ggplot(Over2, aes(x = Day, z)) + 
+  geom_smooth(mapping = aes(color = cond),method = "loess") +
+  ylab("z-score") + labs(color = "Method") + theme_classic(base_size = 12) +
+  scale_color_manual(values = c(green,red, grey)) +
+  annotate("text", x = 35, y = -1,label = c("25 Proteins"),
+           colour = green, hjust = 0) +
+  annotate("text", x = 35, y = -1.125,label = c("469 Genes"),
+           colour = red,hjust = 0) +
+  guides(color = guide_legend(override.aes = list(fill = NA, size = 3),
+                              nrow = 1, byrow = TRUE)) +
+  theme(legend.position = "bottom",
+        text = element_text(size = 16), 
+        axis.text.x = element_text(size = rel(1)),
+        axis.text.y = element_text(size = rel(1)),
+        legend.text = element_text(size = 13),
+        legend.title = element_text(size = 13))
+  
+  
+ggsave("Overlap_Cluster9_area.png",p4,width = 6.5,height = 4.5)
+```
+
+
+
+# Plot combined cluster per area black
+```{r}
+Over2 <- rbind(d[,colnames(d) %in% c("Day","z","cond")],
+                d2[,colnames(d2) %in% c("Day","z","cond")],
+                res2[,colnames(res2) %in% c("Day","z","cond")])
+
+#Plot
+p4 <- ggplot(Over2, aes(x = Day, z)) + 
+  geom_smooth(mapping = aes(color = cond),method = "loess") +
+  ylab("z-score") + labs(color = "Method") + theme_classic(base_size = 12) +
+  scale_color_manual(values = c(green,red, grey)) +
+  annotate("text", x = 35, y = -1,label = c("25 Proteins"),
+           colour = green, hjust = 0) +
+  annotate("text", x = 35, y = -1.125,label = c("469 Genes"),
+           colour = red,hjust = 0) +
+  guides(color = guide_legend(override.aes = list(fill = NA, size = 3),
+                              nrow = 1, byrow = TRUE)) +
+  theme(legend.position = "bottom",
+        text = element_text(size = 16),
+        panel.background = element_rect(fill = "black", color = NA),
+        plot.background = element_rect(fill = "black", color = NA),
+        axis.title.x=element_blank(),
+        axis.title = element_text(color = "white"),
+        axis.text.x = element_text(size = rel(1),color = "white"),
+        axis.text.y = element_text(size = rel(1),color = "white"),
+        axis.text = element_text(color = "white"),
+        axis.line = element_line(color = "white"),
+        axis.ticks = element_line(color = "white"),
+        strip.background = element_rect(fill = "transparent", color = "white"),
+        strip.text = element_text(color = "white"),
+        legend.text = element_text(color = "white",size = 13),
+        legend.title = element_text(color = "white", size = 13),
+        legend.background = element_rect(fill = "black", color = "white")
+        )
+
+  
+ggsave("Overlap_Cluster9_area_black.png",p4,width = 6.5,height = 4.5)
+```
+
+
+
+
+

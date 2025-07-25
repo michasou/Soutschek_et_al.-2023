@@ -1,0 +1,6 @@
+
+Denisova-Seq:
+https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=chr5%3A179225260%2D179225363&hgsid=2791341570_fCpcJAlzwZgPkLDaXCzj6id5550r
+
+Neanderthal:
+https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=chr5%3A179225260%2D179225363&hgsid=2791341570_fCpcJAlzwZgPkLDaXCzj6id5550r

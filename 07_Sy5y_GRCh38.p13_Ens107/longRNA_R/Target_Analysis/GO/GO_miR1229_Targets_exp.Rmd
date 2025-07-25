@@ -1,0 +1,225 @@
+---
+title: "TopGo Compartment"
+author: "Michael"
+date: "02.07.2020"
+output: html_document
+---
+
+```{r}
+library(topGO)
+library(org.Hs.eg.db)
+library(openxlsx)
+```
+
+#load data
+```{r}
+dea1229g <- read.csv("../target_data/dea1229_targets_genebased_10nm.csv")
+Targets <- dea1229g [!is.na(dea1229g $X8mer),]
+Targets <- Targets[Targets$X8mer > 0 | Targets$X7mer > 0,]
+
+Targets <- Targets[Targets$logFC < 0,]
+Targets <- Targets[Targets$FDR < 0.05,]
+```
+
+```{r}
+#check for expressed targets in human neurons
+dea_plna <- read.csv("../../../pLNA_experiment/Target_Analysis/miR1229/target_data/dea1229_targets_genebased.csv")
+colnames(dea_plna)[which(colnames(dea_plna) == "logCPM")] <- "logCPM_pLNA"
+
+Targets <- merge(Targets,dea_plna[,c("gene_name","logCPM_pLNA")],by = "gene_name",all.x = TRUE)
+Targets <- Targets[Targets$logCPM_pLNA > 2.5,]
+Targets <- Targets[!is.na(Targets$logCPM_pLNA),]
+```
+
+
+#Create the Vectors
+```{r}
+GeneUniverse <- as.character(dea1229g$gene_name)
+GenesOfInterest <- as.character(Targets$gene_name)
+GeneList <- factor(as.integer(GeneUniverse %in% GenesOfInterest))
+names(GeneList) <- GeneUniverse
+head(GeneList)
+```
+
+#Preparing the TopGO data object. Pay attention on the ID value, that depends on what you've
+#inserted before in the GeneList. We do the analysis for all three ontologies
+
+```{r}
+tgdBP <- new( "topGOdata", ontology="BP", allGenes = GeneList, nodeSize=5,
+            annot=annFUN.org, mapping="org.Hs.eg.db", ID = "symbol" )
+tgdMF <- new( "topGOdata", ontology="MF", allGenes = GeneList, nodeSize=5,
+              annot=annFUN.org, mapping="org.Hs.eg.db", ID = "symbol" )
+tgdCC <- new( "topGOdata", ontology="CC", allGenes = GeneList, nodeSize=5,
+              annot=annFUN.org, mapping="org.Hs.eg.db", ID = "symbol" )
+```
+
+#Afterwards one can run several tests, depending on algorithm and statistics
+```{r}
+resultTopGO.elim_BP <- runTest(tgdBP, algorithm = "elim", statistic = "Fisher" )
+resultTopGO.classic_BP <- runTest(tgdBP, algorithm = "classic", statistic = "Fisher" )
+
+resultTopGO.elim_MF <- runTest(tgdMF, algorithm = "elim", statistic = "Fisher" )
+resultTopGO.classic_MF <- runTest(tgdMF, algorithm = "classic", statistic = "Fisher" )
+
+resultTopGO.elim_CC <- runTest(tgdCC, algorithm = "elim", statistic = "Fisher" )
+resultTopGO.classic_CC <- runTest(tgdCC, algorithm = "classic", statistic = "Fisher" )
+```
+
+#And one can display the results in a GeneTable
+```{r}
+tabBPF <- GenTable( tgdBP, Fisher.elim = resultTopGO.elim_BP, 
+                      Fisher.classic = resultTopGO.classic_BP,
+                      orderBy = "Fisher.classic" , topNodes = 200)
+tabBPE <- GenTable( tgdBP, Fisher.elim = resultTopGO.elim_BP, 
+                   Fisher.classic = resultTopGO.classic_BP,
+                   orderBy = "Fisher.elim" , topNodes = 200)
+
+
+tabMFF <- GenTable( tgdMF, Fisher.elim = resultTopGO.elim_MF, 
+                   Fisher.classic = resultTopGO.classic_MF,
+                   orderBy = "Fisher.classic" , topNodes = 200)
+tabMFE <- GenTable( tgdMF, Fisher.elim = resultTopGO.elim_MF, 
+                    Fisher.classic = resultTopGO.classic_MF,
+                    orderBy = "Fisher.elim" , topNodes = 200)
+
+tabCCF <- GenTable( tgdCC, Fisher.elim = resultTopGO.elim_CC, 
+                   Fisher.classic = resultTopGO.classic_CC,
+                   orderBy = "Fisher.classic" , topNodes = 200)
+tabCCE <- GenTable( tgdCC, Fisher.elim = resultTopGO.elim_CC, 
+                   Fisher.classic = resultTopGO.classic_CC,
+                   orderBy = "Fisher.elim" , topNodes = 200)
+```
+
+
+
+# Do also the FDR correction in R and add to the GenTable data.frame as a sepperate object
+```{r}
+tabBPF$Classic_Fishe_BH_Corr = p.adjust(tabBPF$Fisher.classic, method = "BH")
+tabBPE$Classic_Fishe_BH_Corr = p.adjust(tabBPE$Fisher.classic, method = "BH")
+tabMFF$Classic_Fishe_BH_Corr = p.adjust(tabMFF$Fisher.classic, method = "BH")
+tabMFE$Classic_Fishe_BH_Corr = p.adjust(tabMFE$Fisher.classic, method = "BH")
+tabCCF$Classic_Fishe_BH_Corr = p.adjust(tabCCF$Fisher.classic, method = "BH")
+tabCCE$Classic_Fishe_BH_Corr = p.adjust(tabCCE$Fisher.classic, method = "BH")
+```
+
+
+
+## Adding Fold Enrichment
+```{r}
+tabBPF$Fold_Enrichment = tabBPF$Significant / tabBPF$Expected
+tabBPE$Fold_Enrichment = tabBPE$Significant / tabBPE$Expected
+tabMFF$Fold_Enrichment = tabMFF$Significant / tabMFF$Expected
+tabMFE$Fold_Enrichment = tabMFE$Significant / tabMFE$Expected
+tabCCF$Fold_Enrichment = tabCCF$Significant / tabCCF$Expected
+tabCCE$Fold_Enrichment = tabCCE$Significant / tabCCE$Expected
+```
+
+
+
+## Sorting the columns
+```{r}
+tabBPF <- tabBPF[c(1,2,3,4,5,10,6,7,8,9)]
+tabBPE <- tabBPE[c(1,2,3,4,5,10,6,7,8,9)]
+tabMFF <- tabMFF[c(1,2,3,4,5,10,6,7,8,9)]
+tabMFE <- tabMFE[c(1,2,3,4,5,10,6,7,8,9)]
+tabCCF <- tabCCF[c(1,2,3,4,5,10,6,7,8,9)]
+tabCCE <- tabCCE[c(1,2,3,4,5,10,6,7,8,9)]
+```
+
+
+
+## And do the GeneList annotation in R
+# First get a vector of the GenesOfInterest ("significant Genes"), then annotate
+#them to the Table (for all of the tables)
+
+#For Biological Processes
+```{r}
+SigGenesBP <- sigGenes(tgdBP)
+
+tabBPF$Sig_Genes <- sapply(tabBPF$GO.ID, function(x)
+  {
+  Sig_Genes <- genesInTerm(tgdBP, x)
+  Sig_Genes[[1]][Sig_Genes[[1]] %in% SigGenesBP]
+})
+
+tabBPE$Sig_Genes <- sapply(tabBPE$GO.ID, function(x)
+{
+  Sig_Genes <- genesInTerm(tgdBP, x)
+  Sig_Genes[[1]][Sig_Genes[[1]] %in% SigGenesBP]
+})
+
+```
+
+
+#For Molecular Function
+```{r}
+SigGenesMF <- sigGenes(tgdMF)
+
+tabMFF$Sig_Genes <- sapply(tabMFF$GO.ID, function(x)
+{
+  Sig_Genes <- genesInTerm(tgdMF, x)
+  Sig_Genes[[1]][Sig_Genes[[1]] %in% SigGenesMF]
+})
+
+tabMFE$Sig_Genes <- sapply(tabMFE$GO.ID, function(x)
+{
+  Sig_Genes <- genesInTerm(tgdMF, x)
+  Sig_Genes[[1]][Sig_Genes[[1]] %in% SigGenesMF]
+})
+
+```
+
+
+#For Cellular Components
+```{r}
+SigGenesCC <- sigGenes(tgdCC)
+
+tabCCF$Sig_Genes <- sapply(tabCCF$GO.ID, function(x)
+{
+  Sig_Genes <- genesInTerm(tgdCC, x)
+  Sig_Genes[[1]][Sig_Genes[[1]] %in% SigGenesCC]
+})
+
+tabCCE$Sig_Genes <- sapply(tabCCE$GO.ID, function(x)
+{
+  Sig_Genes <- genesInTerm(tgdCC, x)
+  Sig_Genes[[1]][Sig_Genes[[1]] %in% SigGenesCC]
+})
+```
+
+
+#saveRDS
+```{r}
+saveRDS(tabBPE, file = "./GO_data/GO_BP_miR1229_Targets_10nM_expr_elim_005.rds")
+saveRDS(tabMFE, file = "./GO_data/GO_MF_miR1229_Targets_10nM_expr_elim_005.rds")
+saveRDS(tabCCE, file = "./GO_data/GO_CC_miR1229_Targets_10nM_expr_elim_005.rds")
+```
+
+
+
+## write csv
+```{r}
+
+# ExcelFile <- list("GO_BP_ordered by Fisher" = tabBPF, "GO_BP_ordered by Elim" = tabBPE, "GO_MF_ordered by Fisher" = tabMFF,
+#                   "Go_MF_ordered by Elim" = tabMFE, "GO_CC_ordered by Fisher" = tabCCF, "GO_CC_ordered by  Elim" = tabCCE)
+```
+
+
+#To correctly locate the zip.exe for Rtools to write the Excel-File
+```{r}
+# Sys.setenv("R_ZIPCMD" = "C:/Users/michasou/Documents/R3/Rtools/bin/zip.exe")
+# 
+# write.xlsx(ExcelFile, file = "GO_CB_Comp.xlsx")
+```
+
+
+```{r}
+# rm(ExcelFile,resultTopGO.classic_BP,resultTopGO.classic_CC,resultTopGO.classic_MF,resultTopGO.elim_BP,resultTopGO.elim_CC,resultTopGO.elim_MF,
+#    tabBPE,tabBPF,tabCCE,tabCCF,tabMFE,tabMFF,
+#    tgdBP,tgdCC,tgdMF,GeneList,GenesOfInterest,GeneUniverse,
+#    SigGenesBP,SigGenesCC,SigGenesMF)
+```
+
+               
+
+

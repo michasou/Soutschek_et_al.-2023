@@ -1,0 +1,109 @@
+---
+title: "longRNA-exploratory"
+author: "Michael Soutschek"
+date: "11 1 2021"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(plgINS)
+  library(viridis)
+  library(RColorBrewer)
+  library(data.table)
+  library(dplyr)
+  library(tidyr)
+  library(plotly)
+  library(cowplot)
+})
+```
+
+
+# Color Definitions
+```{r}
+ancols <- list(day=c("0"="#3F3F3F",
+                       "9" ="#575757",
+                       "15" ="#707070",
+                       "21" = "#898989",
+                       "27" ="#A1A1A1",
+                       "33" ="#BABABA",
+                       "40" = "#D3D3D3" 
+) )
+
+heatcol <- c("#4B0C6B","#CF4446","#FFAD33")
+```
+
+
+
+# Load Data
+```{r}
+se <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
+se$Cond <- se$condition
+se$Cond <- gsub("Ctrl-MiR","miR-1229 mimic (10nM)",se$Cond)
+se$Cond <- gsub("MiR","miR-1229 mimic (20nM)",se$Cond)
+se$Cond <- gsub("Ctrl","Ctrl.",se$Cond)
+row.names(se) <- sapply(strsplit(row.names(se),"\\."),"[",2)
+```
+
+
+
+#1229 Heatmaps (10nM)
+```{r}
+dea1229 <- rowData(se)[["DEA.ind.Ctrl-MiR"]]
+dea1229$names <- row.names(dea1229)
+dea1229 <- dea1229[order(dea1229$FDR),]
+dea1229.sig <- dea1229[dea1229$FDR < 0.05,]
+dea1229.top <- dea1229[1:35,]
+row.names(dea1229.top) <- sapply(strsplit(row.names(dea1229.top),"\\."),"[",2)
+
+
+png("../Figure_Output/Heatmaps/Expl_1229_top35_10nm.png", width=9, height=13, units="in", res=300)
+sechm::sechm(se, row.names(dea1229.top), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="Cond" ,breaks=TRUE, show_rownames = TRUE,sortRowsOn = NULL, cluster_rows = FALSE,hmcols = heatcol, do.scale = FALSE)
+dev.off()
+```
+
+
+
+
+#1229 Heatmaps (20nM)
+```{r}
+dea1229 <- rowData(se)[["DEA.ind.MiR"]]
+dea1229$names <- row.names(dea1229)
+dea1229 <- dea1229[order(dea1229$FDR),]
+dea1229.sig <- dea1229[dea1229$FDR < 0.05,]
+dea1229.top <- dea1229[1:35,]
+row.names(dea1229.top) <- sapply(strsplit(row.names(dea1229.top),"\\."),"[",2)
+
+
+png("../Figure_Output/Heatmaps/Expl_1229_top35_20nM.png", width=9, height=13, units="in", res=300)
+sechm::sechm(se, row.names(dea1229.top), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="Cond" ,breaks=TRUE, show_rownames = TRUE,sortRowsOn = NULL, cluster_rows = FALSE,hmcols = heatcol)
+dev.off()
+```
+
+
+
+
+
+#1229 Heatmaps (comb)
+```{r}
+dea1229 <- rowData(se)[["DEA"]]
+dea1229$names <- row.names(dea1229)
+dea1229 <- dea1229[order(dea1229$FDR),]
+dea1229.sig <- dea1229[dea1229$FDR < 0.05,]
+dea1229.top <- dea1229[1:35,]
+row.names(dea1229.top) <- sapply(strsplit(row.names(dea1229.top),"\\."),"[",2)
+
+
+png("../Figure_Output/Heatmaps/Expl_1229_top35_comb.png", width=9, height=13, units="in", res=300)
+sechm::sechm(se, row.names(dea1229.top), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="Cond" ,breaks=TRUE, show_rownames = TRUE,sortRowsOn = NULL, cluster_rows = FALSE,hmcols = heatcol, do.scale = FALSE)
+dev.off()
+```
+
+
+
+
+
+

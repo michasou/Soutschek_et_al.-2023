@@ -1,0 +1,146 @@
+---
+title: "GO_Figure"
+author: "Michael"
+date: "4 3 2020"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(RColorBrewer)
+  library(ggplot2)
+  library(plyr)
+  library(data.table)
+  library(SummarizedExperiment)
+})
+```
+
+
+
+#Import
+```{r}
+CC <- readRDS("../../longRNA_R/GO_Terms_indDEA/GOdata/GO_1229_CC_sig_005_down_symbol_elim.rds")
+MF <- readRDS("../../longRNA_R/GO_Terms_indDEA/GOdata/GO_1229_MF_sig_005_down_symbol_elim.rds")
+BP <- readRDS("../../longRNA_R/GO_Terms_indDEA/GOdata/GO_1229_BP_sig_005_down_symbol_elim.rds")
+```
+
+```{r}
+se <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
+dea1229 <- rowData(se)[["DEA.ind.Ctrl-MiR"]] 
+dea1229$Ensembl <- sapply(strsplit(row.names(dea1229),split = "\\."),"[",1)
+dea1229$Symbol <- sapply(strsplit(row.names(dea1229),split = "\\."),"[",2)
+
+dea1229_sig_down <- dea1229[dea1229$FDR < 0.05 & dea1229$logFC < 0,"Symbol"]
+dea1229_sig_up <- dea1229[dea1229$FDR < 0.05 & dea1229$logFC > 0,"Symbol"]
+```
+
+
+
+#Data preparaion
+
+Get significant counts
+```{r}
+CC$up <- sapply(CC$Sig_Genes, function(x) sum(x %in% dea1229_sig_up))
+CC$down <- sapply(CC$Sig_Genes, function(x) sum(x %in% dea1229_sig_down))
+
+MF$up <- sapply(MF$Sig_Genes, function(x) sum(x %in% dea1229_sig_up))
+MF$down <- sapply(MF$Sig_Genes, function(x) sum(x %in% dea1229_sig_down))
+
+BP$up <- sapply(BP$Sig_Genes, function(x) sum(x %in% dea1229_sig_up))
+BP$down <- sapply(BP$Sig_Genes, function(x) sum(x %in% dea1229_sig_down))
+```
+
+
+Filter
+```{r}
+CC_Top <- CC[which(CC$Annotated < 500 & CC$Annotated > 15),]
+BP_Top <- BP[which(BP$Annotated < 500 & BP$Annotated > 15),]
+MF_Top <- MF[which(MF$Annotated < 500 & MF$Annotated > 15),]
+```
+
+
+```{r}
+CC_Top$Info <- "Cellular Component"
+BP_Top$Info <- "Biological Process"
+MF_Top$Info <- "Molecular Function"
+```
+
+
+```{r}
+CC_Top$Fisher.elim <- as.numeric(CC_Top$Fisher.elim)
+MF_Top$Fisher.elim <- as.numeric(MF_Top$Fisher.elim)
+BP_Top$Fisher.elim <- as.numeric(BP_Top$Fisher.elim)
+```
+
+
+combine
+```{r}
+GO <- rbind(CC_Top,BP_Top,MF_Top)#
+GO <- GO[order(GO$Fisher.elim),]
+```
+
+
+```{r}
+GO$Fisher.elim <- as.numeric(GO$Fisher.elim)
+GO$rank <- frank(GO$Fisher.elim, ties.method = "first")
+```
+
+
+
+```{r}
+GO <- GO[1:10,]
+GO$Fold_Enrichment <- round(GO$Fold_Enrichment,2)
+
+#Create uniform label fields
+GO$label1 <- 1.1e-05
+GO$label2 <- 1.11
+```
+
+```{r}
+factor_GO <- factor(GO$rank, levels = GO$rank, labels = GO$GO.ID)
+```
+
+
+## Figures
+
+Define Plot components
+```{r}
+txt <- element_text(family = "sans", size = 14, colour = "black")
+txt2 <- element_text(family = "sans", size = 12, colour = "black")
+tick <- element_line(linewidth = 1)
+color.fill <- c("Down" = "#BC3C29","Up" = "#E18727")
+```
+
+
+
+
+Figrue
+```{r}
+p <- ggplot(data = GO, aes(x = as.factor(GO$GO.ID))) +
+  scale_x_discrete(labels = rev(GO$Term), limits = rev(levels(factor_GO)), name = "")+
+  #geom_bar(aes(y = GO$up, fill = "Up"), stat = "identity") +
+  geom_bar(aes(y = GO$down,fill = "Down"), stat = "identity") +
+  scale_fill_manual(values=color.fill) +
+  geom_label(aes(label = GO$label1, y = 0),colour = NA, fill = "#636363") +
+  geom_text(aes(label = GO$Fisher.elim, y = 0), colour = "white") +
+  geom_label(label = GO$label2, y = 22,label.size = 5, colour = NA, fill = "#636363") +
+  geom_text(aes(label = round(GO$Fold_Enrichment,2), y = 22), colour = "white") +
+  geom_text(aes(label = GO$Info),y = -7, hjust = "left", colour = "#4a4a4a") +
+  scale_y_continuous(limits = c(-6.25,25), name = "Number of Genes")+ 
+  coord_flip(clip = "off", xlim = c(1,10)) +
+  annotate("label", x = 10.9, y = 0,colour = NA,label = "P.Value", fill = "#636363") +
+  annotate("text", x = 10.9, y = 0,label= "P.Value",colour = "white") +
+  annotate("label", x = 10.9, y = 22,colour = NA,label = "Enrichment", fill = "#636363") +
+  annotate("text", x = 10.9, y = 22,label= "Enrichment",colour = "white") +
+  ggtitle("DEA 10nM Top10 (genes annotated >15 & <500) (FDR < 0.05)") +
+  theme_classic() +
+  theme(axis.title = txt, axis.text = txt,  axis.ticks = tick,
+        legend.position = c(0.9,-0.13), legend.direction = "horizontal", legend.text = txt2, legend.title = element_blank(),
+        plot.margin = unit(c(3,1,3,1),"lines"),
+        plot.title = element_text(vjust = 5))
+        
+p
+
+ggsave("../Figure_Output/GO-Terms/GO_indDEA_symbol_down_005.png", width=12, height=5, units="in", dpi=300)
+```
+

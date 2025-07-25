@@ -1,0 +1,97 @@
+---
+title: "longRNA_volcano"
+author: "Michael Soutschek"
+date: "11 1 2021"
+output: html_document
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(plgINS)
+  library(viridis)
+  library(RColorBrewer)
+  library(data.table)
+  library(dplyr)
+  library(tidyr)
+  library(scales)
+  library(ggplot2)
+  library(ggsci)
+  library(cowplot)
+  library(ggnewscale)
+  library(ggrepel)
+})
+
+source("../../../functions/plotVolcano.R")
+```
+
+
+
+
+# set colors
+```{r}
+show_col(pal_uchicago("default")(3))
+red <- pal_uchicago("default")(3)[1]
+grey <- pal_uchicago("default")(3)[2]
+yellow <- pal_uchicago("default")(3)[3]
+
+```
+
+
+# Load Data
+```{r}
+se <- readRDS("../../Proteomics/data/Proteomics/Proteomics.Reference.SE_DEA.rds")
+se$day <- as.factor(se$day)
+se2 <- se[,se$day != 0]
+```
+
+
+
+
+# Get volcanos for all DEAs
+```{r}
+dea.names <- c("9v0", "15v9", "21v15", "27v21", "33v27", "40v33")
+dea.names <- paste0("DEA.",dea.names)
+plot.list <- list()
+
+for(i in dea.names){
+  df <- rowData(se)[[i]]
+  colnames(df)[colnames(df) == "adj.P.Val"] <- "FDR"
+  p <- plotVolcano(df = df, text.size = 12, sig = 0.05,log.base = 10,anno = NULL, 
+                        xlim_min = -10,  xlim_max = 10, padding = 0.5,
+                        colors = c(yellow,red,grey),
+                        text_color = c("black","white") )
+  p <- p + ggtitle(i) + theme(title=element_text(size=12), legend.position = "none")
+  plot.list[[i]] <- p
+}
+
+df1 <- rowData(se)[["DEA.9v0"]]
+colnames(df1)[colnames(df1) == "adj.P.Val"] <- "FDR"
+p1 <- plotVolcano(df = df1, text.size = 12, sig = 0.05,
+                   log.base = 10,anno = NULL, 
+                        xlim_min = -10,  xlim_max = 10, padding = 0.5,
+                        colors = c(yellow,red,grey),
+                        text_color = c("black","white") )
+```
+
+# Plot_Grid
+```{r}
+legend <- get_legend(
+  # create some space to the left of the legend
+  p1 + theme(legend.box.margin = margin(0, 0, 0, 12))
+)
+
+pp1 <- plot_grid(plotlist = plot.list, align = "hv")
+pp <- plot_grid(pp1, legend, rel_widths = c(3, .4))
+ggsave(pp,filename = "./Figure_Output/Volcanos/Proteomics_volc_grid.png", width = 10, height = 7, bg = "white")
+```
+
+
+
+
+
+

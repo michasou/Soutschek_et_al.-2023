@@ -1,0 +1,177 @@
+---
+title: "MouseHuman"
+author: "Michael Soutschek"
+date: "2025-07-23"
+output: html_document
+---
+
+
+```{r}
+suppressPackageStartupMessages({
+  suppressWarnings({
+    library(scanMiR)
+    library(scanMiRData)
+    library(SummarizedExperiment)
+    library(scanMiRApp)
+    library(smplot2)
+    library(cowplot)
+    library(ggsci)
+    library(GenomicFeatures)
+    library(scanMiRApp)
+    library(scanMiRData)
+    library(BiocParallel)
+    library(biomaRt)
+    library(ggplot2)
+    library(viridis)
+    library(dplyr)
+  })
+})
+
+```
+
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],"darkgrey","black","lightgrey","darkgrey")
+```
+
+
+########################
+#######################
+
+
+#Compare Mouse to Human
+
+
+#mods
+```{r}
+hsa <- getKdModels("hsa",categories = NULL)
+hsa_1229 <- hsa["hsa-miR-1229-3p"]
+```
+
+#scan miR-1229 human
+```{r}
+hsa_anno <- ScanMiRAnno("GRCh38")
+```
+
+```{r}
+human_1229 <- runFullScan(hsa_anno,mods = hsa_1229,extract = "UTRonly",onlyCanonical = FALSE,shadow = 0L,cores = SnowParam(12),maxLogKd=NULL)
+human_1229_agg <- aggregateMatches(human_1229)
+human_1229_agg$transcript <- sapply(strsplit(as.character(human_1229_agg$transcript),"\\."),"[",1)
+colnames(human_1229_agg)[2:6] <- paste0("hsa_",colnames(human_1229_agg)[2:6])
+human_1229_agg <- human_1229_agg[!is.na(human_1229_agg$hsa_repression),]
+```
+
+
+```{r}
+ensembl_107 <- useEnsembl(biomart = "ensembl", 
+                          dataset = "hsapiens_gene_ensembl",
+                          version = 107)
+
+# Get gene + transcript IDs
+human_tx2ge <- getBM(attributes = c("ensembl_gene_id", "ensembl_transcript_id","external_gene_name"),
+                            mart = ensembl_107)
+
+colnames(human_tx2ge) <- c("gene_id","transcript","symbol")
+human_tx2ge <- human_tx2ge[!duplicated(human_tx2ge$transcript) & !is.na(human_tx2ge$transcript),]
+```
+
+
+
+```{r}
+#filter for highest repressed transcript per gene
+m1 <- merge(human_1229_agg,human_tx2ge,by = "transcript",all.x = TRUE)
+
+m1_min <- m1 %>%
+  group_by(symbol) %>%
+  slice_min(hsa_repression, with_ties = FALSE) %>%
+  ungroup()
+
+m1_min <- m1_min  %>% mutate(symbol_upper = toupper(symbol))
+
+m1_min <- as.data.frame(m1_min)
+m1_min <- m1_min[m1_min$symbol_upper != "",]
+m1_min <- m1_min[!is.na(m1_min$symbol_upper),]
+```
+
+
+
+#scan miR-1229 mouse
+```{r}
+mm_anno <- ScanMiRAnno("GRCm39")
+```
+
+```{r}
+mouse_1229 <- runFullScan(mm_anno,mods = hsa_1229,extract = "UTRonly",onlyCanonical = FALSE,shadow = 0L,cores = SnowParam(12),maxLogKd=NULL)
+mouse_1229_agg <- aggregateMatches(mouse_1229)
+mouse_1229_agg$transcript <- sapply(strsplit(as.character(mouse_1229_agg$transcript),"\\."),"[",1)
+colnames(mouse_1229_agg)[2:6] <- paste0("mmu_",colnames(mouse_1229_agg)[2:6])
+mouse_1229_agg <- mouse_1229_agg[!is.na(mouse_1229_agg$mmu_repression),]
+```
+
+```{r}
+ensembl_mouse_107 <- useEnsembl(biomart = "ensembl",
+                                dataset = "mmusculus_gene_ensembl",
+                                version = 107)
+
+# Retrieve gene + transcript IDs
+mouse_tx2ge <- getBM(attributes = c("ensembl_gene_id", "ensembl_transcript_id","external_gene_name"),
+                                  mart = ensembl_mouse_107)
+
+colnames(mouse_tx2ge) <- c("gene_id","transcript","symbol")
+mouse_tx2ge <- mouse_tx2ge[!duplicated(mouse_tx2ge$transcript) & !is.na(mouse_tx2ge$transcript),]
+```
+
+```{r}
+m2 <- merge(mouse_1229_agg,mouse_tx2ge,by = "transcript",all.x = TRUE)
+
+m2_min <- m2 %>%
+  group_by(symbol) %>%
+  slice_min(mmu_repression, with_ties = FALSE) %>%
+  ungroup()
+
+m2_min <- m2_min %>% mutate(symbol_upper = toupper(symbol))
+
+m2_min <- as.data.frame(m2_min)
+m2_min <- m2_min[m2_min$symbol_upper != "",]
+m2_min <- m2_min[!is.na(m2_min$symbol_upper),]
+```
+
+
+#compare
+
+```{r}
+m <- merge(m1_min,m2_min,by = "symbol_upper",all = TRUE,suffixes = c("_human", "_mouse"))
+```
+
+#plot comparison
+```{r}
+#Number of transcripts without corresponding BS
+d <- length(m[is.na(m$hsa_repression),"transcript_human"]) + length(m[is.na(m$mmu_repression),"transcript_mouse"])
+
+#correlation
+m <- m[!is.na(m$hsa_repression) & !is.na(m$mmu_repression),]
+a <- cor.test(m$hsa_repression,m$mmu_repression,method = "pearson")
+a$p.value
+a$estimate
+
+p1 <- ggplot(m,aes(x = hsa_repression,y = mmu_repression)) +
+  geom_point(color = col_vec[2], alpha = 0.6) +
+  stat_smooth(method = "lm",
+              formula = y ~ x,
+              geom = "smooth", color = col_vec[1]) +
+  ggtitle("miR-1229-3p") +
+  xlab("Human predicted repression") +
+  ylab("Mouse predicted repression") +
+  theme_classic()+
+  annotate("text", label = paste0(d," genes w/o corresp. BS"),x = -0.5, y = -2.3) +
+  annotate("text", label = paste0("R: ",round(a$estimate,2)),x = -2.15, y = 0,color = col_vec[1]) 
+
+ggsave2("./Figure_Output/MouseHuman_miR-1229.png",p1, width = 6.5,height = 5, bg = "white")
+```
+```
+
+
+
+
+

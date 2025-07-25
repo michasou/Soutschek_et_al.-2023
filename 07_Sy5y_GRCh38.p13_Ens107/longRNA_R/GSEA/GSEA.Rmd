@@ -1,0 +1,139 @@
+---
+title: "GSEA"
+author: "Michael Soutschek"
+date: "12/16/2022"
+output: html_document
+---
+
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(fgsea)
+  library(plgINS)
+  library(SummarizedExperiment)
+  library(enrichMiR)
+})
+```
+
+
+
+#load data
+```{r}
+se <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
+```
+
+
+#load pathways
+```{r}
+pathways <- getMsigSets(species = "Homo sapiens")
+pathways_GO <- getMsigSets(species = "Homo sapiens", collections = "C5")
+```
+
+##Combined DEA
+
+#get ranks
+```{r}
+dea1229 <- rowData(se)[["DEA"]]
+dea1229$Ensembl <- sapply(strsplit(row.names(dea1229),split = "\\."),"[",1)
+dea1229$Symbol <- sapply(strsplit(row.names(dea1229),split = "\\."),"[",2)
+dea1229 <- dea1229[order(dea1229$logFC,decreasing = TRUE),]
+dea1229$rank <- sign(dea1229$logFC)*-log10(dea1229$PValue)
+
+ranks1229 <- dea1229$rank
+names(ranks1229) <- dea1229$Symbol
+```
+
+
+#fgsea
+```{r}
+#To run the function faster with bigger terms including more genes as well:
+# fgseaRes1229 <- fgsea::fgseaMultilevel(pathways = pathways,
+#                   stats = ranks1229,
+#                   minSize = 15,
+#                   maxSize = 2000)
+
+fgseaRes1229 <- fgsea(pathways = pathways, 
+                  stats = ranks1229, 
+                  minSize = 15, 
+                  maxSize = 500)
+fgseaRes1229 <- fgseaRes1229[order(fgseaRes1229$padj),]
+
+
+#save
+saveRDS(fgseaRes1229,"./GSEA.DEA_comb.1229.rds")
+```
+
+```{r}
+#GO-Terms
+
+fgseaRes1229_GO <- fgsea(pathways = pathways_GO, 
+                  stats = ranks1229, 
+                  minSize = 15, 
+                  maxSize = 500)
+fgseaRes1229_GO <- fgseaRes1229_GO[order(fgseaRes1229_GO$padj),]
+
+
+#save
+saveRDS(fgseaRes1229_GO,"./GSEA.DEA_comb.1229_GOTerms.rds")
+```
+
+
+##Ind DEA (10nM)
+
+#get ranks
+```{r}
+dea_ind_10nM <- rowData(se)[["DEA.ind.Ctrl-MiR"]]
+dea_ind_10nM$Ensembl <- sapply(strsplit(row.names(dea_ind_10nM),split = "\\."),"[",1)
+dea_ind_10nM$Symbol <- sapply(strsplit(row.names(dea_ind_10nM),split = "\\."),"[",2)
+dea_ind_10nM <- dea_ind_10nM[order(dea_ind_10nM$logFC,decreasing = TRUE),]
+dea_ind_10nM$rank <- sign(dea_ind_10nM$logFC)*-log10(dea_ind_10nM$PValue)
+
+ranks1229_ind10nM <- dea_ind_10nM$rank
+names(ranks1229_ind10nM) <- dea_ind_10nM$Symbol
+```
+
+
+#fgsea
+```{r}
+#all pathways
+
+#To run the function faster with bigger terms including more genes as well:
+# fgseaRes1229 <- fgsea::fgseaMultilevel(pathways = pathways,
+#                   stats = ranks1229,
+#                   minSize = 15,
+#                   maxSize = 2000)
+
+fgseaRes1229_ind10nM <- fgsea(pathways = pathways, 
+                  stats = ranks1229_ind10nM, 
+                  minSize = 15, 
+                  maxSize = 500,
+                  eps = 1e-100)
+fgseaRes1229_ind10nM <- fgseaRes1229_ind10nM[order(fgseaRes1229_ind10nM$padj),]
+
+#save
+saveRDS(fgseaRes1229_ind10nM,"./GSEA.DEA_10nM.1229.rds")
+```
+
+
+
+```{r}
+#GO-Terms
+
+fgseaRes1229_ind10nM_GO <- fgsea(pathways = pathways_GO, 
+                  stats = ranks1229_ind10nM, 
+                  minSize = 15, 
+                  maxSize = 500)
+fgseaRes1229_ind10nM_GO <- fgseaRes1229_ind10nM_GO[order(fgseaRes1229_ind10nM_GO$padj),]
+
+
+#save
+saveRDS(fgseaRes1229_ind10nM_GO,"./GSEA.DEA_10nM.1229_GOTerms.rds")
+```
+
+
+
+
+
+

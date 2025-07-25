@@ -1,0 +1,164 @@
+---
+title: "longRNA-exploratory"
+author: "Michael Soutschek"
+date: "11 1 2021"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(plgINS)
+  library(viridis)
+  library(RColorBrewer)
+  library(data.table)
+  library(dplyr)
+  library(tidyr)
+  library(plotly)
+  library(cowplot)
+  library(ggsci)
+})
+```
+
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],pal_uchicago("default")(9)[2])
+```
+
+# Load Data
+```{r}
+se <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
+se <- se[,se$condition != "pLNA-3943"]
+```
+
+
+
+# Violine Figures:
+```{r}
+# example to get genes:
+
+g1 <- row.names(se)[rowData(se)$gene_name %in% c("PINK1")]
+
+ggplot(meltSE(se, g1, assayName = "logcpm"), aes(condition, logcpm)) + geom_violin() + geom_point(aes(color = diff)) +  facet_wrap(~feature, scale="free") + theme_classic()
+
+ggplot(meltSE(se, g1, assayName = "counts"), aes(condition, counts)) + geom_violin() + geom_point(aes(color = diff)) +  facet_wrap(~feature, scale="free")
+
+png("../Figure_Output/SingleGenes/Pink1.png", width=10, height=6, units="in", res=300)
+ggplot(meltSE(se, g1, assayName = "counts"), aes(condition, counts)) + geom_point(aes(color = diff)) + geom_violin() + facet_wrap(~feature, scale="free")
+dev.off()
+```
+
+
+```{r}
+#manually curated inflammation genes
+man <- c("IFNAR1","IFNAR2")  
+g1 <- row.names(se)[rowData(se)$gene_name %in% man]
+
+png("../Figure_Output/SingleGenes/Inflammation.png", width=12, height=6, units="in", res=300)
+ggplot(meltSE(se, g1, assayName = "logcpm"), aes(condition, logcpm)) + geom_violin() + geom_point(aes(color = diff)) +
+      theme_classic() + xlab("") +
+      theme_classic(base_size = 12)+
+      scale_color_manual(values = col_vec) +
+      facet_wrap(~gene_name, scale = "fixed") +
+      coord_cartesian(ylim = c(0,4)) +
+      theme(strip.text.x = element_text(size = rel(1.1)),
+            strip.placement = "inside",
+            text = element_text(size = 14), 
+            axis.title.x=element_blank(),
+            axis.text.x = element_text(size = rel(1)),
+            legend.position = "bottom")
+dev.off()
+```
+
+
+
+
+## PCA
+
+```{r pca, message=FALSE, warning=FALSE, eval=TRUE}
+
+## all stages
+p <- plgINS::plPCA(assays(se)$corrected, as.data.frame(colData(se)), colorBy = "condition", shapeBy = "diff",
+              add.labels = FALSE, annotation_columns = colnames(colData(se)))
+
+orca(p, file = "Figure_Output/Exploratory/LongRNA_star_PCA.png")
+orca(p, file = "Figure_Output/Exploratory/LongRNA_PCA.pdf")
+```
+
+
+
+```{r}
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
+
+
+#assay
+x <- assays(se)$corrected
+
+#preparation
+x <- t(x[which(!(apply(x, 1, var) == 0)), ])
+pca <- prcomp(x)
+
+#annotation
+samples_data = as.data.frame(colData(se))
+annotation_columns = colnames(colData(se))
+
+samples_data <- samples_data[row.names(pca$x), ]
+samples_data$names <- row.names(samples_data)
+labs <- annotation_columns
+labs[which(labs == "names")] <- ""
+text <- apply(samples_data[, annotation_columns, drop = F], 
+                  1, labs = labs, FUN = function(x, labs) {
+                    paste(paste(labs, x), collapse = "\n")
+                  })
+
+#annotation
+colorBy = "condition"
+shapeBy = "diff"
+
+cb <- samples_data[, colorBy]
+    if (!is.numeric(cb)) 
+      cb <- as.character(cb)
+
+sb <- samples_data[, shapeBy]
+      if (!is.numeric(cb)) 
+        cb <- as.factor(as.character(cb))
+
+
+#plot components
+xlab <- paste("PC ", "1", " (", round(pca$sdev[1]/sum(pca$sdev) *
+                                                       100, 0), "%)", sep = "")
+ylab <- paste("PC ", "2", " (", round(pca$sdev[2]/sum(pca$sdev) *
+                                                       100, 0), "%)", sep = "")
+
+df <- data.frame(x = pca$x[,1],y = pca$x[,2])
+
+p1 <- ggplot(df, aes(x = x, y = y)) +
+  geom_hline(yintercept=0, linewidth = 0.25) +
+  geom_vline(xintercept=0, linewidth = 0.25) +
+  geom_point(aes(color = cb, shape = sb),size = 3) +
+  theme_classic() +
+  xlab(xlab) + ylab(ylab) + 
+  scale_color_manual(values = col_vec) +
+  theme(text = element_text(size = 14), 
+        axis.text.x = element_text(size = rel(1)),
+        axis.text.y = element_text(size = rel(1))) +
+  guides(color=guide_legend(title="Condition"),shape=guide_legend(title="Differentiation"))
+  
+
+ggsave("../Figure_Output/PCA/PCA_man.png",p1, width = 6.5,height = 4.5, bg = "white")
+
+```
+
+
+
+
+
+## Heatmaps
+```{r}
+sechm::sechm(se, head(row.names(rowData(se)$DEA.any), 50), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE)
+```
+
+

@@ -1,0 +1,75 @@
+---
+title: "generateSE_salmon"
+author: "Michael Soutschek"
+date: "9/23/2022"
+output: html_document
+---
+
+
+```{r}
+suppressPackageStartupMessages({
+   library(tximport)
+   library(SummarizedExperiment)
+})
+```
+
+
+#reference
+```{r}
+tx2ge <- read.delim("../../../../Reference/Homo_Sapiens/Ensembl/GRCh38.p14/Release_112_2024/tx2gene", header=FALSE)
+```
+
+#data import
+```{r}
+lf <- list.files(path = "../salmon/", pattern="quant\\.sf", recursive=TRUE, full=TRUE)
+names(lf) <- basename(dirname(lf))
+ti <- tximport(lf, type="salmon", tx2gene=tx2ge)
+```
+
+#Get the experiment description
+```{r}
+col_info <- data.frame(sample = names(lf))
+col_info$diff <- sapply(strsplit(col_info$sample,"_"),"[",1)
+col_info$day <- sapply(strsplit(col_info$sample,"_"),"[",2)
+col_info$day <- as.numeric(col_info$day)
+col_info$stage <- as.factor(col_info$day)
+levels(col_info$stage) <-  c("0","9","15","21","27","33","40")
+row.names(col_info) <- col_info$sample
+
+#sort the rows of col_info, since they have to be in the same order as the counts columns
+col_info <- col_info[colnames(ti[["counts"]]),]
+```
+
+
+#construct the summarized experiment
+```{r}
+se <- SummarizedExperiment(list(counts=ti$counts, TPM=ti$abundance),colData = col_info)
+rowData(se)$medianLength <- matrixStats::rowMedians(ti$length)
+```
+
+
+#add more info
+```{r}
+#adapt the tx2ge file
+tx2ge$gene_name <- sapply(strsplit(tx2ge$V2,"\\."),"[",2)
+tx2ge$gene_id <- sapply(strsplit(tx2ge$V2,"\\."),"[",1)
+colnames(tx2ge) <- c("transcript_id","gene","gene_name","gene_id")
+gene <- tx2ge[,-which(colnames(tx2ge) %in% "transcript_id")]
+gene <- gene[!duplicated(gene$gene_name) & !is.na(gene$gene_name),]
+row.names(gene) <- gene$gene
+
+
+#add info to the se object
+rowData(se) <- cbind(rowData(se), gene[row.names(se),])
+se <- se[,order(se$diff, se$day)]
+```
+
+
+
+#save
+```{r}
+saveRDS(se, file="SE.salmon.raw_ens112.rds")
+```
+
+
+

@@ -1,0 +1,5 @@
+The SNP info from the 1000Genomes project was downloaded on the 24.07.25 from
+https://www.ensembl.org/Homo_sapiens/Variation/Population?db=core;g=ENSG00000221394;r=5:179798244-179798381;source=dbSNP;t=ENST00000408467;v=rs2291418;vdb=variation;vf=336508783
+
+The SNP information from NCBI Alfa was copied from the ALFA homepage on 24.07.25:
+https://www.ncbi.nlm.nih.gov/snp/rs2291418#frequency_tab

@@ -1,0 +1,78 @@
+---
+title: "GSEA_figures"
+author: "Michael Soutschek"
+date: "1/13/2023"
+output: html_document
+---
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(stringr)
+})
+```
+
+
+#load data
+```{r}
+gsea_1229 <- readRDS("../../longRNA_R/GSEA/GSEA.DEA_10nM.1229.rds")
+```
+
+
+#filter for GO & Reactome
+```{r}
+gsea_1229_top <- gsea_1229[1:15,]
+gsea_1229_top$pathway <- gsub("C5:GO:|C2:|H::","",gsea_1229_top$pathway)
+gsea_1229_top$pathway <- gsub("CC:|MF:|BP:","",gsea_1229_top$pathway)
+gsea_1229_top$leadEdge_genes <- sapply(gsea_1229_top$leadingEdge, length) 
+gsea_1229_top$pathways <- str_trunc(gsea_1229_top$pathway, 45)
+```
+
+#plot
+```{r}
+p1 <- ggplot(gsea_1229_top,mapping = aes(x = NES, y= reorder(pathways,-padj), color = padj,size = leadEdge_genes)) +
+  geom_point() +
+  theme_classic() + 
+  ylab("") + 
+  xlab("Normalized Enrichment Score") +
+  #coord_cartesian(xlim = c(0,NA)) +
+  guides(size=guide_legend(title="# LeadingEdge Genes")) +
+  scale_color_continuous(type= "viridis", guide=guide_colourbar(reverse = TRUE),name = "Adj. Pvalue") +
+  ggtitle("GSEA: 10nM DEA miR-1229") +
+  theme(plot.title = element_text(hjust = 0))
+
+ggsave("../Figure_Output/GSEA/GSEA_10nM_1229.png",height = 8,width = 8)
+```
+
+
+
+
+#load data GO
+```{r}
+gsea_1229_GO <- readRDS("../../longRNA_R/GSEA/GSEA.DEA_10nM.1229_GOTerms.rds")
+```
+
+```{r}
+gsea_1229_GO_top <- gsea_1229_GO[1:15,]
+gsea_1229_GO_top$pathway <- gsub("C5:GO:|C2:|H::","",gsea_1229_GO_top$pathway)
+gsea_1229_GO_top$pathway <- gsub("CC:|MF:|BP:","",gsea_1229_GO_top$pathway)
+gsea_1229_GO_top$leadEdge_genes <- sapply(gsea_1229_GO_top$leadingEdge, length) 
+gsea_1229_GO_top$pathways <- str_trunc(gsea_1229_GO_top$pathway, 45)
+```
+
+#plot
+```{r}
+p2 <- ggplot(gsea_1229_GO_top,mapping = aes(x = NES, y= reorder(pathways,-padj), color = padj,size = leadEdge_genes)) +
+  geom_point() +
+  theme_classic() + 
+  ylab("") + 
+  xlab("Normalized Enrichment Score") +
+  #coord_cartesian(xlim = c(0,NA)) +
+  guides(size=guide_legend(title="# LeadingEdge Genes")) +
+  scale_color_continuous(type= "viridis", guide=guide_colourbar(reverse = TRUE),name = "Adj. Pvalue") +
+  ggtitle("GSEA: 10nM DEA miR-1229") +
+  theme(plot.title = element_text(hjust = 0))
+
+ggsave("../Figure_Output/GSEA/GSEA_10nM_1229_GO.png",height = 10,width = 8)
+```

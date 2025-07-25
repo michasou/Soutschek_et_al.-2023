@@ -1,0 +1,72 @@
+---
+title: "longRNA-exploratory"
+author: "Michael Soutschek"
+date: "11 1 2021"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(sechm)
+  library(ggplot2)
+  library(viridis)
+  library(RColorBrewer)
+  library(data.table)
+  library(dplyr)
+  library(tidyr)
+  library(plotly)
+  library(cowplot)
+})
+```
+
+
+# Load Data
+```{r}
+se <- readRDS("../../data/SE.dea.TX.salmon.raw.rds")
+```
+
+
+
+# Violine Figures:
+```{r}
+# example to get genes:
+
+g1 <- row.names(se2)[rowData(se2)$gene_name %in% c("OPA1")]
+
+g1 <- row.names(se)[rowData(se)$gene_name %in% c("OPA1")]
+
+ggplot(meltSE(se2, g1, assayName = "logcpm"), aes(condition, logcpm)) + geom_violin() + geom_point(aes(color = experiment)) +  facet_wrap(~feature, scale="free") + theme_classic()
+
+ggplot(meltSE(se, g1, assayName = "counts"), aes(condition, counts)) + geom_violin() + geom_point(aes(color = diff)) +  facet_wrap(~feature, scale="free")
+
+png("./Figure_Output/Single_Genes/Septin14+Pseudo_counts.png", width=10, height=6, units="in", res=300)
+ggplot(meltSE(se, g1, assayName = "counts"), aes(condition, counts)) + geom_point(aes(color = diff)) + geom_violin() + facet_wrap(~feature, scale="free")
+dev.off()
+```
+
+
+
+
+
+
+## PCA
+
+```{r pca, message=FALSE, warning=FALSE, eval=TRUE}
+
+## all stages
+p <- plgINS::plPCA(assays(se)$corrected, as.data.frame(colData(se)), colorBy = "condition", shapeBy = "diff",
+              add.labels = FALSE, annotation_columns = colnames(colData(se)))
+
+orca(p, file = "Figure_Output/Exploratory/LongRNA_star_PCA.png")
+orca(p, file = "Figure_Output/Exploratory/LongRNA_PCA.pdf")
+```
+
+
+
+## Heatmaps
+```{r}
+sechm::sechm(se, head(row.names(rowData(se)$DEA.any), 50), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE)
+```
+
+

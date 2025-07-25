@@ -1,0 +1,77 @@
+---
+title: "generateSE_salmon"
+author: "Michael Soutschek"
+date: "9/23/2022"
+output: html_document
+---
+
+
+```{r}
+suppressPackageStartupMessages({
+   library(tximport)
+   library(SummarizedExperiment)
+   library(readxl)
+})
+```
+
+
+#reference
+```{r}
+tx2ge <- read.delim("/reference/Homo_sapiens/Ensembl/GRCh38.p13/Annotation/Release_107-2022/tx2gene", header=FALSE)
+```
+
+#data import
+```{r}
+lf <- list.files(path = "../salmon/", pattern="quant\\.sf", recursive=TRUE, full=TRUE)
+names(lf) <- basename(dirname(lf))
+ti <- tximport(lf, type="salmon", tx2gene=tx2ge)
+```
+
+#Get the experiment description
+```{r}
+col_info <- as.data.frame(read_excel("/mnt/schratt/internData/2023_soutschek_SY5YmiR1229mimic_polyARNA/Sample_summary.xlsx"))
+col_info <- col_info[,which(!colnames(col_info) %in% c("Concentration","Units","260/280","260/280 Alert","260/230","260/230 Alert"))]
+colnames(col_info)[which(colnames(col_info)=="Sample Name")] <- "Sample_Name"
+col_info$experiment <- sapply(strsplit(col_info$`Sample_Name`,"_"),"[",1)
+col_info$condition <- sapply(strsplit(col_info$`Sample_Name`,"_"),"[",2)
+col_info$mimic_amount <- rep(c(0,0.5,1),3)
+col_info$cond_name <- rep(c("NegCtrl","miR_20pmol","miR_40pmol"),3)
+row.names(col_info) <- col_info$Novogene
+
+#sort the rows of col_info, since they have to be in the same order as the counts columns
+col_info <- col_info[colnames(ti[["counts"]]),]
+
+```
+
+
+#construct the summarized experiment
+```{r}
+se <- SummarizedExperiment(list(counts=ti$counts, TPM=ti$abundance),colData = col_info)
+rowData(se)$medianLength <- matrixStats::rowMedians(ti$length)
+```
+
+
+#add more info
+```{r}
+#adapt the tx2ge file
+colnames(tx2ge) <- c("transcript_id","gene_name","gene_id")
+tx2ge$gene_id <- gsub("\\..*","",tx2ge$gene_id)
+gene <- tx2ge[,-which(colnames(tx2ge) %in% "transcript_id")]
+gene <- gene[!duplicated(gene$gene_name) & !is.na(gene$gene_name),]
+row.names(gene) <- gene$gene_name
+
+
+#add info to the se object
+rowData(se) <- cbind(rowData(se), gene[row.names(se),])
+row.names(se) <- paste(rowData(se)$gene_id,rowData(se)$gene_name,sep = ".")
+se <- se[,order(se$experiment, se$condition)]
+```
+
+
+#save
+```{r}
+saveRDS(se, file="SE.Gene.salmon.raw.rds")
+```
+
+
+

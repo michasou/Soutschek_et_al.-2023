@@ -1,0 +1,104 @@
+---
+title: "VariantFigure"
+author: "Michael Soutschek"
+date: "2025-07-24"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(ggpattern)
+```
+
+#ALFA
+```{r}
+al <- read.delim("./ALFA_rs2291418.txt")
+al$variant <- as.numeric(gsub("A=","",al$Alt.Allele))
+al$Population <- factor(al$Population,levels = c("Total","African","African Others","African American","Asian","East Asian","South Asian",
+                                                 "Other Asian","European","Latin American 1","Latin American 2","Other"))
+```
+
+```{r}
+p1 <- ggplot(al, aes(x = Population, y = variant)) +
+  geom_bar_pattern(aes(pattern = Group), show.legend = FALSE,
+    position = position_dodge(preserve = "single"),
+                   pattern_fill = "black",
+                   pattern_angle = 45,
+                   pattern_density = 0.1,
+                   pattern_spacing = 0.025,
+                   pattern_key_scale_factor = 0.6,
+                   stat = "summary", fun = "mean",
+                   fill = "white", color = "black") + 
+  ylab("Alternative Allele Frequency") +
+  theme_classic(base_size = 12)+
+  scale_pattern_manual(values = c('Sub' = "none", 'Global' = "stripe")) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        axis.title.y = element_text(size = rel(1.25))) +
+  coord_cartesian(ylim = c(0,0.075)) +
+  ggtitle("ALFA aggregated frequencies - rs2291418")
+
+ggsave("./FigureOutput/ALFA.png",p1, width = 16,height = 5, bg = "white")
+```
+
+#1000genomes
+```{r}
+ge <- read.csv("./1000genomesprojectphase3-PopulationGenotypes-Homo_sapiens_Variation_Population_rs2291418.csv")
+ge$alt_allele <- paste(sapply(strsplit(ge$Allele..frequency..count.," "),"[",4),
+                       sapply(strsplit(ge$Allele..frequency..count.," "),"[",5),
+                       sapply(strsplit(ge$Allele..frequency..count.," "),"[",6),
+                       sep = " ")
+ge$variant <- as.numeric(sapply(strsplit(ge$Allele..frequency..count.," "),"[",5))
+```
+
+
+```{r}
+ge_plot <- ge[!grepl("^ ",ge$Population),]
+ge_plot$population <- sapply(strsplit(ge_plot$Population,":"),"[",3)
+ge_plot$population <- factor(ge_plot$population,levels = c("ALL","AFR","AMR","EAS","SAS","EUR"))
+ge_plot$Group <- ifelse(ge_plot$population == "ALL","Global","Sub")
+```
+
+
+
+```{r}
+p2 <- ggplot(ge_plot, aes(x = population, y = variant)) +
+  geom_bar_pattern(aes(pattern = Group), show.legend = FALSE,
+    position = position_dodge(preserve = "single"),
+                   pattern_fill = "black",
+                   pattern_angle = 45,
+                   pattern_density = 0.1,
+                   pattern_spacing = 0.025,
+                   pattern_key_scale_factor = 0.6,
+                   stat = "summary", fun = "mean",
+                   fill = "white", color = "black") + 
+  ylab("Alternative Allele Frequency") +
+  theme_classic(base_size = 12)+
+  scale_pattern_manual(values = c('Sub' = "none", 'Global' = "stripe")) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        axis.title.y = element_text(size = rel(1.25))) +
+  coord_cartesian(ylim = c(0,0.075)) +
+  ggtitle("1000Genomes frequencies - rs2291418")
+
+ggsave("./FigureOutput/1000Genomes.png",p2, width = 8,height = 5, bg = "white")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+

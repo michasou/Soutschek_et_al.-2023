@@ -1,0 +1,388 @@
+---
+title: "Proteomics_LongRNA_Corr"
+author: "Michael Soutschek"
+date: "11/23/2022"
+output: html_document
+---
+
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(tidyverse)
+  library(ggpubr)
+  library(ggplot2)
+  library(plgINS)
+  library(viridis)
+  library(cowplot)
+  library(ComplexHeatmap)
+  library(sechm)
+})
+```
+
+# Color Definitions
+```{r}
+ancols <- list(Day=c("0"="#3F3F3F",
+                       "9" ="#575757",
+                       "15" ="#707070",
+                       "21" = "#898989",
+                       "27" ="#A1A1A1",
+                       "33" ="#BABABA",
+                       "40" = "#D3D3D3" 
+) )
+
+ancols2 <- list(Day=c(
+                       "9" ="#575757",
+                       "15" ="#707070",
+                       "21" = "#898989",
+                       "27" ="#A1A1A1",
+                       "33" ="#BABABA",
+                       "40" = "#D3D3D3" 
+) )
+
+
+heatcol = inferno(255)
+```
+
+## Load data
+```{r}
+se_RNA <- readRDS("../../RNA_GRCh38.p10_Ens91/data/Long_RNA/longRNA.DEA.SE.rds")
+se_RNA$day <- as.factor(se_RNA$day)
+se_PROT <- readRDS("../../Proteomics/data/Proteomics/Proteomics.Reference.SE_DEA.rds")
+se_PROT$day <- as.factor(se_PROT$day)
+```
+
+
+```{r significant results, eval=TRUE}
+# select significant results
+## all stages RNA
+res <- rowData(se_RNA)$DEA.all
+res$maxlfc <- rowMax(abs(as.matrix(res[,1:6]))) 
+sig_all <- row.names(res)[res$FDR < 0.01]
+sig_all <- sapply(strsplit(sig_all,"\\."),"[",2)
+
+sig_all_lFC <- row.names(res)[res$FDR < 0.01 & res$maxlfc > 2]
+sig_all_lFC <- sapply(strsplit(sig_all_lFC,"\\."),"[",2)
+
+## neuronal stages
+res.neu <- rowData(se_RNA)$DEA.neuronal
+res.neu$maxlfc <- rowMax(abs(as.matrix(res.neu[,1:5]))) 
+sig.neu <- row.names(res.neu)[res.neu$FDR < 0.01]
+sig.neu <- sapply(strsplit(sig.neu,"\\."),"[",2)
+
+sig.neu_lFC <- row.names(res.neu)[res.neu$FDR < 0.01 & res.neu$maxlfc > 2]
+sig.neu_lFC <- sapply(strsplit(sig.neu_lFC,"\\."),"[",2)
+```
+
+
+
+## Prepare SEs for RNA and Protein to make them comparable 
+```{r}
+## sort dataframe columns of rowdata as they may be in different order from the SE itself
+sortSE <- function(se) {
+  lapply(names(rowData(se)), function(colname) {
+    col <- rowData(se)[[colname]]
+    if(class(col) %in% c("data.frame", "DFrame")) rowData(se)[[colname]] <<- col[names(se), ]
+  })
+  return(se)
+}
+
+se_RNA <- sortSE(se_RNA)
+se_PROT <- sortSE(se_PROT)
+
+
+## align coldata
+colnames(se_PROT) <- colnames(se_RNA)
+cd_merged <- merge(colData(se_PROT), colData(se_RNA), by = c("row.names", "day", "stage"), sort = FALSE)
+row.names(cd_merged) <- cd_merged$Row.names
+cd_merged$Row.names <- NULL
+colData(se_PROT) <- cd_merged[names(cd_merged)!="libsize"]
+colData(se_RNA) <- cd_merged
+
+## sort columns by stage
+se_RNA <- se_RNA[, order(se_RNA$day)]
+se_PROT <- se_PROT[, order(se_PROT$day)]
+
+## reduce to common genes
+common_genes <- intersect(rowData(se_RNA)$symbol, rowData(se_PROT)$GeneName)
+se_RNA_red <- se_RNA[rowData(se_RNA)$symbol %in% common_genes,]
+se_PROT_red <- se_PROT[rowData(se_PROT)$GeneName %in% common_genes,]
+
+## remove duplicate genes 
+dubl_PROT <- rowData(se_PROT_red)$GeneName[duplicated(rowData(se_PROT_red)$GeneName)]
+dubl_RNA <- rowData(se_RNA_red)$symbol[duplicated(rowData(se_RNA_red)$symbol)]
+ambiguous_entries <- c(dubl_PROT,dubl_RNA)
+
+dubl_row_PROT <- row.names(rowData(se_PROT_red))[rowData(se_PROT_red)$GeneName %in% ambiguous_entries]
+dubl_row_RNA <- row.names(rowData(se_RNA_red))[rowData(se_RNA_red)$symbol %in% ambiguous_entries]
+
+se_PROT_red <- se_PROT_red[!(row.names(se_PROT_red) %in% dubl_row_PROT)]
+se_RNA_red <- se_RNA_red[!(row.names(se_RNA_red) %in% dubl_row_RNA)]
+
+## aggregate SEs by gene names
+se_RNA_agg <- aggSE(se_RNA_red, by = "symbol")
+se_PROT_agg <- aggSE(se_PROT_red, by = "GeneName")
+assays(se_RNA_agg)[["expression"]] <- assays(se_RNA_agg)[["logcpm"]]
+assays(se_PROT_agg)[["expression"]] <- assays(se_PROT_agg)[["imputed"]]
+
+colnames(colData(se_RNA_agg))[which(colnames(colData(se_RNA_agg)) == "day")] <- "Day"
+colnames(colData(se_PROT_agg))[which(colnames(colData(se_PROT_agg)) == "day")] <- "Day"
+```
+
+
+#Prepare Data.Frames to plot
+```{r}
+RNA_long <- assays(se_RNA_agg)[["expression"]] %>%
+  as.data.frame() %>%
+  rownames_to_column("Gene") %>%
+  pivot_longer(-Gene, names_to = "condition", values_to = "RNA")
+
+PROT_long <- assays(se_PROT_agg)[["expression"]] %>%
+  as.data.frame() %>%
+  rownames_to_column("Gene") %>%
+  pivot_longer(-Gene, names_to = "condition", values_to = "PROT")
+
+RNA_PROT_merged <- merge(RNA_long, PROT_long, by = c("Gene", "condition")) %>%
+  mutate(Day = as.factor(as.numeric(gsub(".*_", "", condition)))) %>%
+  mutate(replicate = as.factor(gsub("_.*", "", condition)))
+
+RNA_PROT_merged.neu <- RNA_PROT_merged[RNA_PROT_merged$Day != 0,]
+
+RNA_PROT_merged_long <- RNA_PROT_merged %>%
+  pivot_longer(RNA:PROT, names_to = "type", values_to = "expression")
+
+RNA_PROT_merged_long.neu <- RNA_PROT_merged_long[RNA_PROT_merged_long$Day != 0,]
+```
+
+
+#Prepare Plotting dataframes for all Days
+```{r}
+RNA_PROT_mean <- RNA_PROT_merged_long %>%
+  group_by(Gene, Day, type) %>%
+  summarize(mean_exp = mean(expression)) %>%
+  group_by(Gene, type) %>%
+  mutate(var = var(mean_exp)) %>%
+  mutate(norm_exp = scale(mean_exp))
+
+# RNA_PROT_cor <- RNA_PROT_merged %>%
+#   group_by(Gene, Day) %>%
+#   summarize(RNA_mean = mean(RNA), PROT_mean = mean(PROT)) %>%
+#   group_by(Gene) %>%
+#   summarize(pearson = cor(RNA_mean, PROT_mean, method = "pearson"),
+#             spearman = cor(RNA_mean, PROT_mean, method = "spearman"),
+#             var_RNA = var(RNA_mean), var_PROT = var(PROT_mean))
+# 
+# RNA_PROT_cor_fil <- RNA_PROT_merged %>%
+#   group_by(Gene, Day) %>%
+#   summarize(RNA_mean = mean(RNA), PROT_mean = mean(PROT)) %>%
+#   group_by(Gene) %>%
+#   summarize(pearson = cor(RNA_mean, PROT_mean, method = "pearson"),
+#             spearman = cor(RNA_mean, PROT_mean, method = "spearman"),
+#             var_RNA = var(RNA_mean), var_PROT = var(PROT_mean)) %>%
+#   dplyr::filter(var_RNA > 0.1 & var_PROT > 0.1)
+# 
+# RNA_PROT_cor.sig <- RNA_PROT_cor[RNA_PROT_cor$Gene %in% sig_all,]
+# RNA_PROT_cor.sig_lFC <- RNA_PROT_cor[RNA_PROT_cor$Gene %in% sig_all_lFC,]
+# 
+# #is basically the same as the filtered
+# #RNA_PROT_cor.fil.sig <- RNA_PROT_cor_fil[RNA_PROT_cor_fil$Gene %in% sig_all,]
+# 
+# most_uncorrelated <- RNA_PROT_cor %>% arrange(pearson) %>% pull(Gene) %>% head(12)
+# most_uncorrelated.sig <- RNA_PROT_cor.sig %>% arrange(pearson) %>% pull(Gene) %>% head(12)
+# most_uncorrelated.sig_lFC <- RNA_PROT_cor.sig_lFC %>% arrange(pearson) %>% pull(Gene) %>% head(12)
+# most_uncorrelated.fil <- RNA_PROT_cor_fil %>% arrange(pearson) %>% pull(Gene) %>% head(12)
+# 
+# most_correlated <- RNA_PROT_cor %>% arrange(desc(pearson)) %>% pull(Gene) %>% head(12)
+```
+
+
+
+#Prepare Plotting dataframes for neuronal Days
+```{r}
+RNA_PROT_mean.neu <- RNA_PROT_merged_long.neu %>%
+  group_by(Gene, Day, type) %>%
+  summarize(mean_exp = mean(expression)) %>%
+  group_by(Gene, type) %>%
+  mutate(var = var(mean_exp)) %>%
+  mutate(norm_exp = scale(mean_exp))
+
+RNA_PROT_cor.neu <- RNA_PROT_merged.neu %>%
+  group_by(Gene, Day) %>%
+  summarize(RNA_mean = mean(RNA), PROT_mean = mean(PROT)) %>%
+  group_by(Gene) %>%
+  summarize(pearson = cor(RNA_mean, PROT_mean, method = "pearson"),
+            spearman = cor(RNA_mean, PROT_mean, method = "spearman"),
+            var_RNA = var(RNA_mean), var_PROT = var(PROT_mean))
+
+RNA_PROT_cor_fil.neu <- RNA_PROT_merged.neu %>%
+  group_by(Gene, Day) %>%
+  summarize(RNA_mean = mean(RNA), PROT_mean = mean(PROT)) %>%
+  group_by(Gene) %>%
+  summarize(pearson = cor(RNA_mean, PROT_mean, method = "pearson"),
+            spearman = cor(RNA_mean, PROT_mean, method = "spearman"),
+            var_RNA = var(RNA_mean), var_PROT = var(PROT_mean)) %>%
+  dplyr::filter(var_RNA > 0.1 & var_PROT > 0.1)
+
+RNA_PROT_cor.neu.sig <- RNA_PROT_cor.neu[RNA_PROT_cor.neu$Gene %in% sig.neu,]
+RNA_PROT_cor.neu.sig_lFC <- RNA_PROT_cor.neu[RNA_PROT_cor.neu$Gene %in% sig.neu_lFC,]
+
+#most_uncorrelated.neu <- RNA_PROT_cor.neu %>% arrange(pearson) %>% pull(Gene) %>% head(9)
+most_uncorrelated.neu.sig <- RNA_PROT_cor.neu.sig %>% arrange(pearson) %>% pull(Gene) %>% head(8)
+most_uncorrelated.neu.sig_lFC <- RNA_PROT_cor.neu.sig_lFC %>% arrange(pearson) %>% pull(Gene) %>% head(9)
+most_uncorrelated.fil.neu <- RNA_PROT_cor_fil.neu %>% arrange(pearson) %>% pull(Gene) %>% head(9)
+
+most_correlated.neu <- RNA_PROT_cor.neu %>% arrange(desc(pearson)) %>% pull(Gene) %>% head(12)
+
+
+#most uncorrelated below pearson -0.9
+most_uncorrelated.neu.sig_09 <- RNA_PROT_cor.neu.sig[RNA_PROT_cor.neu.sig$pearson < -0.9,"Gene",drop = TRUE]
+```
+
+```{r}
+p1 <- ggplot(subset(RNA_PROT_mean, Gene %in% most_uncorrelated.neu.sig), aes(x = Day, y = norm_exp, group = type, color = type)) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~Gene, nrow = 2) +
+  ylab("scaled expression") +
+  theme_classic() +
+  ggtitle("Most uncorrelated during neuronal days")
+
+p1b <- ggplot(subset(RNA_PROT_mean, Gene %in% most_uncorrelated.fil.neu), aes(x = Day, y = norm_exp, group = type, color = type)) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~Gene) +
+  ylab("scaled expression") +
+  theme_classic() +
+  ggtitle("Most uncorrelated during neuronal days (expr. var. > 0.1")
+
+p2 <- ggplot(subset(RNA_PROT_mean, Gene %in% most_uncorrelated.neu.sig_lFC), aes(x = Day, y = norm_exp, group = type, color = type)) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~Gene) +
+  ylab("scaled expression") +
+  theme_classic() +
+  ggtitle("Most uncorrelated during neuronal days (max. logFC > 2)")
+
+pp1 <- plot_grid(p1,p2,labels = "AUTO",ncol = 2)
+
+ggsave2("./Figure_Output/Most_uncorrelated_neuronal_inclLogFC.png",pp1,width = 11,height = 6,bg = "white")
+ggsave2("./Figure_Output/Most_uncorrelated_neuronal.png",p1,width = 10,height = 4,bg = "white")
+```
+
+
+#Create common genes significant vectors
+```{r}
+common.sig <- intersect(common_genes,sig_all)
+common.sig_lFC <- intersect(common_genes,sig_all_lFC)
+##no duplicates in those two!
+
+RNA_sig_500.neu <- row.names(se_RNA_red)[order(rowData(se_RNA_red)[["DEA.neuronal"]]$FDR, decreasing = FALSE)[1:500]]
+sig.neu.500 <- rowData(se_RNA_red)[RNA_sig_500.neu,]$symbol
+
+RNA_sig_1000.neu <- row.names(se_RNA_red)[order(rowData(se_RNA_red)[["DEA.neuronal"]]$FDR, decreasing = FALSE)[1:1000]]
+sig.neu.1000 <- rowData(se_RNA_red)[RNA_sig_1000.neu,]$symbol
+```
+
+
+
+#Plot side by side
+```{r}
+# RNA_PROT_merged_long.sig_lFC <- RNA_PROT_merged_long  %>% 
+#   dplyr::filter(Gene %in% common.sig_lFC)
+# 
+# RNA_PROT_scaled <- RNA_PROT_merged_long.sig_lFC  %>%
+#   group_by(Gene, type) %>%
+#   mutate(scaled_exp = scale(expression))
+# 
+# ggplot(subset(RNA_PROT_scaled, Gene %in% common.sig_lFC[1:3]), 
+#        aes(x = Day, y = scaled_exp, group = interaction(type, replicate), color = replicate, linetype = type)) +
+#   geom_point() +
+#   geom_line() +
+#   facet_wrap(Gene~type, ncol = 2) +
+#   theme_bw()
+```
+
+
+##Heatmaps
+
+#Fold change with respect to iPSC stage
+```{r}
+a <- crossHm(list(RNA = se_RNA_agg, PROTEIN = se_PROT_agg), assayName = "log2FC.neur", features = sig.neu.1000, do.scale = TRUE, top_annotation = "Day", hmcols = heatcol,anno_colors = ancols)
+
+a@ht_list$RNA@top_annotation@anno_list$Day@color_mapping@colors <- ancols$Day
+a@ht_list$RNA@top_annotation@anno_list$Day@fun@var_env$color_mapping@colors <- ancols$Day
+a@ht_list$PROTEIN@top_annotation@anno_list$Day@color_mapping@colors <- ancols$Day
+a@ht_list$PROTEIN@top_annotation@anno_list$Day@fun@var_env$color_mapping@colors <- ancols$Day
+a@ht_list$PROTEIN@top_annotation@anno_list$Day@name_param$show <- FALSE
+```
+
+
+```{r}
+png("./Figure_Output/RNA_Prot_heat_all_top1000.png", width=11.5, height=6, units="in", res=300)
+a
+dev.off()
+```
+
+
+```{r}
+pdf("./Figure_Output/RNA_Prot_heat_all_top1000.pdf", width=13, height=6)
+a
+dev.off()
+```
+
+
+
+
+## Fold change with respect to first neural stage
+```{r}
+#Filter neuronal days
+se_RNA_agg2 <- se_RNA_agg[,se_RNA_agg$Day != 0]
+se_PROT_agg2 <- se_PROT_agg[,se_PROT_agg$Day != 0]
+
+colData(se_RNA_agg2 )$Day <- droplevels(colData(se_RNA_agg2 )$Day)
+colData(se_PROT_agg2)$Day <- droplevels(colData(se_PROT_agg2)$Day)
+```
+
+```{r}
+b <- crossHm(list(RNA = se_RNA_agg2, PROTEIN = se_PROT_agg2), assayName = "log2FC.neur",gaps_at = c("Day"), features = sig.neu.1000, do.scale = TRUE, top_annotation = "Day", hmcols = heatcol,anno_colors = ancols2)
+
+b@ht_list$PROTEIN@top_annotation@anno_list$Day@name_param$show <- FALSE
+```
+
+
+```{r}
+png("./Figure_Output/RNA_Prot_heat_neuronal_top1000.png", width=10, height=6, units="in", res=300)
+b
+dev.off()
+```
+
+
+
+
+
+#Fold change of most uncorrelated RNA/Proteins
+```{r}
+
+c <- crossHm(list(RNA = se_RNA_agg2, PROTEIN = se_PROT_agg2), assayName = "log2FC.neur", features = most_uncorrelated.neu.sig_09, do.scale = TRUE, top_annotation = "Day", hmcols = heatcol,anno_colors = ancols2)
+
+c@ht_list$RNA@top_annotation@anno_list$Day@color_mapping@colors <- ancols$Day
+c@ht_list$RNA@top_annotation@anno_list$Day@fun@var_env$color_mapping@colors <- ancols$Day
+c@ht_list$PROTEIN@top_annotation@anno_list$Day@color_mapping@colors <- ancols$Day
+c@ht_list$PROTEIN@top_annotation@anno_list$Day@fun@var_env$color_mapping@colors <- ancols$Day
+c@ht_list$PROTEIN@top_annotation@anno_list$Day@name_param$show <- FALSE
+```
+
+```{r}
+png("./Figure_Output/RNA_Prot_heat_uncorr_neuronal.png", width=10, height=7, units="in", res=300)
+c
+dev.off()
+```
+
+
+
+
+
+

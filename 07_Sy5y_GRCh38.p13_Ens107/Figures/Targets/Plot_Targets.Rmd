@@ -1,0 +1,277 @@
+---
+title: "Plot_Targets"
+author: "Michael Soutschek"
+date: "7/24/2023"
+output: html_document
+---
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(enrichMiR)
+  library(scanMiR)
+  library(scanMiRData)
+  library(scanMiRApp)
+  library(Biostrings)
+  library(ggsci)
+  library(cowplot)
+  library(SummarizedExperiment)
+  library(SEtools)
+  library(ggplot2)
+  library(ggsci)
+})
+
+```
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],pal_uchicago("default")(9)[2])
+```
+
+```{r}
+colvec_sc <- enrichMiR:::.siteTypeColors()
+colvec_sc["8mer"] <- pal_uchicago("default")(9)[3]
+```
+
+.siteTypeColors <- function(){
+  c(`no site` = "#000004FF",
+    `6mer` = "#3A0963FF",
+    `7mer-1a` = "#A92E5EFF",
+    `7mer-a1` = "#A92E5EFF",
+    `7mer` = "#A92E5EFF",
+    `7mer-m8` = "#E65D2FFF",
+    `8mer` = "#F5DB4BFF")
+}
+
+
+### Data Import
+#gene
+
+#load data
+```{r}
+dea1229g <- read.csv("../../longRNA_R/Target_Analysis/target_data/dea1229_targets_genebased_10nm.csv")
+Targets <- dea1229g [!is.na(dea1229g $X8mer),]
+Targets <- Targets[Targets$X8mer > 0 | Targets$X7mer > 0,]
+
+Targets <- Targets[Targets$logFC < 0,]
+Targets <- Targets[Targets$FDR < 0.05,]
+```
+
+```{r}
+#check for expressed targets in human neurons
+dea_plna <- read.csv("../../../pLNA_GRCh38.p13_Ens107/pLNA_experiment/Target_Analysis/miR1229/target_data/dea1229_targets_genebased.csv")
+colnames(dea_plna)[which(colnames(dea_plna) == "logCPM")] <- "logCPM_pLNA"
+
+Targets <- merge(Targets,dea_plna[,c("gene_name","logCPM_pLNA")],by = "gene_name",all.x = TRUE)
+Targets <- Targets[Targets$logCPM_pLNA > 2.5,]
+Targets <- Targets[!is.na(Targets$logCPM_pLNA),]
+Targets <- Targets[order(Targets$FDR),]
+```
+
+
+##########
+##########
+
+## Prepare Dosage
+```{r}
+se_sy <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
+se_sy$cond_name <- gsub("NegCtrl","Ctrl.",se_sy$cond_name)
+se_sy$cond_name <- gsub("miR_20pmol","miR-1229 (10nM)",se_sy$cond_name)
+se_sy$cond_name <- gsub("miR_40pmol","miR-1229 (20nM)",se_sy$cond_name)
+
+rowData(se_sy)$`DEA.ind.Ctrl-MiR` <- NULL
+```
+
+```{r}
+#prepare for violin figure
+g1 <- row.names(se_sy)[rowData(se_sy)$gene_name %in% Targets$gene_name]
+df <- meltSE(se_sy, g1, assayName = "logcpm")
+df$gene_name <- factor(df$gene_name,levels = Targets$gene_name)
+```
+
+
+
+```{r}
+#Top10 Targets
+p1 <- ggplot(df[df$gene_name %in% Targets$gene_name[1:10],], aes(cond_name, logcpm)) + geom_violin() + geom_point(aes(color = experiment)) +  
+  ggtitle("Top10 expr. Targets") + theme_classic() + xlab("") +
+  theme_classic(base_size = 12)+
+  scale_color_manual(values = col_vec) +
+  facet_wrap(~gene_name, scale = "free") +
+  #coord_cartesian(ylim = c(0,7)) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        legend.position = "bottom")
+
+
+ggsave("../Figure_Output/Targets/Top10TargetsDosage.png", plot = p1, width = 20,height = 10, bg = "transparent")
+```
+
+
+##########
+##########
+
+
+#Prepare Transcripts
+```{r}
+transcript_targets <- read.csv("../../longRNA_R/Target_Analysis/target_data/dea1229_targets_transcriptbased_10nm.csv")
+transcript_targets <- transcript_targets[transcript_targets$gene_name %in% Targets$gene_name,]
+```
+
+```{r}
+#keep only the transcript predicted to be most repressed
+transcript_targets <- transcript_targets[order(transcript_targets$repression),]
+transcript_targets <- transcript_targets[!duplicated(transcript_targets$gene_name),]
+transcript_targets <- transcript_targets[order(factor(transcript_targets$gene_name,levels = Targets$gene_name)),]
+transcript_targets$gene_name <- factor(transcript_targets$gene_name,levels = Targets$gene_name)
+```
+
+
+
+
+# scanMiR MiR-1229
+```{r}
+anno <- scanMiRApp::ScanMiRAnno("GRCh38")
+hsa <- getKdModels("hsa")
+```
+
+```{r}
+#Extract all UTRs
+mod <- anno$models$`hsa-miR-1229-3p`
+
+seqs <- DNAStringSet()
+
+for(i in as.character(transcript_targets$gene_name)){
+  tt <- transcript_targets[transcript_targets$gene_name == i,"transcript"]
+  ll <- getTranscriptSequence(tt, anno, extract = "UTRonly")
+  seqs[[i]] <- ll[[1]]
+}
+
+sf <- data.frame(start=1, end=lengths(seqs), seqnames=names(seqs), y=0)
+```
+
+```{r}
+#FindBindingSites
+m <- findSeedMatches(seqs, mod, onlyCanonical= TRUE, shadow = 15,maxLogKd = c(-0.3,-0.3))
+m2 <- as.data.frame(m)
+m2$position <- m2$start
+m2$miRNA <- "miR-1229-3p"
+m2$seqnames <- as.factor(m2$seqnames)
+sf$seqnames <- as.factor(sf$seqnames)
+```
+
+
+
+```{r}
+#Top10 Targets
+p2 <- ggplot(m2[m2$seqnames %in% Targets$gene_name[1:10],], aes(colour=type)) + 
+  geom_segment(data=sf[sf$seqnames %in% Targets$gene_name[1:10],], aes(x=start, xend=end, y=y, yend=y), colour="black") + 
+  facet_wrap(~seqnames, scales = "free_x", ncol=1) + theme_minimal() +
+  geom_segment(aes(x=position, xend=position, y=0, yend=-log_kd/1000), size=2) +
+  geom_label(aes(x=position, y=-log_kd/1000, label=type),show.legend = FALSE) +
+  labs(y=bquote(-log(K[D])), x="Position on UTR") + 
+  scale_y_continuous(limits=c(-0.5,6.5), breaks=c(0,1,3,5)) +
+  scale_x_continuous(expand=expansion(mult = c(.033,.033))) + theme(strip.text=element_text(face="bold") ) +
+  scale_color_manual(values = colvec_sc) +
+  theme_classic() +
+  ggtitle("miR-1229-3p binding sites in Top10 Targets") +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.text.x = element_text(size = rel(1)),
+        plot.margin = unit(c(1,2,1,1),"lines"),
+        legend.position = "bottom")
+
+
+ggsave2("../Figure_Output/Targets/BindingSites_Top10.png",p2, width = 12,height = 16, bg = "white")
+```
+
+
+
+
+##########
+##########
+
+#Combine Plots
+```{r}
+gg <- c("EIF4G2","HIPK2","ARL6IP1","SYNJ2BP","DLGAP4")
+
+
+ll <- list()
+for(j in gg){
+  #dosage
+  dd <- df[df$gene_name == j,]
+  ymax <- max(dd$logcpm, na.rm = TRUE)
+  ymin <- min(dd$logcpm, na.rm = TRUE)
+  
+  pa <- ggplot(dd, aes(cond_name, logcpm)) + geom_violin() + geom_point(aes(color = experiment)) +
+      theme_classic() + xlab("") +
+      theme_classic(base_size = 12)+
+      scale_color_manual(values = col_vec) +
+      facet_wrap(~gene_name, scale = "free") +
+      scale_x_discrete(labels=c("Ctrl.","miR-1229\n(10nM)","miR-1229\n(20nM)")) +
+      coord_cartesian(ylim = c(ymin - 0.25,ymax + 0.25)) +
+      theme(strip.text.x = element_text(size = rel(1.1)),
+            strip.placement = "inside",
+            text = element_text(size = 14), 
+            axis.title.x=element_blank(),
+            axis.text.x = element_text(size = rel(1)))
+  
+  paa <- plot_grid(NULL,pa + theme(legend.position = "none"),NULL,ncol = 1,rel_heights = c(0.1,1,0.2))
+  
+  #binding sites
+  mb <- m2[m2$seqnames == j,]
+  sfb <- sf[sf$seqnames == j,]
+  
+  pb <- ggplot(mb, aes(colour=type)) + 
+      geom_segment(data=sfb, aes(x=start, xend=end, y=y, yend=y), colour="black") + 
+      theme_minimal() +
+      geom_segment(aes(x=position, xend=position, y=0, yend=-log_kd/1000), size=2) +
+      geom_label(aes(x=position, y=-log_kd/1000, label=type),show.legend = FALSE) +
+      labs(y=bquote(-log(K[D]))) +
+      xlab("") +
+      scale_y_continuous(limits=c(-0.5,6.5), breaks=c(0,1,3,5)) +
+      scale_x_continuous(expand=expansion(mult = c(.033,.033))) + theme(strip.text=element_text(face="bold") ) +
+      scale_color_manual(values = colvec_sc) +
+      theme_classic() +
+      theme(strip.text.x = element_text(size = rel(1.1)),
+            strip.placement = "inside",
+            text = element_text(size = 16), 
+            axis.text.x = element_text(size = rel(1)),
+            plot.margin = unit(c(1,1,0,1),"lines"),
+            plot.title = element_text(size = rel(0.9)),
+            legend) 
+  
+  
+  pab <- plot_grid(paa,
+                   pb + theme(legend.position = "none"),
+                   nrow = 1, rel_widths = c(1,2.25))
+  
+  ll[[j]] <- pab
+}
+```
+
+
+```{r}
+l1 <- get_plot_component(p1, 'guide-box-bottom', return_all = TRUE)
+l2 <- get_plot_component(p2, 'guide-box-bottom', return_all = TRUE)
+
+pp <- plot_grid(plotlist = ll,ncol = 1)
+ppl <- plot_grid(NULL,l1,NULL,l2,NULL,nrow = 1,rel_heights = c(0.25,1,0.25,1,0.25))
+
+pp <- plot_grid(pp,ppl,ncol = 1,rel_heights = c(1,0.1))
+
+ggsave2("../Figure_Output/Targets/Targets_with_BS.png",pp, width = 12,height = 13, bg = "white")
+```
+
+
+
+
+
+
+
+
+

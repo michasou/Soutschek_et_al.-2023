@@ -1,0 +1,161 @@
+---
+title: "enrichMiR_Kleaveland_2018"
+author: "Michael Soutschek"
+date: "31 1 2021"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(enrichMiR)
+  library(SummarizedExperiment)
+  library(ggrepel)
+  library(cowplot)
+})
+```
+
+#load enrichMiR Data
+```{r}
+#sets
+sets_SC <- readRDS("V:/Michael/Bioinformatics/Reference/enrichMiR/scanMiR/scanMiR_GRCh38_gene.rds")
+sets_TSall <- readRDS("V:/Michael/Bioinformatics/Reference/enrichMiR/Targetscan/20211124_Targetscan8_Human_AllPred_human.rds")
+
+#mir
+se_short <- readRDS("../../../TimeCourse/smallRNA/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+se_short_21 <- se_short[,se_short$day == 21]
+se_short_21 <- se_short_21[grep("hsa-miR",row.names(se_short_21)),]
+
+miRs <- as.data.frame(assays(se_short_21)$logcpm)
+miRs <- rowMeans(miRs)
+miRs <- miRs[miRs > 1.5]
+```
+
+
+#load experiment
+```{r}
+se <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
+
+dea1 <- rowData(se)[["DEA"]] 
+dea2 <- rowData(se)[["DEA.ind.Ctrl-MiR"]]
+dea3 <- rowData(se)[["DEA.ind.MiR"]]
+```
+
+
+
+# enrichMiR Combined_DEA (miR-1229 only present in TSall)
+```{r}
+e_TS <- testEnrichment(dea1,sets = sets_TSall,tests = c("areamir","siteoverlap"), sets.properties = miRs)
+res_TS_area <- getResults(e_TS,test = c("areamir"),flatten = TRUE)
+res_TS_so <- getResults(e_TS,test = c("siteoverlap.down"),flatten = TRUE)
+```
+
+# enrichMiR ind_DEA 10nM (miR-1229 only present in TSall)
+```{r}
+e_TS_ind10 <- testEnrichment(dea2,sets = sets_TSall,tests = c("areamir","siteoverlap"), sets.properties = miRs)
+res_TS_ind10_area <- getResults(e_TS_ind10,test = c("areamir"),flatten = TRUE)
+res_TS_ind10_so <- getResults(e_TS_ind10,test = c("siteoverlap.down"),flatten = TRUE)
+```
+
+# enrichMiR ind_DEA 20nM (miR-1229 only present in TSall)
+```{r}
+e_TS_ind20 <- testEnrichment(dea3,sets = sets_TSall,tests = c("areamir","siteoverlap"), sets.properties = miRs)
+res_TS_ind20_area <- getResults(e_TS_ind20,test = c("areamir"),flatten = TRUE)
+res_TS_ind20_so <- getResults(e_TS_ind20,test = c("siteoverlap.down"),flatten = TRUE)
+```
+
+
+
+#EnrichPlots Combined_DEA
+```{r}
+#siteoverlap
+p1 <- enrichPlot(res = res_TS_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.001)
+p1 <- p1 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("Targetscan all - areamir") + labs(color="Expression")
+
+#areamir
+p2 <- enrichPlot(res = res_TS_area,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = NULL, label.sig.thres = 0.051)
+p2 <- p2 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("Targetscan all - areamir") + labs(color="Expression")
+
+legend_ver <- get_legend(p2)
+
+title1 <- ggdraw() + draw_label("Combined DEA", fontface='bold.italic', size = 18)
+pp1 <- plot_grid(p1+ theme(legend.position = "none"),
+                 p2+ theme(legend.position = "none"), nrow = 1)
+pp1 <- plot_grid(title1,pp1,ncol = 1, rel_heights = c(0.05,1))
+```
+
+
+#EnrichPlots ind_DEA (10nM)
+```{r}
+#siteoverlap
+p4 <- enrichPlot(res = res_TS_ind10_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.001)
+p4 <- p4 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12), legend.position = "bottom") + ggtitle("Targetscan all - areamir") + labs(color="Expression") + guides(colour = guide_colourbar(title.position="left", title.hjust = 0.5))
+
+#areamir
+p5 <- enrichPlot(res = res_TS_ind10_area,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = NULL, label.sig.thres = 0.051)
+p5 <- p5 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12), legend.position = "bottom") + ggtitle("Targetscan all - areamir") + labs(color="Expression") + guides(colour = guide_colourbar(title.position="left", title.hjust = 0.5))
+
+legend <- get_plot_component(p5, 'guide-box-bottom', return_all = TRUE)
+
+title2 <- ggdraw() + draw_label("Ind. DEA 10nM", fontface='bold.italic', size = 18)
+title2a <- ggdraw() + draw_label("DEA 10nM miR-1229", fontface='italic', size = 18)
+pp2 <- plot_grid(p4+ theme(legend.position = "none"),
+                 p5+ theme(legend.position = "none"), nrow = 1)
+pp2_leg <- plot_grid(title2a,NULL,pp2,legend,ncol = 1, rel_heights = c(0.05,0.05,1,0.1))
+pp2_plain <- plot_grid(title2,pp2,ncol = 1, rel_heights = c(0.05,1))
+```
+
+```{r}
+ggsave2("../../Figures/Figure_Output/EnrichMiR/miR1229_Enrichplot10nM.png",pp2_leg, width = 9,height = 5, bg = "white")
+```
+
+#EnrichPlots ind_DEA (20nM)
+```{r}
+#siteoverlap
+p7 <- enrichPlot(res = res_TS_ind20_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.001)
+p7 <- p7 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("Targetscan all - areamir") + labs(color="Expression")
+
+#areamir
+p8 <- enrichPlot(res = res_TS_ind20_area,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = NULL, label.sig.thres = 0.051)
+p8 <- p8 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("Targetscan all - areamir") + labs(color="Expression")
+
+title3 <- ggdraw() + draw_label("Ind. DEA 20nM", fontface='bold.italic', size = 18)
+pp3 <- plot_grid(p7+ theme(legend.position = "none"),
+                 p8+ theme(legend.position = "none"), nrow = 1)
+pp3 <- plot_grid(title3,pp3,ncol = 1, rel_heights = c(0.05,1))
+```
+
+
+
+```{r}
+pp <- plot_grid(pp1,pp2_plain,pp3,ncol = 1)
+pp <- plot_grid(pp,legend_ver,nrow = 1, rel_widths = c(1,0.1))
+ggsave2("../../Figures/Figure_Output/EnrichMiR/miR1229_CombinedEnrichplot.png",pp, width = 12,height = 12, bg = "white")
+```
+
+
+
+
+#CD Plot ScanMiR miR-1229 (10nM)
+```{r}
+#sites
+set_1229 <- "hsa-miR-1229-3p"
+
+p10 <- CDplotWrapper(dea = dea2, sets = sets_SC, setName = set_1229, by = "best_stype") + coord_cartesian(xlim = c(-0.3,0.3)) + theme_classic() + ggtitle("miR-1229-3p (10nM)") + guides(color=guide_legend(title="scanMiR\nbest site type")) + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) 
+
+ggsave2("../../Figures/Figure_Output/EnrichMiR/miR1229_10nM_CDPlot_SC.png",p10, width = 6,height = 4.5, bg = "white")
+```
+
+#CD Plot ScanMiR miR-1229 (20nM)
+```{r}
+#sites
+set_1229 <- "hsa-miR-1229-3p"
+
+p11 <- CDplotWrapper(dea = dea3, sets = sets_SC, setName = set_1229, by = "best_stype") + coord_cartesian(xlim = c(-0.5,0.5)) + theme_classic() + ggtitle("miR-1229-3p (20nM)") + guides(color=guide_legend(title="scanMiR\nbest site type")) + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12))
+
+ggsave2("../../Figures/Figure_Output/EnrichMiR/miR1229_20nM_CDPlot_SC.png",p11, width = 6,height = 4.5, bg = "white")
+```
+
+

@@ -1,0 +1,183 @@
+---
+title: "generateDEA_salmon"
+author: "Michael Soutschek"
+date: "12/9/2022"
+output: html_document
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(edgeR)
+  library(SummarizedExperiment)
+  library(SEtools)
+})
+```
+
+
+#Load Data
+```{r}
+se <- readRDS("./SE.TX.salmon.raw.rds")
+```
+
+```{r}
+se$condition <- factor(se$condition, c("Ctrl", "Ctrl-MiR", "MiR"))
+se$cond_name <- factor(se$cond_name, c("NegCtrl", "miR_20pmol", "miR_40pmol"))
+se$experiment <- factor(se$experiment,c("N1","N2","N3"))
+```
+
+
+```{r}
+tx2ge <- as.data.frame(rowData(se)) 
+```
+
+#DEA
+```{r}
+#model matrix and filter low read counts
+mm <- model.matrix(~mimic_amount, data=colData(se))
+se.null <- se[filterByExpr(assay(se), mm),]
+
+
+#edgeR normalization
+dds <- DGEList(assay(se.null))
+dds <- calcNormFactors(dds)
+
+#add logcpm and logFC
+assays(se.null)$logcpm <- log1p(cpm(dds))
+se <- SEtools::log2FC(se.null, controls = se$condition=="Ctrl", fromAssay = "logcpm", toAssay = "log2FC.Ctrl.uncorr", isLog = TRUE)
+sechm::sechm(se, head(row.names(se),1000), assayName = "log2FC.Ctrl.uncorr", top_annotation="diff",gaps_at="condition")
+```
+
+## PCA
+
+```{r pca, message=FALSE, warning=FALSE, eval=TRUE}
+# plot PCA to check for batch effect
+plgINS::plPCA(assays(se)$logcpm, as.data.frame(colData(se)), colorBy = "condition", shapeBy = "experiment",
+              add.labels = FALSE,annotation_columns = colnames(colData(se)))
+```
+
+
+## DEA
+```{r}
+#model fit
+dds <- estimateDisp(dds,mm)
+fit <- glmFit(dds, mm)
+
+#deas
+dea <- as.data.frame(topTags(glmLRT(fit, grep("mimic_amount", colnames(mm), value=TRUE)), Inf))
+
+sechm::sechm(se, head(row.names(dea), 35), assayName ="log2FC.Ctrl.uncorr", top_annotation="experiment", gaps_at="condition" ,breaks=TRUE)
+```
+
+
+
+
+
+
+#svacor mimic_amount
+```{r}
+#null model are variables that you are not interested in, if one includes null model, one has to include them in the DEA model
+se2 <- se
+se2 <- svacor(se2, ~mimic_amount, n.sv=NULL)
+
+se2 <- SEtools::log2FC(se2, controls = se2$condition=="Ctrl", fromAssay = "corrected", toAssay = "log2FC.Ctrl", isLog = TRUE)
+sechm::sechm(se2, head(row.names(se2),1000), assayName = "log2FC.Ctrl", top_annotation="diff",gaps_at="condition")
+```
+
+
+```{r}
+plgINS::plPCA(assays(se2)$corrected, as.data.frame(colData(se2)), colorBy = "mimic_amount", shapeBy = "experiment",
+              add.labels = FALSE, annotation_columns = colnames(colData(se2)))
+```
+
+
+
+#DEA
+```{r}
+#model matrix and filter low read counts
+mm2 <- model.matrix(~ mimic_amount + SV1, data=colData(se2))
+se2 <- se2[filterByExpr(assay(se2), mm2),]
+
+#edgeR normalization
+dds2 <- DGEList(assay(se2))
+dds2 <- calcNormFactors(dds2)
+
+#add logcpm and logFC
+assays(se2)$logcpm <- log1p(cpm(dds2))
+
+#model fit
+dds2 <- estimateDisp(dds2,mm2)
+fit2 <- glmFit(dds2, mm2)
+```
+
+
+```{r}
+#deas
+dea2 <- as.data.frame(topTags(glmLRT(fit2, "mimic_amount"), Inf))
+
+rowData(se2)[["DEA"]] <- cbind(dea2[row.names(se2),],tx2ge[row.names(se2),])
+
+sechm::sechm(se2, head(row.names(dea2), 35), assayName ="log2FC.Ctrl", top_annotation="experiment", gaps_at="condition" ,breaks=TRUE)
+```
+
+#svacor condition
+```{r}
+#null model are variables that you are not interested in, if one includes null model, one has to include them in the DEA model
+se3 <- se
+se3 <- svacor(se3, ~condition, n.sv=NULL)
+
+se3 <- SEtools::log2FC(se3, controls = se3$condition=="Ctrl", fromAssay = "corrected", toAssay = "log2FC.Ctrl.ind", isLog = TRUE)
+sechm::sechm(se3, head(row.names(se3),1000), assayName = "log2FC.Ctrl.ind", top_annotation="diff",gaps_at="condition")
+```
+
+
+```{r}
+plgINS::plPCA(assays(se3)$corrected, as.data.frame(colData(se3)), colorBy = "condition", shapeBy = "experiment",
+              add.labels = FALSE, annotation_columns = colnames(colData(se3)))
+```
+
+
+
+#DEA
+```{r}
+#model matrix and filter low read counts
+mm3 <- model.matrix(~ condition + SV1, data=colData(se3))
+se3 <- se3[filterByExpr(assay(se3), mm3),]
+
+#edgeR normalization
+dds3 <- DGEList(assay(se3))
+dds3 <- calcNormFactors(dds3)
+
+#add logcpm and logFC
+assays(se3)$logcpm <- log1p(cpm(dds3))
+
+#model fit
+dds3 <- estimateDisp(dds3,mm3)
+fit3 <- glmFit(dds3, mm3)
+```
+
+
+```{r}
+#deas
+
+deas3 <- list()
+for(f in grep("condition", colnames(mm3), value=TRUE)){
+  deas3[[f]] <- as.data.frame(topTags(glmLRT(fit3, f), Inf))
+  deas3[[f]] <- cbind(deas3[[f]][row.names(se2),],tx2ge[row.names(se2),])
+  rowData(se2)[[paste0("DEA.ind.",gsub("condition","",f))]] <- deas3[[f]][row.names(se2),]
+}
+
+deas3$any <- as.data.frame(topTags(glmLRT(fit3, grep("condition", colnames(mm3), value=TRUE)), Inf))
+rowData(se2)[["DEA.ind.any"]] <- cbind(deas3$any[row.names(se2),],tx2ge[row.names(se2),])
+
+sechm::sechm(se2, head(row.names(deas3[[3]]), 35), assayName ="log2FC.Ctrl", top_annotation="experiment", gaps_at="condition" ,breaks=TRUE)
+```
+
+
+```{r}
+saveRDS(se2,"./SE.dea.TX.salmon.raw.rds")
+```
+
+
+
