@@ -33,6 +33,9 @@ col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uch
 #Data Import
 ```{r}
 res_mean <- readRDS("../Data/mean_res.rds")
+replacement <- c(Nv11 = "n1", Nv12 = "n2", Nv13 = "n3")
+res_mean$Diff <- replacement[as.character(res_mean$Diff)]
+res_mean$Diff <- factor(res_mean$Diff,levels = c("n1","n2","n3"))
 ```
 
 

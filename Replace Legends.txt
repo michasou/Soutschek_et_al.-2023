@@ -9,7 +9,10 @@ single-gene images
 8) Replace 5b-c with n1-n3
 9) Replace 5d with r1-r3
 10) Replace 5d with n1-n3
+>> Done in R
 11) Replace 5g with m1-m3
+>> Decide about SIM Day29
 12) Replace 5i with m1-m4
 13) Replace 5k-l with n1-n3
+>> Done in R
 14) Replace 5m with m1-m3

@@ -40,6 +40,12 @@ col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uch
 ```{r}
 e <- readRDS("../DataPrep/IndMito.rds")
 e$Condition <- factor(e$Condition,levels = c("pLNA-Ctrl","pLNA-1229"))
+e$Differentiation <- tolower(e$Differentiation)
+```
+
+```{r}
+#exclude the wrongly processed ones
+e <- e[!grepl("^230511_michael_M1_control_2023_05_11_[0-9_]*_SIM²\\.czi$", e$file), ]
 ```
 
 
@@ -121,7 +127,7 @@ p1 <- ggplot(ag_area,aes(x = Condition, y = x)) +
         axis.text.x = element_text(size = rel(1))) +
   scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
 
-ggsave2("../Figures/SIM_MitoArea.png",p1, width = 7,height = 4.75, bg = "white")
+ggsave2("../Figures/SIM_MitoArea_excl.png",p1, width = 7,height = 4.75, bg = "white")
 ```
 
 
