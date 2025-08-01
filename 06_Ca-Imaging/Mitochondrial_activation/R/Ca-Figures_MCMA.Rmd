@@ -43,6 +43,10 @@ res <- readRDS("./PeakTable_075.rds")
 res$Condition <- factor(res$Condition, levels = c("pLNA-Ctrl_MC","pLNA-1229_MC","pLNA-Ctrl_MA","pLNA-1229_MA"))
 ```
 
+```{r}
+res$Differentiation <- tolower(res$Differentiation)
+res$Differentiation <- factor(res$Differentiation,levels = c("m1","m2","m3"))
+```
 
 
 ######################

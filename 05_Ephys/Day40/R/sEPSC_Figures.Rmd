@@ -34,6 +34,8 @@ suppressPackageStartupMessages({
 ```{r}
 e <- readRDS("../DataPrep/EPSC_filtered.rds")
 e$condition <- factor(e$condition,levels = c("pLNA-Ctrl","pLNA-1229"))
+e$Differentiation <- tolower(e$Differentiation)
+e$Differentiation <- factor(e$Differentiation,levels = c("m1","m2","m3"))
 ```
 
 

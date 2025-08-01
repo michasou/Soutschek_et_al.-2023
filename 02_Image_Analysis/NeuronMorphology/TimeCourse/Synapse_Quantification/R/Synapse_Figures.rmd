@@ -20,6 +20,11 @@ library(rstatix)
 res <- readRDS("../R/Synapsecluster_Result.rds")
 ```
 
+```{r}
+replacement <- c(SC1 = "s1", SC2 = "s2", SC3 = "s3")
+res$Replicate <- replacement[as.character(res$Replicate)]
+res$Replicate <- factor(res$Replicate,levels = c("s1","s2","s3"))
+```
 
 # And some normalization
 ## Factor: 13.1359 px/micron

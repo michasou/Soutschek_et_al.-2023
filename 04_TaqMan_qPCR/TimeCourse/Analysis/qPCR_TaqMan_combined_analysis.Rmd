@@ -25,6 +25,11 @@ data <- rbind(data1,data2)
 ```
 
 
+```{r}
+replacement <- c(SC1 = "s1", SC2 = "s2", SC3 = "s3")
+data$exp <- replacement[as.character(data$exp )]
+data$exp  <- factor(data$exp,levels = c("s1","s2","s3"))
+```
 
 #Clean up and plot Cq-values free
 ```{r}

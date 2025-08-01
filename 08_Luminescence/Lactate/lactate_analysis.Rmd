@@ -43,6 +43,16 @@ res$Cond <- factor(res$Cond, levels = c("pLNA-Ctrl","pLNA-1229"))
 res$Day <- gsub("D","Day ",res$Day)
 ```
 
+```{r}
+res <- res[res$Diff != "Glo",]
+```
+
+
+```{r}
+res$Diff <- tolower(res$Diff)
+res$Diff <- factor(res$Diff,levels = c("m1","m2","m3","m4"))
+```
+
 
 #split
 ```{r}
