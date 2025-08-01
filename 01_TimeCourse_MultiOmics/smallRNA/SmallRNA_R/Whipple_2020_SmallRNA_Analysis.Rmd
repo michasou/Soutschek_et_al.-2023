@@ -17,9 +17,7 @@ suppressPackageStartupMessages({
 
 
 ## Allocation
-
 ```{r allocation}
-
 # allocation
 ## input/output files
 folder <- "Whipple_2020_Oasis/data/counts/"
@@ -119,7 +117,7 @@ ggplot(meltSE(se, g3, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + g
 ```
 
 ```{r}
-se_ipsc <- readRDS("~/iPSC_Screen/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+se_ipsc <- readRDS("../data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
 
 g4 <- "hsa-miR-410-3p"
 g5 <- "hsa-miR-181a-5p"

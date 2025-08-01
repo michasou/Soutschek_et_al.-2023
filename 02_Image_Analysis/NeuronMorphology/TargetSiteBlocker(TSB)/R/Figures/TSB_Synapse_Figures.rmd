@@ -1,0 +1,267 @@
+---
+title: "Untitled"
+author: "Michael"
+date: '2022-10-21'
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+  library(ggsci)
+  library(scales)
+  library(emmeans)
+  library(lmerTest)
+  library(ggpubr)
+  library(rstatix)
+  library(ggsignif)
+  library(cowplot)
+  library(viridis)
+  library(grid)
+  library(gtable)
+  library(ggnewscale)
+})
+```
+
+```{r}
+show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],pal_uchicago("default")(9)[9])
+col_vec2 <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
+```
+
+
+
+
+#Load Data
+```{r}
+e <- readRDS("../Data/Synapsecluster_Result_TSB.rds")
+e <- e[e$Condition != c("empty"),]
+e$Condition <- droplevels(e$Condition)
+```
+
+
+
+
+##################
+##################
+#Synapses
+
+## All Points with mean statistic
+#get statistics
+```{r}
+##All Points, One Model
+st_df_mea <- readRDS("../stats/ST_DF_Synapses_means.rds")
+
+
+#add y_position
+y_pos <- sqrt(max(e[,"Synapses_per_DendArea_um2_per_Nuclei"]))
+
+
+st_df_mea$y_pos <- y_pos*1.075
+st_df_mea$y_adj <- rep(c(0,0.05))
+st_df_mea$y_pos2 <- st_df_mea$y_pos + st_df_mea$y_adj
+st_df_mea$p.value.signif[st_df_mea$p.value.signif == "ns"] <- NA
+```
+
+
+```{r}
+p1 <- ggplot(e,aes(x = Condition, y = sqrt(Synapses_per_DendArea_um2_per_Nuclei))) + 
+  geom_violin() +
+  stat_summary(
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = col_vec) +
+  stat_summary(aes(color = Differentiation),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(
+    data = st_df_mea,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  ylab("Synapses per µm2 area per cell (sqrt)") +
+  theme_classic()+
+  #coord_cartesian(ylim = c(NA,10)) +
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        legend.position = "bottom",
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
+        legend.text = element_text(size = 16))
+
+ggsave("../FigureOutput/TSB_Synapses.png",p1, width = 8,height = 5, bg = "white")
+```
+
+
+
+
+
+
+##################
+##################
+#Syn Density
+
+## All Points with mean statistic
+#get statistics
+```{r}
+##All Points, One Model
+st_df_mea <- readRDS("../stats/ST_DF_SynDensity_means.rds")
+
+
+#add y_position
+y_pos <- sqrt(max(e[,"Syn_per_area_um2_per_Nuclei"]))
+
+
+st_df_mea$y_pos <- y_pos*1.075
+st_df_mea$y_adj <- rep(c(0,0.05))
+st_df_mea$y_pos2 <- st_df_mea$y_pos + st_df_mea$y_adj
+st_df_mea$p.value.signif[st_df_mea$p.value.signif == "ns"] <- NA
+```
+
+```{r}
+p2 <- ggplot(e,aes(x = Condition, y = sqrt(Syn_per_area_um2_per_Nuclei))) + 
+  geom_violin() +
+  stat_summary(
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = col_vec) +
+  stat_summary(aes(color = Differentiation),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ylab("Syn1 per µm2 area per cell (sqrt)") +
+  theme_classic()+
+  #coord_cartesian(ylim = c(NA,10)) +
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        legend.position = "bottom",
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
+        legend.text = element_text(size = 16)) 
+
+
+ggsave("../FigureOutput/TSB_SynDensity.png",p2, width = 8,height = 6, bg = "white")
+```
+
+
+
+
+
+
+##################
+##################
+#PSD Density
+
+## All Points with mean statistic
+#get statistics
+```{r}
+##All Points, One Model
+st_df_mea <- readRDS("../stats/ST_DF_PSDDensity_means.rds")
+
+
+#add y_position
+y_pos <- sqrt(max(e[,"PSD_per_area_um2_per_Nuclei"]))
+
+
+st_df_mea$y_pos <- y_pos*1.075
+st_df_mea$y_adj <- rep(c(0,0.05))
+st_df_mea$y_pos2 <- st_df_mea$y_pos + st_df_mea$y_adj
+st_df_mea$p.value.signif[st_df_mea$p.value.signif == "ns"] <- NA
+```
+
+```{r}
+p3 <- ggplot(e,aes(x = Condition, y = sqrt(PSD_per_area_um2_per_Nuclei))) + 
+   geom_violin() +
+  stat_summary(
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = col_vec) +
+  stat_summary(aes(color = Differentiation),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ylab("PSD per µm2 area per cell (sqrt)") +
+  theme_classic()+
+  #coord_cartesian(ylim = c(NA,10)) +
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        legend.position = "bottom",
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
+        legend.text = element_text(size = 16)) 
+
+
+ggsave("../FigureOutput/TSB_PSDDensity.png",p3, width = 8,height = 6, bg = "white")
+```
+
+
+
+
+```{r}
+norm_to <- function(df,norm_to){
+  nn <- df[df$Condition == norm_to,]
+  nn$Condition <- NULL
+  name <- paste0("Norm_",norm_to)
+  colnames(nn)[colnames(nn) == "x"] <- name
+  df <- merge(df,nn, by = c("Differentiation"))
+  df$Normalized <- df$x / df[[name]]
+  df <- df[df$Condition != norm_to,]
+}
+```
+
+
+```{r}
+ag_s <- aggregate(sqrt(e$Synapses_per_DendArea_um2_per_Nuclei),e[,c("Differentiation","Condition")], FUN=mean)
+ag_s_norm <- norm_to(ag_s,"pLNA-Ctrl")
+
+p1c <- ggplot(ag_s_norm[ag_s_norm$Condition != "empty",], aes(x = Condition, y = Normalized)) +
+  geom_bar(stat = "summary", fun = "mean",
+           fill = "white", color = "darkgrey", linewidth = 1) +
+  geom_point(aes(colour = Differentiation), 
+             size = 2, show.legend = TRUE) +
+  scale_color_manual(values = col_vec) +
+  ylab("Synapses per µm2 area per cell\n(Normalized to Ctrl.)") +
+  geom_hline(yintercept = 1,linetype = "dashed") +
+  theme_classic(base_size = 12) +
+  #coord_cartesian(ylim = c(NA,10)) +
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        legend.position = "bottom",
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
+        legend.text = element_text(size = 16))
+
+ggsave("../FigureOutput//TSB_Synapses_Norm.png",p1c, width = 6,height = 8, bg = "white")
+```
+
+
+

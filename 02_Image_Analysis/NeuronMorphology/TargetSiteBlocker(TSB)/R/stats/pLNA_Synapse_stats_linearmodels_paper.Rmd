@@ -1,0 +1,147 @@
+---
+title: "Untitled"
+author: "Michael"
+date: '2022-10-21'
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+  library(ggsci)
+  library(scales)
+  library(emmeans)
+  library(lmerTest)
+  library(ggpubr)
+  library(rstatix)
+  library(ggsignif)
+  library(cowplot)
+  library(viridis)
+  library(MASS)
+  library(blme)
+})
+```
+
+
+
+#load data
+```{r}
+e <- readRDS("../Data/Synapsecluster_Result_TSB.rds")
+e <- e[e$Condition != c("empty"),]
+e$Condition <- droplevels(e$Condition)
+```
+
+
+#Aggregate Means
+```{r}
+#Synapses per DendArea per Nuclei (sqrt)
+ag_s <- aggregate(sqrt(e$Synapses_per_DendArea_um2_per_Nuclei),e[,c("Differentiation","Condition")], FUN=mean)
+```
+
+
+```{r}
+#Syn per DendArea per Nuclei (sqrt)
+ag_syn <- aggregate(sqrt(e$Syn_per_area_um2_per_Nuclei),e[,c("Differentiation","Condition")], FUN=mean)
+
+#PSD per DendArea per Nuclei (sqrt)
+ag_psd <- aggregate(sqrt(e$PSD_per_area_um2_per_Nuclei),e[,c("Differentiation","Condition")], FUN=mean)
+```
+
+
+
+
+
+#statistic synapses means
+```{r message=FALSE, warning=FALSE, paged.print=FALSE, results=FALSE}
+mod_s1 <- MASS::rlm(x ~ Condition + Differentiation,ag_s,psi = psi.huber)
+summary(mod_s1)
+s1 <- emmeans(mod_s1, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
+```
+
+
+
+```{r}
+st_df1 <- as.data.frame(s1$contrasts)
+st_df1$Day <- "Day21"
+
+st_df1$t.ratio <- NULL
+
+st_df <- st_df1
+st_df$group1 <- "pLNA-Ctrl"
+st_df$group2 <- gsub(") - Ctrl", "",st_df$contrast)
+st_df$group2 <- gsub("\\(", "",st_df$group2)
+st_df$group2 <- gsub("\\) - pLNA-Ctrl)", "",st_df$group2)
+st_df$group2 <- gsub("\\ - pLNA-Ctrl)", "",st_df$group2)
+st_df <- add_significance(st_df,p.col = "p.value")
+```
+
+```{r}
+saveRDS(st_df,"./ST_DF_Synapses_means.rds")
+```
+
+
+
+
+#statistic Syn Density means
+```{r message=FALSE, warning=FALSE, paged.print=FALSE, results=FALSE}
+mod_syn1 <- MASS::rlm(x ~ Condition + Differentiation,ag_syn,psi = psi.huber)
+summary(mod_syn1)
+syn1 <- emmeans(mod_syn1, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
+```
+
+
+
+```{r}
+st_df1 <- as.data.frame(syn1$contrasts)
+st_df1$Day <- "Day21"
+
+st_df1$t.ratio <- NULL
+
+st_df <- st_df1
+st_df$group1 <- "pLNA-Ctrl"
+st_df$group2 <- gsub(") - Ctrl", "",st_df$contrast)
+st_df$group2 <- gsub("\\(", "",st_df$group2)
+st_df$group2 <- gsub("\\) - pLNA-Ctrl)", "",st_df$group2)
+st_df$group2 <- gsub("\\ - pLNA-Ctrl)", "",st_df$group2)
+st_df <- add_significance(st_df,p.col = "p.value")
+
+saveRDS(st_df,"./ST_DF_SynDensity_means.rds")
+```
+
+
+
+
+#statistic PSD Density means
+```{r message=FALSE, warning=FALSE, paged.print=FALSE, results=FALSE}
+mod_psd1 <- MASS::rlm(x ~ Condition + Differentiation,ag_psd,psi = psi.huber)
+summary(mod_psd1)
+psd1 <- emmeans(mod_psd1, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
+```
+
+
+
+```{r}
+st_df1 <- as.data.frame(psd1$contrasts)
+st_df1$Day <- "Day21"
+
+st_df1$t.ratio <- NULL
+
+st_df <- st_df1
+st_df$group1 <- "pLNA-Ctrl"
+st_df$group2 <- gsub(") - Ctrl", "",st_df$contrast)
+st_df$group2 <- gsub("\\(", "",st_df$group2)
+st_df$group2 <- gsub("\\) - pLNA-Ctrl)", "",st_df$group2)
+st_df$group2 <- gsub("\\ - pLNA-Ctrl)", "",st_df$group2)
+st_df <- add_significance(st_df,p.col = "p.value")
+
+saveRDS(st_df,"./ST_DF_PSDDensity_means.rds")
+```
+
+
+
+

@@ -18,13 +18,15 @@ suppressPackageStartupMessages({
   library(tidyr)
   library(plotly)
   library(cowplot)
+  library(scales)
+  library(ggsci)
 })
 ```
 
 
 # Load Data
 ```{r}
-se <- readRDS("../../data/Long_RNA/longRNA.DEA.SE.rds")
+se <- readRDS("../../RNA_GRCh38.p10_Ens91/data/Long_RNA/longRNA.DEA.SE.rds")
 se$Day <- paste0("Day ",se$day)
 se$Day[which(se$Day == "Day 9")] <- "Day 09"
 se$Day <- factor(se$Day, levels = c("Day 0","Day 09","Day 15","Day 21","Day 27","Day 33","Day 40"))
@@ -105,8 +107,8 @@ orca(p, file = "Figure_Output/Exploratory/LongRNA_PCA.pdf")
 
 
 ```{r}
-col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
-col_vec2 <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
+show_col(pal_uchicago())
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[4],pal_uchicago("default")(9)[5],pal_uchicago("default")(9)[6],pal_uchicago("default")(9)[9])
 
 
 #assay
@@ -154,8 +156,7 @@ p1 <- ggplot(df, aes(x = x, y = y)) +
   geom_point(aes(color = cb, shape = sb),size = 3) +
   theme_classic() +
   xlab(xlab) + ylab(ylab) + 
-  #scale_color_manual(values = col_vec2) +
-  scale_color_uchicago()+
+  scale_color_manual(values = col_vec) +
   theme(text = element_text(size = 14), 
         axis.text.x = element_text(size = rel(1)),
         axis.text.y = element_text(size = rel(1))) +

@@ -1,9 +1,9 @@
----
+                                                                   ---
 title: "CaImaging"
 author: "Michael"
 date: '2022-10-17'
 output: html_document
----
+---                                                                                                              
 
 
 #libraries
@@ -68,12 +68,6 @@ e$drug <- factor(e$drug,levels = c("MC","MA"))
 ls <- c("Mitochondria Ctrl.","Mitochondrial activation")
 names(ls) <- c("MC","MA")
 
-ee <- aggregate(log(res$Peak.Intensity.df.F.),res[,c("Day","Differentiation","Condition")], FUN=mean)
-ee$pLNA <- sapply(strsplit(as.character(ee$Condition),"_"),"[",1)
-ee$pLNA <- factor(ee$pLNA,levels = c("pLNA-Ctrl","pLNA-1229"))
-ee$drug <- sapply(strsplit(as.character(ee$Condition),"_"),"[",2)
-ee$drug <- factor(ee$drug,levels = c("MC","MA"))
-
 #Get cell numbers
 NumSpikesCond <- aggregate(res$Peak.Intensity.df.F.,res[,c("Condition"),drop = FALSE],FUN = length)
 
@@ -83,22 +77,6 @@ NumCellsCond$pLNA <- factor(NumCellsCond$pLNA,levels = c("pLNA-Ctrl","pLNA-1229"
 NumCellsCond$drug <- sapply(strsplit(as.character(NumCellsCond$Condition),"_"),"[",2)
 NumCellsCond$drug <- factor(NumCellsCond$drug,levels = c("MC","MA"))
 ```
-
-
-```{r}
-norm_to <- function(df,norm_to){
-  nn <- df[df$Condition == norm_to,]
-  nn$Condition <- NULL
-  name <- paste0("Norm_",norm_to)
-  colnames(nn)[colnames(nn) == "x"] <- name
-  df <- merge(df,nn, by = c("Day","Differentiation"))
-  df$Normalized <- df$x / df[[name]]
-  df <- df[df$Condition != norm_to,]
-}
-
-en <- norm_to(ee,"pLNA-Ctrl_MC")
-```
-
 
 
 
@@ -164,71 +142,71 @@ ggsave2("../Figures/CaImaging_Amplitude_overview_cell.png",p2, width = 7.25,heig
 ######################
 ##Frequency
 ```{r}
-# g <- aggregate(res$Peak.Intensity.df.F., res[,c("Cell.Trace","Table")],FUN = length)
-# g$Freq <- g$x/300
-# 
-# g_info <- distinct(res[,c("Cell.Trace","Table","Differentiation","Condition","Day","CVS","Video")])
-# g <- merge(g,g_info, by = c("Table","Cell.Trace"),all.x = TRUE)
-# g$pLNA <- sapply(strsplit(as.character(g$Condition),"_"),"[",1)
-# g$pLNA <- factor(g$pLNA,levels = c("pLNA-Ctrl","pLNA-1229"))
-# g$drug <- sapply(strsplit(as.character(g$Condition),"_"),"[",2)
-# g$drug <- factor(g$drug,levels = c("MC","MA"))
+g <- aggregate(res$Peak.Intensity.df.F., res[,c("Cell.Trace","Table")],FUN = length)
+g$Freq <- g$x/300
+
+g_info <- distinct(res[,c("Cell.Trace","Table","Differentiation","Condition","Day","CVS","Video")])
+g <- merge(g,g_info, by = c("Table","Cell.Trace"),all.x = TRUE)
+g$pLNA <- sapply(strsplit(as.character(g$Condition),"_"),"[",1)
+g$pLNA <- factor(g$pLNA,levels = c("pLNA-Ctrl","pLNA-1229"))
+g$drug <- sapply(strsplit(as.character(g$Condition),"_"),"[",2)
+g$drug <- factor(g$drug,levels = c("MC","MA"))
 ```
 
 ```{r}
-# mod_s1 <- lm(Freq ~ pLNA*drug + Differentiation, data = g)
-# s1 <- emmeans(mod_s1, pairwise ~ pLNA|drug)
-# 
-# s1_df <- as.data.frame(s1$contrasts)
-# s1_df$group1 <- "pLNA-Ctrl"
-# s1_df$group2 <- s1_df$contrast
-# s1_df$group2 <- gsub("\\(pLNA-Ctrl\\) - \\(","",s1_df$group2)
-# s1_df$group2 <- gsub("\\)", "",s1_df$group2)
-# s1_df <- add_significance(s1_df,p.col = "p.value")
-# #s1_df$p.value.signif <- round(s1_df$p.value,3)
-# 
-# #add y_position
-# y_pos <- c()
-# for(i in levels(factor(g$drug))) {
-#   ll <- max(g[g$drug == i,"Freq"])
-#   y_pos <- c(y_pos,ll)
-# }
-# 
-# s1_df$y_pos <- y_pos*1.1
-# 
-# #aggregated by cell median
-# p_f <- ggplot(g, aes(pLNA, Freq)) +
-#  geom_violin(colour = "grey") +
-#   stat_summary(
-#     fun = mean,
-#     geom="crossbar"
-#   ) +
-#   stat_summary(aes(color = Differentiation),
-#     fun = mean,
-#     fun.max = function(x) {mean(x) + sd(x)},
-#     fun.min = function(x) {mean(x) - sd(x)},
-#     geom="pointrange", position=position_dodge(width=0.35),alpha = 0.6, size = 0.75
-#   ) +
-#   #geom_point(aes(color = Differentiation),alpha = 0.4,position=position_dodge(width=0.35)) +
-#   ggsignif::geom_signif(
-#     data = s1_df,
-#     aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
-#     textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE,
-#   ) +
-#   facet_wrap(~ drug, labeller = labeller(drug = ls)) +
-#   geom_label(data = NumCellsCond, mapping=aes(x=pLNA, y=0.14, label= x)) + 
-#   annotate("text", label = "#Cells:",x = 1, y = 0.15, ) +
-#   ylab("Frequency of ind. cells") +
-#   scale_color_manual(values = col_vec) +
-#   theme_classic(base_size = 13) +
-#   theme(strip.text.x = element_text(size = rel(1)),
-#         strip.placement = "inside",
-#         text = element_text(size = 16), 
-#         axis.title.x=element_blank(),
-#         axis.text.x = element_text(size = rel(1)))  +
-#   scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
-# 
-# ggsave2("../Figures/CaImaging_Frequency_overview_cellmedian.png",p_f, width = 7,height = 5)
+mod_s1 <- lm(Freq ~ pLNA*drug + Differentiation, data = g)
+s1 <- emmeans(mod_s1, pairwise ~ pLNA|drug)
+
+s1_df <- as.data.frame(s1$contrasts)
+s1_df$group1 <- "pLNA-Ctrl"
+s1_df$group2 <- s1_df$contrast
+s1_df$group2 <- gsub("\\(pLNA-Ctrl\\) - \\(","",s1_df$group2)
+s1_df$group2 <- gsub("\\)", "",s1_df$group2)
+s1_df <- add_significance(s1_df,p.col = "p.value")
+#s1_df$p.value.signif <- round(s1_df$p.value,3)
+
+#add y_position
+y_pos <- c()
+for(i in levels(factor(g$drug))) {
+  ll <- max(g[g$drug == i,"Freq"])
+  y_pos <- c(y_pos,ll)
+}
+
+s1_df$y_pos <- y_pos*1.1
+
+#aggregated by cell median
+p_f <- ggplot(g, aes(pLNA, Freq)) +
+ geom_violin(colour = "grey") +
+  stat_summary(
+    fun = mean,
+    geom="crossbar"
+  ) +
+  stat_summary(aes(color = Differentiation),
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.35),alpha = 0.6, size = 0.75
+  ) +
+  #geom_point(aes(color = Differentiation),alpha = 0.4,position=position_dodge(width=0.35)) +
+  ggsignif::geom_signif(
+    data = s1_df,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE,
+  ) +
+  facet_wrap(~ drug, labeller = labeller(drug = ls)) +
+  geom_label(data = NumCellsCond, mapping=aes(x=pLNA, y=-0.01, label= x)) +
+  annotate("text", label = "#Cells:",x = 1, y = 0.00, ) +
+  ylab("Spike frequency of ind. cells [hz]") +
+  scale_color_manual(values = col_vec) +
+  theme_classic(base_size = 13) +
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.placement = "inside",
+        text = element_text(size = 16),
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))  +
+  scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
+
+ggsave2("../Figures/CaImaging_Frequency_overview_cell.png",p_f, width = 7.5,height = 5)
 ```
 
 ######################

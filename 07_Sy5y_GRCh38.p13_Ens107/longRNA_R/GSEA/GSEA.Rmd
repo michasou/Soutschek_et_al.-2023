@@ -27,8 +27,13 @@ se <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
 
 #load pathways
 ```{r}
-pathways <- getMsigSets(species = "Homo sapiens")
-pathways_GO <- getMsigSets(species = "Homo sapiens", collections = "C5")
+pathways <- msigdbr(db_species = "HS",species = "Homo sapiens")
+pathways$name2 <- paste0(pathways$gs_collection, ":", pathways$gs_subcollection, ":", pathways$gs_name)
+pathways <- split(pathways$gene_symbol, pathways$name2)
+
+pathways_GO <- msigdbr(db_species = "HS",species = "Homo sapiens",collection = "C5")
+pathways_GO$name2 <- paste0(pathways_GO$gs_collection, ":", pathways_GO$gs_subcollection, ":", pathways_GO$gs_name)
+pathways_GO <- split(pathways_GO$gene_symbol, pathways_GO$name2)
 ```
 
 ##Combined DEA

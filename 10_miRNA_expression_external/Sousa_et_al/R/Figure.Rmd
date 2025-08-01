@@ -1,0 +1,159 @@
+---
+title: "miRNA-expression_Sousa-et-al"
+author: "Michael Soutschek"
+date: "2025-07-28"
+output: html_document
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyr)
+  library(ggplot2)
+  library(emmeans)
+  library(readxl)
+  library(scales)
+  library(ggsci)
+  library(ggplot2)
+  library(MASS)
+  library(emmeans)
+  library(cowplot)
+  library(rstatix)
+  library(ggpattern)
+  library(dplyr)
+  library(patchwork)
+})
+```
+
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[5])
+```
+
+
+#import table S6
+```{r}
+df <- read_excel("../aan3456-tabless1-s11.xlsx", 
+    sheet = "Table S6", skip = 2)
+```
+
+```{r}
+df$miRNA_module <- NULL
+df$miRNACorrelationToMiRNAModuleEigengene <- NULL
+```
+
+
+#filter miR-1229-3p & miR-134-5p
+```{r}
+df2 <- df[df$miRNA %in% c("hsa-mir-1229-3p","hsa-mir-134-5p"),]
+```
+
+#cleanup
+```{r}
+dfl <- df2 %>%
+  pivot_longer(
+    cols = -miRNA,
+    names_to = "Info",
+    values_to = "Expression"
+  )
+```
+
+```{r}
+dfl$species <- sapply(strsplit(dfl$Info,"_"),"[",1)
+dfl$species <- gsub("HSA","Human",dfl$species)
+dfl$species <- gsub("PTR","Chimpanzee",dfl$species)
+dfl$species <- gsub("MML","Macaque",dfl$species)
+dfl$species <- factor(dfl$species,levels = c("Human","Chimpanzee","Macaque"))
+```
+
+```{r}
+dfl$miRNA <- factor(dfl$miRNA,levels = c("hsa-mir-134-5p","hsa-mir-1229-3p"))
+```
+
+
+```{r}
+dfl$region <- sapply(strsplit(dfl$Info,"_"),"[",2)
+```
+
+```{r}
+saveRDS(dfl,"./TableS6_filt.rds")
+```
+
+
+#load data
+```{r}
+dfl <- readRDS("./TableS6_filt.rds")
+```
+
+#plot
+```{r}
+p1 <- ggplot(dfl,aes(x = miRNA,y = Expression,fill = species)) +
+  geom_bar_pattern(aes(pattern = species), show.legend = TRUE,
+    position = position_dodge(preserve = "single"),
+                   pattern_fill = "black",
+                   pattern_angle = 45,
+                   pattern_density = 0.1,
+                   pattern_spacing = 0.025,
+                   pattern_key_scale_factor = 0.6,
+                   stat = "summary", fun = "mean",
+                   fill = "white", color = "black") + 
+  scale_pattern_manual(values = c('Human' = "none", 'Chimpanzee' = "stripe",'Macaque' = "circle")) +
+  facet_wrap(~ region, scales = "fixed") +
+  labs(
+    title = "Normalized miRNA expression from Sousa et al., 2017",
+    x = "miRNA",
+    y = "Expression"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14),
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+ggsave("../FigureOutput/AllRegions.png",p1, width = 14,height = 10, bg = "white")
+```
+
+
+#filter brain regions
+```{r}
+dfl_filt <- dfl[grep("HIP|VFC|MFC|OFC",dfl$region),]
+dfl_filt$region <- factor(dfl_filt$region,levels = c("HIP","VFC","MFC","OFC"))
+```
+
+```{r}
+p2 <- ggplot(dfl_filt,aes(x = miRNA,y = Expression)) +
+  geom_bar_pattern(aes(pattern = species), show.legend = TRUE,
+    position = position_dodge(preserve = "single"),
+                   pattern_fill = "black",
+                   pattern_angle = 45,
+                   pattern_density = 0.1,
+                   pattern_spacing = 0.025,
+                   pattern_key_scale_factor = 0.6,
+                   stat = "summary", fun = "mean",
+                   fill = "white", color = "black") + 
+  scale_pattern_manual(values = c('Human' = "none", 'Chimpanzee' = "stripe",'Macaque' = "circle")) +
+  facet_wrap(~ region, scales = "fixed") +
+  labs(
+    title = "Normalized miRNA expression from Sousa et al., 2017",
+    x = "miRNA",
+    y = "Expression"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14),
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+ggsave("../FigureOutput/FilteredRegions.png",p2, width = 8,height = 6, bg = "white")
+```
+
+
+
+
+
+
+

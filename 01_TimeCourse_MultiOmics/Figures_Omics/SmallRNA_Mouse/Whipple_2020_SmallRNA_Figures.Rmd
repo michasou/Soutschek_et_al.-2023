@@ -25,20 +25,15 @@ source("../../../functions/clustering.R")
 
 
 >> For the initial analysis, see: 
-
-#"/mnt/schratt/p1006/Whipple_2020/SmallRNA_Analysis/"
-
-#and
-
 #"../../SmallRNA_R/Whipple_2020_SmallRNA_Analysis.Rmd"
 
 #load Data
 ```{r}
-mouse.se <- readRDS("../../data/Small_RNA_Mouse/Whipple_2020_SmallRNA_SE.DEA.rds")
+mouse.se <- readRDS("../../smallRNA/data/Small_RNA_Mouse/Whipple_2020_SmallRNA_SE.DEA.rds")
 #get rid of 379-410 cluster ko values
 m.se <- mouse.se[,mouse.se$genotype != "Mirg(Delta/+)"]
 
-h.se <- readRDS("../../data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+h.se <- readRDS("../../RNA_GRCh38.p10_Ens91/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
 ```
 
 

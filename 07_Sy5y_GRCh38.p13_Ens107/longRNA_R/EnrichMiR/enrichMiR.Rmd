@@ -14,6 +14,7 @@ suppressPackageStartupMessages({
   library(SummarizedExperiment)
   library(ggrepel)
   library(cowplot)
+  library(scales)
 })
 ```
 
@@ -21,10 +22,10 @@ suppressPackageStartupMessages({
 ```{r}
 #sets
 sets_SC <- readRDS("V:/Michael/Bioinformatics/Reference/enrichMiR/scanMiR/scanMiR_GRCh38_gene.rds")
-sets_TSall <- readRDS("V:/Michael/Bioinformatics/Reference/enrichMiR/Targetscan/20211124_Targetscan8_Human_AllPred_human.rds")
+#sets_TSall <- readRDS("V:/Michael/Bioinformatics/Reference/enrichMiR/Targetscan/20211124_Targetscan8_Human_AllPred_human.rds")
 
 #mir
-se_short <- readRDS("../../../TimeCourse/smallRNA/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+se_short <- readRDS("../../../01_TimeCourse_MultiOmics/smallRNA/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
 se_short_21 <- se_short[,se_short$day == 21]
 se_short_21 <- se_short_21[grep("hsa-miR",row.names(se_short_21)),]
 
@@ -47,23 +48,23 @@ dea3 <- rowData(se)[["DEA.ind.MiR"]]
 
 # enrichMiR Combined_DEA (miR-1229 only present in TSall)
 ```{r}
-e_TS <- testEnrichment(dea1,sets = sets_TSall,tests = c("areamir","siteoverlap"), sets.properties = miRs)
-res_TS_area <- getResults(e_TS,test = c("areamir"),flatten = TRUE)
-res_TS_so <- getResults(e_TS,test = c("siteoverlap.down"),flatten = TRUE)
+e_SC <- testEnrichment(dea1,sets = sets_SC,tests = c("areamir","siteoverlap"), sets.properties = miRs)
+res_SC_area <- getResults(e_SC,test = c("areamir"),flatten = TRUE)
+res_SC_so <- getResults(e_SC,test = c("siteoverlap.down"),flatten = TRUE)
 ```
 
 # enrichMiR ind_DEA 10nM (miR-1229 only present in TSall)
 ```{r}
-e_TS_ind10 <- testEnrichment(dea2,sets = sets_TSall,tests = c("areamir","siteoverlap"), sets.properties = miRs)
-res_TS_ind10_area <- getResults(e_TS_ind10,test = c("areamir"),flatten = TRUE)
-res_TS_ind10_so <- getResults(e_TS_ind10,test = c("siteoverlap.down"),flatten = TRUE)
+e_SC_ind10 <- testEnrichment(dea2,sets = sets_SC,tests = c("areamir","siteoverlap"), sets.properties = miRs)
+res_SC_ind10_area <- getResults(e_SC_ind10,test = c("areamir"),flatten = TRUE)
+res_SC_ind10_so <- getResults(e_SC_ind10,test = c("siteoverlap.down"),flatten = TRUE)
 ```
 
 # enrichMiR ind_DEA 20nM (miR-1229 only present in TSall)
 ```{r}
-e_TS_ind20 <- testEnrichment(dea3,sets = sets_TSall,tests = c("areamir","siteoverlap"), sets.properties = miRs)
-res_TS_ind20_area <- getResults(e_TS_ind20,test = c("areamir"),flatten = TRUE)
-res_TS_ind20_so <- getResults(e_TS_ind20,test = c("siteoverlap.down"),flatten = TRUE)
+e_SC_ind20 <- testEnrichment(dea3,sets = sets_SC,tests = c("areamir","siteoverlap"), sets.properties = miRs)
+res_SC_ind20_area <- getResults(e_SC_ind20,test = c("areamir"),flatten = TRUE)
+res_SC_ind20_so <- getResults(e_SC_ind20,test = c("siteoverlap.down"),flatten = TRUE)
 ```
 
 
@@ -71,12 +72,26 @@ res_TS_ind20_so <- getResults(e_TS_ind20,test = c("siteoverlap.down"),flatten = 
 #EnrichPlots Combined_DEA
 ```{r}
 #siteoverlap
-p1 <- enrichPlot(res = res_TS_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.001)
-p1 <- p1 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("Targetscan all - areamir") + labs(color="Expression")
+p1 <- enrichPlot(res = res_SC_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.001)
+
+#fix the axis labels
+p1 <- p1 + scale_y_continuous(
+    trans  = enrichMiR:::.reverselog_trans(10),
+    breaks = log_breaks(base = 10)
+  )
+
+p1 <- p1 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("scanMiR can. - siteoverlap") + labs(color="Expression")
 
 #areamir
-p2 <- enrichPlot(res = res_TS_area,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = NULL, label.sig.thres = 0.051)
-p2 <- p2 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("Targetscan all - areamir") + labs(color="Expression")
+p2 <- enrichPlot(res = res_SC_area,enr.field = "enrichment",col.field = "props",sig.field = "FDR", size.field = NULL, label.sig.thres = 0.051)
+
+#fix the axis labels
+p2 <- p2 + scale_y_continuous(
+    trans  = enrichMiR:::.reverselog_trans(10),
+    breaks = log_breaks(base = 10)
+  )
+
+p2 <- p2 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("scanMiR can. - areamir") + labs(color="Expression")
 
 legend_ver <- get_legend(p2)
 
@@ -90,12 +105,26 @@ pp1 <- plot_grid(title1,pp1,ncol = 1, rel_heights = c(0.05,1))
 #EnrichPlots ind_DEA (10nM)
 ```{r}
 #siteoverlap
-p4 <- enrichPlot(res = res_TS_ind10_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.001)
-p4 <- p4 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12), legend.position = "bottom") + ggtitle("Targetscan all - areamir") + labs(color="Expression") + guides(colour = guide_colourbar(title.position="left", title.hjust = 0.5))
+p4 <- enrichPlot(res = res_SC_ind10_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.001)
+
+#fix the axis labels
+p4 <- p4 + scale_y_continuous(
+    trans  = enrichMiR:::.reverselog_trans(10),
+    breaks = log_breaks(base = 10)
+  )
+
+p4 <- p4 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("scanMiR can. - siteoverlap") + labs(color="Expression")
 
 #areamir
-p5 <- enrichPlot(res = res_TS_ind10_area,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = NULL, label.sig.thres = 0.051)
-p5 <- p5 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12), legend.position = "bottom") + ggtitle("Targetscan all - areamir") + labs(color="Expression") + guides(colour = guide_colourbar(title.position="left", title.hjust = 0.5))
+p5 <- enrichPlot(res = res_SC_ind10_area,enr.field = "enrichment",col.field = "props",sig.field = "FDR", size.field = NULL, label.sig.thres = 0.051)
+
+#fix the axis labels
+p5 <- p5 + scale_y_continuous(
+    trans  = enrichMiR:::.reverselog_trans(10),
+    breaks = log_breaks(base = 10)
+  )
+
+p5 <- p5 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12), legend.position = "bottom") + ggtitle("scanMiR can. - areamir") + labs(color="Expression") + guides(colour = guide_colourbar(title.position="left", title.hjust = 0.5))
 
 legend <- get_plot_component(p5, 'guide-box-bottom', return_all = TRUE)
 
@@ -111,15 +140,46 @@ pp2_plain <- plot_grid(title2,pp2,ncol = 1, rel_heights = c(0.05,1))
 ggsave2("../../Figures/Figure_Output/EnrichMiR/miR1229_Enrichplot10nM.png",pp2_leg, width = 9,height = 5, bg = "white")
 ```
 
+```{r}
+#siteoverlap
+p4a <- enrichPlot(res = res_SC_ind10_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.001)
+
+#fix the axis labels
+p4a <- p4a + scale_y_continuous(
+    trans  = enrichMiR:::.reverselog_trans(10),
+    breaks = log_breaks(base = 10)
+  )
+
+p4a <- p4a + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("EnrichMiR - siteoverlap") + labs(color="Expression")
+
+ggsave2("../../Figures/Figure_Output/EnrichMiR/miR1229_Enrichplot_SO_10nM.png",p4a, width = 7,height = 5, bg = "white")
+```
+
+
+
 #EnrichPlots ind_DEA (20nM)
 ```{r}
 #siteoverlap
-p7 <- enrichPlot(res = res_TS_ind20_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.001)
-p7 <- p7 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("Targetscan all - areamir") + labs(color="Expression")
+p7 <- enrichPlot(res = res_SC_ind20_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.001)
+
+#fix the axis labels
+p7 <- p7 + scale_y_continuous(
+    trans  = enrichMiR:::.reverselog_trans(10),
+    breaks = log_breaks(base = 10)
+  )
+
+p7 <- p7 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("scanMiR can. - siteoverlap") + labs(color="Expression")
 
 #areamir
-p8 <- enrichPlot(res = res_TS_ind20_area,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = NULL, label.sig.thres = 0.051)
-p8 <- p8 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("Targetscan all - areamir") + labs(color="Expression")
+p8 <- enrichPlot(res = res_SC_ind20_area,enr.field = "enrichment",col.field = "props",sig.field = "FDR", size.field = NULL, label.sig.thres = 0.051)
+
+#fix the axis labels
+p8 <- p8 + scale_y_continuous(
+    trans  = enrichMiR:::.reverselog_trans(10),
+    breaks = log_breaks(base = 10)
+  )
+
+p8 <- p8 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("scanMiR can. - areamir") + labs(color="Expression")
 
 title3 <- ggdraw() + draw_label("Ind. DEA 20nM", fontface='bold.italic', size = 18)
 pp3 <- plot_grid(p7+ theme(legend.position = "none"),
@@ -138,7 +198,7 @@ ggsave2("../../Figures/Figure_Output/EnrichMiR/miR1229_CombinedEnrichplot.png",p
 
 
 
-#CD Plot ScanMiR miR-1229 (10nM)
+#CD Plot scanMiR miR-1229 (10nM)
 ```{r}
 #sites
 set_1229 <- "hsa-miR-1229-3p"

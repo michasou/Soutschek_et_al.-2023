@@ -1,0 +1,155 @@
+---
+title: "Pink1_HEK"
+author: "Michael"
+date: "2023-07-18"
+output: html_document
+---
+
+
+```{r}
+suppressPackageStartupMessages({
+library(tidyr)
+library(ggplot2)
+library(emmeans)
+library(readxl)
+library(scales)
+library(ggsci)
+library(ggplot2)
+library(MASS)
+library(emmeans)
+library(cowplot)
+library(rstatix)
+library(ggpattern)
+})
+```
+
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],pal_uchicago("default")(9)[2],"#607345FF")
+```
+
+#import data
+```{r}
+res <- read.delim("./Alz. just PBS.txt")
+```
+
+#Format table
+```{r}
+res <- as.data.frame(t(as.matrix(res)))
+colnames(res) <- c("exp1","exp2","exp3")
+res$info <- row.names(res)
+res1 <-  gather(res, key = "experiment", value = "value", exp1:exp3, factor_key=TRUE)
+res1$value <- round(res1$value,2)
+
+```
+
+```{r}
+res1$sequence <- sapply(strsplit(res1$info,"\\.\\.\\."),"[",1)
+res1$condition <- sapply(strsplit(res1$info,"\\.\\.\\."),"[",2)
+
+res1$sequence <- gsub("hsa.miR.1229.2xPBS","miR-1229 2xPBS",res1$sequence)
+res1$sequence <- gsub("control.2xPBS","Ctrl.",res1$sequence)
+
+res1$condition <- gsub("hsa.miR.1229.minigene","hsa-miR-1229 minigene",res1$condition)
+res1$condition <- gsub("hsa.miR.1229.Alz..minigene","rs2291418 minigene",res1$condition)
+res1$condition <- gsub("ptr.miR.1229.minigene","ptr-miR-1229 minigene",res1$condition)
+```
+
+```{r}
+res1$sequence <- factor(res1$sequence, levels = c("Ctrl.","miR-1229 2xPBS"))
+res1$condition <- factor(res1$condition, levels = c("hsa-miR-1229 minigene","rs2291418 minigene","ptr-miR-1229 minigene"))
+```
+
+```{r}
+res1$group <- paste(res1$sequence,res1$condition,sep ="_")
+res1$group <- factor(res1$group,levels = c("Ctrl._hsa-miR-1229 minigene","miR-1229 2xPBS_hsa-miR-1229 minigene",
+                                           "Ctrl._rs2291418 minigene","miR-1229 2xPBS_rs2291418 minigene",
+                                           "Ctrl._ptr-miR-1229 minigene","miR-1229 2xPBS_ptr-miR-1229 minigene"))
+```
+
+
+
+#stats
+```{r}
+mod <- lm(value ~ condition*sequence + experiment, data = res1)
+s1 <- emmeans(mod, trt.vs.ctrl ~ sequence|condition , ref="Ctrl.")
+```
+
+```{r}
+s1_df <- as.data.frame(s1$contrasts)
+s1_df$group1 <- s1_df$contrast
+s1_df$group1 <- gsub("\\(miR-1229 2xPBS\\) - Ctrl\\.","Ctrl.",s1_df$group1)
+s1_df$group1 <- paste(s1_df$group1,s1_df$condition,sep = "_")
+
+s1_df$group2 <- s1_df$contrast
+s1_df$group2 <- gsub("\\) - Ctrl\\.","",s1_df$group2)
+s1_df$group2 <- gsub("\\(", "",s1_df$group2)
+s1_df$group2 <- paste(s1_df$group2,s1_df$condition,sep = "_")
+
+s1_df <- add_significance(s1_df,p.col = "p.value")
+
+
+y_pos <- max(res1[,"value"])
+
+s1_df$y_pos <- y_pos*1.05
+s1_df$y_adj <- rep(c(0,0.3,0))
+s1_df$y_pos2 <- s1_df$y_pos + s1_df$y_adj
+s1_df$p.value.signif[s1_df$p.value.signif == "ns"] <- NA
+```
+
+
+
+
+
+#plot
+```{r}
+p1 <- ggplot(res1, aes(x = group, y = value)) +
+  geom_bar_pattern(aes(pattern = sequence),
+    position = position_dodge(preserve = "single"),
+                   pattern_fill = "black",
+                   pattern_angle = 45,
+                   pattern_density = 0.1,
+                   pattern_spacing = 0.025,
+                   pattern_key_scale_factor = 0.6,
+                   stat = "summary", fun = "mean",
+                   fill = "white", color = "black") + 
+   geom_point(aes(colour = experiment),
+             size = 2, show.legend = TRUE
+             ) +
+  ylab("Luminescence") +
+  theme_classic(base_size = 12)+
+  scale_colour_manual(values = col_vec) +
+  scale_pattern_manual(values = c('Ctrl.' = "none", 'miR-1229 2xPBS' = "stripe")) +
+  ggsignif::geom_signif(
+    data = s1_df,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  scale_y_continuous(labels = scales::label_scientific()) + 
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1))) +
+  guides(pattern = guide_legend(override.aes = list(shape = NA))
+         ) +
+  scale_x_discrete(labels=c("hsa-miR-1229\nminigene","hsa-miR-1229\nminigene","rs2291418\nminigene","rs2291418\nminigene",
+                            "ptr-miR-1229\nminigene","ptr-miR-1229\nminigene"))
+
+ggsave2("./rs2291418.png",p1, width = 10,height = 5, bg = "white")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+

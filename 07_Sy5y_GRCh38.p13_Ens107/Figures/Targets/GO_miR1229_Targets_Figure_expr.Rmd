@@ -59,7 +59,7 @@ MF_Top <- MF[which(MF$Annotated > 15),]
 
 
 ```{r}
-CC_Top <- CC_Top[1:15,]
+CC_Top <- CC_Top[1:10,]
 BP_Top <- BP_Top[1:15,]
 MF_Top <- MF_Top[1:15,]
 
@@ -117,33 +117,32 @@ color.fill <- c("Down" = "#BC3C29","Up" = "#E18727")
 
 
 
-Figrue CC
+Figure CC
 ```{r}
-# p <- ggplot(data = CC_Top, aes(x = as.factor(CC_Top$GO.ID))) +
-#   scale_x_discrete(labels = rev(CC_Top$Term), limits = rev(levels(factor_CC)), name = "")+
-#   geom_bar(aes(y = CC_Top$down,fill = "Down"), stat = "identity") +
-#   scale_fill_manual(values=color.fill) +
-#   geom_label(aes(label = CC_Top$label1, y = 0),colour = NA, fill = "#636363") +
-#   geom_text(aes(label = CC_Top$Fisher.elim, y = 0), colour = "white") +
-#   geom_label(label = CC_Top$label2, y = 17,label.size = 5, colour = NA, fill = "#636363") +
-#   geom_text(aes(label = round(CC_Top$Fold_Enrichment,2), y = 17), colour = "white") +
-#   scale_y_continuous(limits = c(-2.25,20), name = "Number of Genes")+ 
-#   coord_flip(clip = "off", xlim = c(1,15)) +
-#   annotate("label", x = 15.9, y = 0,colour = NA,label = "P.Value", fill = "#636363") +
-#   annotate("text", x = 15.9, y = 0,label= "P.Value",colour = "white") +
-#   annotate("label", x = 15.9, y = 17,colour = NA,label = "Enrichment", fill = "#636363") +
-#   annotate("text", x = 15.9, y = 17,label= "Enrichment",colour = "white") +
-#   ggtitle("DEA 10nM Top15 sign. genes with BS (FDR < 0.05, 7mer or 8mer )") +
-#   theme_classic() +
-#   theme(axis.title = txt, axis.text = txt,  axis.ticks = tick,
-#         legend.position = c(0.9,-0.13), legend.direction = "horizontal", legend.text = txt2, legend.title = element_blank(),
-#         plot.margin = unit(c(3,1,3,1),"lines"),
-#         plot.title = element_text(vjust = 5))
-#         
-# p
-# 
-# ggsave("CB_CC_10nM_expr_Targets.png", width=12, height=5, units="in", dpi=300)
-# ggsave("CB_CC_10nM_expr_Targets.pdf", width=12, height=5, units="in", dpi=300)
+p1 <- ggplot(data = CC_Top, aes(x = as.factor(CC_Top$GO.ID))) +
+  scale_x_discrete(labels = rev(CC_Top$Term), limits = rev(levels(factor_CC)), name = "")+
+  geom_bar(aes(y = CC_Top$down,fill = "Down"), stat = "identity") +
+  scale_fill_manual(values=color.fill) +
+  geom_label(aes(label = CC_Top$label1, y = 0),colour = NA, fill = "#636363") +
+  geom_text(aes(label = CC_Top$Fisher.elim, y = 0), colour = "white") +
+  geom_label(label = CC_Top$label2, y = 13.5,label.size = 5, colour = NA, fill = "#636363") +
+  geom_text(aes(label = round(CC_Top$Fold_Enrichment,2), y = 13.5), colour = "white") +
+  scale_y_continuous(limits = c(-2.25,15), name = "Number of Genes")+
+  coord_flip(clip = "off", xlim = c(1,10)) +
+  annotate("label", x = 10.9, y = 0,colour = NA,label = "P.Value", fill = "#636363") +
+  annotate("text", x = 10.9, y = 0,label= "P.Value",colour = "white") +
+  annotate("label", x = 10.9, y = 13.5,colour = NA,label = "Enrichment", fill = "#636363") +
+  annotate("text", x = 10.9, y = 13.5,label= "Enrichment",colour = "white") +
+  ggtitle("Genes with miR-1229 sites - Cellular Component") +
+  theme_classic() +
+  theme(axis.title = txt, axis.text = txt,  axis.ticks = tick,
+        legend.position = c(0.9,-0.13), legend.direction = "horizontal", legend.text = txt2, legend.title = element_blank(),
+        plot.margin = unit(c(3,1,3,1),"lines"),
+        plot.title = element_text(vjust = 7.5))
+
+p1
+
+ggsave("../Figure_Output/Targets/GO_CC_10nM_expr_Targets.png",p1, width=12, height=5, units="in", dpi=300)
 ```
 
 
@@ -178,7 +177,7 @@ factor_GO <- factor(GO$rank, levels = GO$rank, labels = GO$GO.ID)
 
 Figure
 ```{r}
-p <- ggplot(data = GO, aes(x = as.factor(GO$GO.ID))) +
+p2 <- ggplot(data = GO, aes(x = as.factor(GO$GO.ID))) +
   scale_x_discrete(labels = rev(GO$Term), limits = rev(levels(factor_GO)), name = "")+
   geom_bar(aes(y = GO$down,fill = "Down"), stat = "identity") +
   scale_fill_manual(values=color.fill) +
@@ -199,9 +198,9 @@ p <- ggplot(data = GO, aes(x = as.factor(GO$GO.ID))) +
         plot.margin = unit(c(3,1,3,1),"lines"),
         plot.title = element_text(vjust = 5))
         
-p
+p2
 
-ggsave("../Figure_Output/Targets/GO_Combined_10nM_expr_Targets.png", width=12, height=6, units="in", dpi=300)
+ggsave("../Figure_Output/Targets/GO_Combined_10nM_expr_Targets.png",plot = p2, width=12, height=6, units="in", dpi=300)
 ```
 
 

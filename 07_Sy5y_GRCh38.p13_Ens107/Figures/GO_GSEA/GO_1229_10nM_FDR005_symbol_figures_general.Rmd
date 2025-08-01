@@ -73,7 +73,7 @@ BP_Top$Fisher.elim <- as.numeric(BP_Top$Fisher.elim)
 ```
 
 
-combine
+#combine
 ```{r}
 GO <- rbind(CC_Top,BP_Top,MF_Top)#
 GO <- GO[order(GO$Fisher.elim),]
@@ -99,6 +99,24 @@ factor_GO <- factor(GO$rank, levels = GO$rank, labels = GO$GO.ID)
 ```
 
 
+#CC_Top info
+```{r}
+CC_Top <- CC_Top[1:15,]
+```
+
+
+```{r}
+CC_Top$rank <- frank(CC_Top$Fisher.elim, ties.method = "first")
+factor_CC <- factor(CC_Top$rank, levels = CC_Top$rank, labels = CC_Top$GO.ID)
+```
+
+```{r}
+#Create uniform label fields
+CC_Top$label1 <- 1.1e-05
+CC_Top$label2 <- 1.11
+```
+
+
 ## Figures
 
 Define Plot components
@@ -112,9 +130,9 @@ color.fill <- c("Down" = "#BC3C29","Up" = "#E18727")
 
 
 
-Figrue
+#Figure GO combined
 ```{r}
-p <- ggplot(data = GO, aes(x = as.factor(GO$GO.ID))) +
+p1 <- ggplot(data = GO, aes(x = as.factor(GO$GO.ID))) +
   scale_x_discrete(labels = rev(GO$Term), limits = rev(levels(factor_GO)), name = "")+
   geom_bar(aes(y = GO$up, fill = "Up"), stat = "identity") +
   geom_bar(aes(y = GO$down * (-1),fill = "Down"), stat = "identity") +
@@ -137,8 +155,46 @@ p <- ggplot(data = GO, aes(x = as.factor(GO$GO.ID))) +
         plot.margin = unit(c(3,1,3,1),"lines"),
         plot.title = element_text(vjust = 5))
         
-p
+p1
 
-ggsave("../Figure_Output/GO-Terms/GO_10nmDEA_symbol_005.png", width=12, height=7, units="in", dpi=300)
+ggsave("../Figure_Output/GO-Terms/GO_10nmDEA_symbol_005.png",p1, width=12, height=7, units="in", dpi=300)
 ```
+
+
+
+#Figure CC_Top
+```{r}
+p2 <- ggplot(data = CC_Top, aes(x = as.factor(CC_Top$GO.ID))) +
+  scale_x_discrete(labels = rev(CC_Top$Term), limits = rev(levels(factor_CC)), name = "")+
+  geom_bar(aes(y = CC_Top$up, fill = "Up"), stat = "identity") +
+  geom_bar(aes(y = CC_Top$down * (-1),fill = "Down"), stat = "identity") +
+  scale_fill_manual(values=color.fill) +
+  geom_label(aes(label = CC_Top$label1, y = 0),colour = NA, fill = "#636363") +
+  geom_text(aes(label = CC_Top$Fisher.elim, y = 0), colour = "white") +
+  geom_label(label = CC_Top$label2, y = 22.5,label.size = 5, colour = NA, fill = "#636363") +
+  geom_text(aes(label = round(CC_Top$Fold_Enrichment,2), y = 22.5), colour = "white") +
+  scale_y_continuous(limits = c(-20,25), name = "Number of Genes")+ 
+  coord_flip(clip = "off", xlim = c(1,15)) +
+  annotate("label", x = 15.9, y = 0,colour = NA,label = "P.Value", fill = "#636363") +
+  annotate("text", x = 15.9, y = 0,label= "P.Value",colour = "white") +
+  annotate("label", x = 15.9, y = 22.5,colour = NA,label = "Enrichment", fill = "#636363") +
+  annotate("text", x = 15.9, y = 22.5,label= "Enrichment",colour = "white") +
+  ggtitle("GO-Terms - Cellular Component") +
+  theme_classic() +
+  theme(text = element_text(size = 16),
+        axis.title = txt, axis.text = txt,  axis.ticks = tick,
+        legend.position = c(0.9,-0.13), legend.direction = "horizontal", legend.text = txt2, legend.title = element_blank(),
+        plot.title = element_text(margin = margin(b = 20)),
+        plot.margin = unit(c(3,1,3,1),"lines"))
+
+p2
+
+ggsave("../Figure_Output/GO-Terms/GO_10nmDEA_symbol_005_CC.png",p2, width=12, height=7, units="in", dpi=300)
+```
+
+
+
+
+
+
 

@@ -28,13 +28,110 @@ suppressPackageStartupMessages({
   library(dplyr)
   library(tibble)
   library(pheatmap)
-  library(plgINS)
   library(sechm)
+  library(plgINS)
   library(stringr)
   library(ComplexHeatmap)
 })
-source("../../functions/clustering.R")
-source("../../functions/clusterEnrichment.R")
+source("../../../00_functions/clustering.R")
+source("../../../00_functions/clusterEnrichment.R")
+```
+
+#plgINS is private, here the function info:
+```{r}
+# plgINS::getMsigSets
+# function (species = "Homo sapiens", collections = c("H", "C2", 
+#     "C5")) 
+# {
+#     library(msigdbr)
+#     m <- msigdbr(species)
+#     m <- m[which(m$gs_cat %in% collections), ]
+#     m$name2 <- paste0(m$gs_cat, ":", m$gs_subcat, ":", m$gs_name)
+#     split(m$gene_symbol, m$name2)
+# }
+# 
+# plgINS::goseq.enrichment
+# function (allGenes, deGenes, gotype = c("GO:BP", "GO:MF", "GO:CC"), 
+#     cutoff = 0.1, cutoff.onFDR = TRUE, org = "hg19", minCatSize = 10, 
+#     maxCatSize = 1000, maxResults = 200) 
+# {
+#     suppressPackageStartupMessages(library("goseq"))
+#     suppressPackageStartupMessages(library("GO.db"))
+#     suppressPackageStartupMessages(library("org.Hs.eg.db"))
+#     suppressPackageStartupMessages(library("AnnotationDbi"))
+#     gotype <- match.arg(gotype, c("GO:CC", "GO:MF", "GO:BP"), 
+#         several.ok = T)
+#     org <- match.arg(org, c("hg19", "mm9"))
+#     emptyRes <- data.frame(term = vector(mode = "character", 
+#         length = 0), enrichment = vector(mode = "numeric", length = 0), 
+#         PValue = vector(mode = "numeric", length = 0), FDR = vector(mode = "numeric", 
+#             length = 0), genes = vector(mode = "character", length = 0))
+#     if (length(deGenes) < 3) {
+#         return(emptyRes)
+#     }
+#     if (all(is.na(allGenes))) {
+#         message("Using all (annotated) genes as a background.")
+#         if (org == "hg19") {
+#             data("hg38.refseq")
+#         }
+#         else {
+#             data("mm10.refseq")
+#         }
+#         allGenes <- unique(as.character(gtf$gene_id))
+#     }
+#     genes <- as.integer(allGenes %in% as.character(deGenes))
+#     names(genes) <- allGenes
+#     pwf <- nullp(genes, org, "geneSymbol", plot.fit = F)
+#     go.all <- suppressMessages(goseq(pwf, org, "geneSymbol", 
+#         test.cats = gotype))
+#     go.all <- go.all[which(go.all$numInCat >= minCatSize & go.all$numInCat < 
+#         maxCatSize), ]
+#     go.all$FDR <- p.adjust(go.all$over_represented_pvalue, method = "BH")
+#     if (cutoff.onFDR) {
+#         go.en <- go.all[go.all$FDR < cutoff, ]
+#     }
+#     else {
+#         go.en <- go.all[go.all$over_represented_pvalue < cutoff, 
+#             ]
+#     }
+#     go.en <- go.en[order(go.en$over_represented_pvalue), ]
+#     go.en$Term <- sapply(go.en$category, FUN = function(x) {
+#         if (is.null(x) | is.na(x) | x == "") {
+#             return("")
+#         }
+#         else {
+#             return(Term(x))
+#         }
+#     })
+#     go.en$Expected <- length(deGenes) * (go.en$numInCat/length(allGenes))
+#     go.en$Enrichment <- go.en$numDEInCat/go.en$Expected
+#     go.en <- go.en[, c("category", "Term", "numInCat", "numDEInCat", 
+#         "Enrichment", "over_represented_pvalue", "FDR")]
+#     names(go.en) <- c("GO.ID", "Term", "Annotated", "Significant", 
+#         "Enrichment", "PValue", "FDR")
+#     if (!(nrow(go.en) >= 0)) {
+#         return(emptyRes)
+#     }
+#     if (nrow(go.en) > maxResults) 
+#         go.en <- go.en[1:maxResults, ]
+#     species <- ifelse(substr(org, 0, 2) == "hg", "Hs", "Mm")
+#     db <- paste0("org.", species, ".eg")
+#     library(package = paste0(db, ".db"), character.only = T)
+#     eg <- AnnotationDbi::mget(as.character(go.en$GO.ID), get(paste0(db, 
+#         "GO2ALLEGS")), ifnotfound = NA)
+#     go.en$genes <- sapply(eg, db = db, sig = as.character(deGenes), 
+#         FUN = function(x, db, sig) {
+#             x <- x[which(!is.na(x))]
+#             if (length(x) == 0) {
+#                 return("")
+#             }
+#             x <- unique(as.character(unlist(AnnotationDbi::mget(as.character(x), 
+#                 get(paste0(db, "SYMBOL"))))))
+#             x <- intersect(x, sig)
+#             paste(sort(x), collapse = ", ")
+#         })
+#     return(go.en)
+# }
 ```
 
 
@@ -108,7 +205,7 @@ sig.neu <- row.names(res.neu)[res.neu$FDR < 0.01 & res.neu$maxlfc > 2]
 ## prepare logFC matrix
 lfc <- prepLFC4clust(assays(se)$log2FC.all[sig.all,], groups=se$stage, minLFC = 0.5)
 ## clustering & analysis
-png("../Figures_Omics/Long_RNAs/Figure_Output/Cluster/Cluster_Info_all-days.png", width=7, height=5, units="in", res=300)
+png("../../Figures_Omics/Long_RNAs/Figure_Output/Cluster/Cluster_Info_all-days.png", width=7, height=5, units="in", res=300)
 cc <- clusterWrapper(lfc, 2:15, "pam")
 dev.off()
 ```
@@ -132,7 +229,7 @@ se <- readRDS("../data/Long_RNA/longRNA_noRound.DEA.SE.cluster.rds")
 sm <- getSmoothedMeans(assays(se)$logcpm[sig.all,], as.numeric(factor(se$day)), method = "loess", f=0.8)
 plotClusterLFCs(sm-rowMeans(sm), rowData(se[sig.all,])$cluster)
 
-png("../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_all-days.png", width=7, height=5, units="in", res=300)
+png("../../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_all-days.png", width=7, height=5, units="in", res=300)
 plotClusterLFCs(sm-rowMeans(sm), rowData(se[sig.all,])$cluster)
 dev.off()
 ```
@@ -149,7 +246,7 @@ dgo.all <- clusterEnrichment(all.clus.un, gsets_cl)
 ```
 
 ```{r}
-png("../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_ClusterEnrichment_all-days.png", width=12, height=7, units="in", res=300)
+png("../../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_ClusterEnrichment_all-days.png", width=12, height=7, units="in", res=300)
 plotClusterEnrichment(dgo.all,color = heatcol)
 dev.off()
 ```
@@ -158,7 +255,7 @@ dev.off()
 ```{r}
 cl2.all.ncRNA <- row.names(se)[which(rowData(se)$cluster=="2" & rowData(se)$biotype=="lincRNA")]
 
-png("../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_All_Cluster2_lincRNA_all-days.png", width=7, height=5, units="in", res=300)
+png("../../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_All_Cluster2_lincRNA_all-days.png", width=7, height=5, units="in", res=300)
 sehm(se, cl2.all.ncRNA , assayName = "logcpm", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("logcpm"), breaks=0.99, main="All Cluster 2 lncRNAs",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE)
 dev.off()
 ```
@@ -175,7 +272,7 @@ dev.off()
 lfc2 <- prepLFC4clust(assays(se2)$log2FC.neur[sig.neu,], groups=se2$stage, minLFC = 0.5)
 lfc2 <- lfc2[,-1]
 ## clustering & analysis
-png("../Figures_Omics/Long_RNAs/Figure_Output/Cluster/Cluster_Info_Neur-days.png", width=7, height=5, units="in", res=300)
+png("../../Figures_Omics/Long_RNAs/Figure_Output/Cluster/Cluster_Info_Neur-days.png", width=7, height=5, units="in", res=300)
 cc2 <- clusterWrapper(lfc2, 2:15, "pam")
 dev.off()
 ```
@@ -197,7 +294,7 @@ se2 <- readRDS("../data/Long_RNA/longRNA_noRound.DEA.SE2.neur_days.cluster.rds")
 sm2 <- getSmoothedMeans(assays(se2)$logcpm[sig.neu,], as.numeric(factor(se2$day)), method = "loess", f=0.8)
 plotClusterLFCs(sm2-rowMeans(sm2), rowData(se2[sig.neu,])$cluster)
 
-png("../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_neur-days.png", width=7, height=5, units="in", res=300)
+png("../../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_neur-days.png", width=7, height=5, units="in", res=300)
 plotClusterLFCs(sm2-rowMeans(sm2), rowData(se2[sig.neu,])$cluster)
 dev.off()
 ```
@@ -208,7 +305,7 @@ dev.off()
 ```{r, fig.height=10, fig.width=6}
 sechm(se2, sig.neu, assayName = "logcpm", do.scale=TRUE, top_annotation = c("day"),annocol_title_side=NA, right_annotation = c("cluster"),  breaks=0.99, toporder = "cluster",hmcols = heatcol, anno_colors = ancols2)
 
-png("../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_Heat_neur-days.png", width=7, height=7, units="in", res=300)
+png("../../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_Heat_neur-days.png", width=7, height=7, units="in", res=300)
 sechm(se2, sig.neu, assayName = "logcpm", do.scale=TRUE, top_annotation = c("day"),annocol_title_side=NA, right_annotation = c("cluster"),  breaks=0.99, toporder = "cluster",hmcols = heatcol, anno_colors = ancols2)
 dev.off()
 ```
@@ -226,7 +323,7 @@ dgo.neu <- clusterEnrichment(neu.clus.un, gsets_cl)
 ```
 
 ```{r}
-png("../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_ClusterEnrichment_neur-days.png", width=12, height=7, units="in", res=300)
+png("../../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_ClusterEnrichment_neur-days.png", width=12, height=7, units="in", res=300)
 plotClusterEnrichment(dgo.neu,color = heatcol)
 dev.off()
 ```
@@ -241,7 +338,7 @@ row.names(dgo.neu2) <- gsub("GOMF_","",row.names(dgo.neu2))
 
 a <- plotClusterEnrichment(dgo.neu2,color = heatcol,trim.names = 35L,row_names_max_width = unit(9, "cm"),)
 
-png("../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_ClusterEnrichment_neur-days_names_clean_CompHeat.png", width=7, height=6, units="in", res=300)
+png("../../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_ClusterEnrichment_neur-days_names_clean_CompHeat.png", width=7, height=6, units="in", res=300)
   draw(a,heatmap_legend_side="left")
 dev.off()
 ```
@@ -308,11 +405,11 @@ cluster.neu.9 <- cluster.neu[["9"]]
 se_cl9 <- se2[row.names(se2) %in% cluster.neu.9,]
 saveRDS(se_cl9,"../data/Long_RNA/longRNA_noRound.DEA.SE_cluster9.rds")
 
-png("../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_Neuronal_Cluster9_neur-days.png", width=7, height=5, units="in", res=300)
+png("../../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_Neuronal_Cluster9_neur-days.png", width=7, height=5, units="in", res=300)
 sehm(se2, cluster.neu.9 , assayName = "logcpm", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("logcpm"), breaks=0.99, main="Neuronal Cluster 9",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE)
 dev.off()
 
-png("../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_Neuronal_Cluster9_all-days.png", width=7, height=5, units="in", res=300)
+png("../../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_Neuronal_Cluster9_all-days.png", width=7, height=5, units="in", res=300)
 sehm(se, cluster.neu.9 , assayName = "logcpm", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("logcpm"), breaks=0.99, main="Neuronal Cluster 9",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE)
 dev.off()
 ```
@@ -321,7 +418,7 @@ dev.off()
 ```{r}
 cl9.ncRNA <- row.names(se2)[which(rowData(se2)$cluster=="9" & rowData(se2)$biotype=="lincRNA")]
 
-png("../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_Neuronal_Cluster9_lincRNA_all-days.png", width=7, height=5, units="in", res=300)
+png("../../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_Neuronal_Cluster9_lincRNA_all-days.png", width=7, height=5, units="in", res=300)
 sehm(se, cl9.ncRNA , assayName = "logcpm", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("logcpm"), breaks=0.99, main="Neuronal Cluster 9 lncRNAs",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE)
 dev.off()
 ```
@@ -332,7 +429,7 @@ dev.off()
 cl9.ncRNA <- row.names(se2)[which(rowData(se2)$cluster=="9" & rowData(se2)$biotype=="lincRNA")]
 cl9.ncRNA.maxLFC <- intersect(cl9.ncRNA,row.names(res.neu)[res.neu$maxlfc > 4])
 
-png("../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_Neuronal_Cluster9_lincRNA_all-days_maxlfc4.png", width=7, height=5, units="in", res=300)
+png("../../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_Neuronal_Cluster9_lincRNA_all-days_maxlfc4.png", width=7, height=5, units="in", res=300)
 sehm(se, cl9.ncRNA.maxLFC , assayName = "logcpm", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("logcpm"), breaks=0.99, main="Neuronal Cluster 9 lncRNAs (maxlFC > 4)",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE)
 dev.off()
 ```
@@ -342,7 +439,7 @@ dev.off()
 ```{r}
 cl7.ncRNA <- row.names(se2)[which(rowData(se2)$cluster=="7" & rowData(se2)$biotype=="lincRNA")]
 
-png("../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_Neuronal_Cluster7_lincRNA_all-days.png", width=7, height=5, units="in", res=300)
+png("../../Figures_Omics/Long_RNAs/Figure_Output/Cluster/DEG_PAM_Neuronal_Cluster7_lincRNA_all-days.png", width=7, height=5, units="in", res=300)
 sehm(se, cl7.ncRNA , assayName = "logcpm", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("logcpm"), breaks=0.99, main="Neuronal Cluster 7 lncRNAs",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE)
 dev.off()
 ```

@@ -56,15 +56,17 @@ dea1229 <- rowData(se)[["DEA.ind.Ctrl-MiR"]]
 dea1229$names <- row.names(dea1229)
 dea1229 <- dea1229[order(dea1229$FDR),]
 dea1229.sig <- dea1229[dea1229$FDR < 0.05,]
+dea1229.sig.up <- dea1229.sig[dea1229.sig$logFC > 0,]
+dea1229.sig.down <- dea1229.sig[dea1229.sig$logFC < 0,]
 dea1229.top <- dea1229[1:35,]
 row.names(dea1229.top) <- sapply(strsplit(row.names(dea1229.top),"\\."),"[",2)
+```
 
-
+```{r}
 png("../Figure_Output/Heatmaps/Expl_1229_top35_10nm.png", width=9, height=13, units="in", res=300)
 sechm::sechm(se, row.names(dea1229.top), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="Cond" ,breaks=TRUE, show_rownames = TRUE,sortRowsOn = NULL, cluster_rows = FALSE,hmcols = heatcol, do.scale = FALSE)
 dev.off()
 ```
-
 
 
 

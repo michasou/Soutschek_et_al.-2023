@@ -1,0 +1,4 @@
+"hsa-miR-1229 2xPBS + hsa-miR-1229 minigene"	"hsa-miR-1229 2xPBS + hsa-miR-1229 Alz. minigene"	"hsa-miR-1229 2xPBS + ptr-miR-1229 minigene"	"control 2xPBS + hsa-miR-1229 minigene"	"control 2xPBS + hsa-miR-1229 Alz. minigene"	"control 2xPBS + ptr-miR-1229 minigene"
+1.54	1.72	1.96	1.74	1.86	1.72
+1.78	1.82	2.18	1.94	2.12	2.07
+1.56	1.61	1.81	1.81	1.91	1.90

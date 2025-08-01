@@ -1,0 +1,81 @@
+---
+title: "TopGo Compartment"
+author: "Michael"
+date: "02.07.2020"
+output: html_document
+---
+
+```{r}
+library(SummarizedExperiment)
+```
+
+#load sy5y data
+```{r}
+dea1229g <- read.csv("./target_data/dea1229_targets_genebased_10nm.csv")
+Targets <- dea1229g [!is.na(dea1229g $X8mer),]
+Targets <- Targets[Targets$X8mer > 0 | Targets$X7mer > 0,]
+
+Targets <- Targets[Targets$logFC < 0,]
+Targets <- Targets[Targets$FDR < 0.05,]
+
+Targets$symbol <- NULL
+Targets$X <- NULL
+write.csv(Targets,"SupplementaryTable7.csv")
+```
+
+
+#load timecourse data
+```{r}
+se <- readRDS("../../../01_TimeCourse_MultiOmics/RNA_GRCh38.p10_Ens91/data/Long_RNA/longRNA.DEA.SE.rds")
+se$day <- as.factor(se$day)
+se2 <- se[,se$day != 0]
+```
+
+
+```{r significant results, eval=TRUE}
+res <- rowData(se)$DEA.all
+res$maxlfc <- rowMax(abs(as.matrix(res[,1:6]))) 
+sig <- row.names(res)[res$FDR < 0.01 & res$maxlfc > 2]
+sig <- sapply(strsplit(sig,"\\."),"[",2)
+
+## neuronal stages
+res.neu <- rowData(se)$DEA.neuronal
+res.neu$maxlfc <- rowMax(abs(as.matrix(res.neu[,1:5]))) 
+sig.neu <- row.names(res.neu)[res.neu$FDR < 0.01 & res.neu$maxlfc > 2]
+sig.neu <- sapply(strsplit(sig.neu,"\\."),"[",2)
+```
+
+
+
+## Compare
+```{r}
+#Changing significantly over the full time course
+sum(Targets$gene_name %in% sig)
+```
+```{r}
+#Changing significantly over the neuronal time course
+sum(Targets$gene_name %in% sig.neu)
+```
+
+```{r}
+Targets$gene_name[Targets$gene_name %in% sig.neu]
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

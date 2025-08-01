@@ -1,0 +1,155 @@
+---
+title: "GO_Figure"
+author: "Michael"
+date: "4 3 2020"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(RColorBrewer)
+  library(ggplot2)
+  library(plyr)
+  library(data.table)
+  library(SummarizedExperiment)
+})
+```
+
+
+
+#Import
+```{r}
+BP <- readRDS("../../longRNA_R/GO_Terms/GOdata/GO_UP_1229_BP_sig_P005_symbol_elim.rds")
+```
+
+```{r}
+se <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
+dea1229 <- rowData(se)[["DEA.pLNA-1229"]]
+dea1229$Ensembl <- sapply(strsplit(row.names(dea1229),split = "\\."),"[",1)
+dea1229$Symbol <- sapply(strsplit(row.names(dea1229),split = "\\."),"[",2)
+
+dea1229_sig_down <- dea1229[dea1229$PValue < 0.05 & dea1229$logFC < 0,"Symbol"]
+dea1229_sig_up <- dea1229[dea1229$PValue < 0.05 & dea1229$logFC > 0,"Symbol"]
+```
+
+
+
+#Data preparaion
+
+Get significant counts
+```{r}
+# CC$up <- sapply(CC$Sig_Genes, function(x) sum(x %in% dea1229_sig_up))
+# CC$down <- sapply(CC$Sig_Genes, function(x) sum(x %in% dea1229_sig_down))
+# 
+# MF$up <- sapply(MF$Sig_Genes, function(x) sum(x %in% dea1229_sig_up))
+# MF$down <- sapply(MF$Sig_Genes, function(x) sum(x %in% dea1229_sig_down))
+
+BP$up <- sapply(BP$Sig_Genes, function(x) sum(x %in% dea1229_sig_up))
+BP$down <- sapply(BP$Sig_Genes, function(x) sum(x %in% dea1229_sig_down))
+```
+
+
+Filter
+```{r}
+#CC_Top <- CC[which(CC$Annotated < 500 & CC$Annotated > 15),]
+BP_Top <- BP[which(BP$Annotated < 500 & BP$Annotated > 15),]
+#MF_Top <- MF[which(MF$Annotated < 500 & MF$Annotated > 15),]
+```
+
+
+
+```{r}
+# CC_Top <- CC_Top[1:15,]
+BP_Top <- BP_Top[1:10,]
+# MF_Top <- MF_Top[1:15,]
+
+# CC_Top$Fold_Enrichment <- round(CC_Top$Fold_Enrichment,2)
+BP_Top$Fold_Enrichment <- round(BP_Top$Fold_Enrichment,2)
+# MF_Top$Fold_Enrichment <- round(MF_Top$Fold_Enrichment,2)
+
+#Create uniform label fields
+# CC_Top$label1 <- 1.1e-05
+# CC_Top$label2 <- 1.11
+# 
+# MF_Top$label1 <- 1.1e-05
+# MF_Top$label2 <- 101.11
+
+BP_Top$label1 <- 1.1e-05
+BP_Top$label2 <- 101.11
+
+
+```
+
+
+```{r}
+# CC_Top$Fisher.elim <- as.numeric(CC_Top$Fisher.elim)
+# CC_Top$rank <- frank(CC_Top$Fisher.elim, ties.method = "first")
+# 
+# MF_Top$Fisher.elim <- as.numeric(MF_Top$Fisher.elim)
+# MF_Top$rank <- frank(MF_Top$Fisher.elim, ties.method = "first")
+
+BP_Top$Fisher.elim <- as.numeric(BP_Top$Fisher.elim)
+BP_Top$rank <- frank(BP_Top$Fisher.elim, ties.method = "first")
+
+```
+
+
+
+
+
+
+```{r}
+# factor_CC <- factor(CC_Top$rank, levels = CC_Top$rank, labels = CC_Top$GO.ID)
+# 
+# factor_MF <- factor(MF_Top$rank, levels = MF_Top$rank, labels = MF_Top$GO.ID)
+
+factor_BP <- factor(BP_Top$rank, levels = BP_Top$rank, labels = BP_Top$GO.ID)
+```
+
+
+
+
+
+## Figures
+
+Define Plot components
+```{r}
+txt <- element_text(family = "sans", size = 15, colour = "black")
+txt2 <- element_text(family = "sans", size = 13, colour = "black")
+tick <- element_line(linewidth = 1)
+color.fill <- c("Down" = "#BC3C29","Up" = "#E18727")
+```
+
+
+
+
+Figure BP
+```{r}
+p1 <- ggplot(data = BP_Top, aes(x = as.factor(BP_Top$GO.ID))) +
+  scale_x_discrete(labels = rev(BP_Top$Term), limits = rev(levels(factor_BP)), name = "")+
+  geom_bar(aes(y = BP_Top$up, fill = "Up"), stat = "identity") +
+  #geom_bar(aes(y = BP_Top$down,fill = "Down"), stat = "identity") +
+  scale_fill_manual(values=color.fill) +
+  geom_label(aes(label = BP_Top$label1, y = 0),colour = NA, fill = "#636363") +
+  geom_text(aes(label = BP_Top$Fisher.elim, y = 0), colour = "white") +
+  geom_label(label = BP_Top$label2, y = 22,label.size = 5, colour = NA, fill = "#636363") +
+  geom_text(aes(label = round(BP_Top$Fold_Enrichment,2), y = 22), colour = "white") +
+  scale_y_continuous(limits = c(-0.5,25), name = "Number of Genes")+ 
+  coord_flip(clip = "off", xlim = c(1,10)) +
+  annotate("label", x = 10.9, y = 0,colour = NA,label = "P.Value", fill = "#636363") +
+  annotate("text", x = 10.9, y = 0,label= "P.Value",colour = "white") +
+  annotate("label", x = 10.9, y = 22,colour = NA,label = "Enrichment", fill = "#636363") +
+  annotate("text", x = 10.9, y = 22,label= "Enrichment",colour = "white") +
+  ggtitle("Top10 Biological Process\n(PValue < 0.05 & logFC > 0)") +
+  theme_classic() +
+  theme(text = element_text(size = 15),
+        plot.title = element_text(margin=margin(0,0,15,0),size = 15),
+        axis.title = txt, axis.text = txt,  axis.ticks = tick,
+        legend.position = c(0.9,-0.18), legend.direction = "horizontal", legend.text = txt2, legend.title = element_blank(),
+        plot.margin = unit(c(3,1,3,1),"lines"))
+        
+p1
+
+ggsave("../Figure_Output/GO-Terms/GO_1229_BP_ensembl_P005_UP.png", p1, width=11, height=4.75, units="in", dpi=300)
+```
+

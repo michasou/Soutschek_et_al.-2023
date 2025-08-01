@@ -1,0 +1,15 @@
+1) TimeCourse Synapse Image (replace with s1-s3)
+2) TimeCourse Dendrite Image (replace with s1-s3)
+3) Figure S6, replace with s1-s3 in PCA and
+single-gene images
+4) Figure S7, replace PCA
+5) S8, replace x-axis with s1-s3
+6) Fig 1c replace with s1-s3
+7) S11, replace with s1-s3
+8) Replace 5b-c with n1-n3
+9) Replace 5d with r1-r3
+10) Replace 5d with n1-n3
+11) Replace 5g with m1-m3
+12) Replace 5i with m1-m4
+13) Replace 5k-l with n1-n3
+14) Replace 5m with m1-m3
