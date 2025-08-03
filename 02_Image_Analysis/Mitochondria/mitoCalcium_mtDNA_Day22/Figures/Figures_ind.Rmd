@@ -5,8 +5,6 @@ date: "2024-06-25"
 output: html_document
 ---
 
-#Nv2 Day11 & Day20 are the same
-
 #libraries
 ```{r}
 suppressPackageStartupMessages({
@@ -98,7 +96,7 @@ p1 <- ggplot(aes(x = Condition, y = x), data = ag_area[ag_area$Compartment == "P
   size        = 0.75,
   colour      = "black"
   ) +
-  ggtitle("iSIM - Day 22")+
+  ggtitle("iSIM - Day 25")+
   ylab("Mitochondrial Area in µm²") +
   theme_classic(base_size = 12) +
   coord_cartesian(ylim = c(0,0.6)) +
@@ -759,7 +757,6 @@ ggsave2("../Figure_Output/Percentage_mtDNA_aggregated_white.png",p4, width = 5,h
 
 
 ## Number Mitos
-
 ```{r}
 mito_number_per_soma <- res %>%
   group_by(Diff, Condition, ImageNumber) %>%

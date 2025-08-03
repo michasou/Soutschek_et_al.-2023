@@ -1,0 +1,385 @@
+---
+title: "MitoSNP_analysis"
+author: "Michael Soutschek"
+date: "7/26/2023"
+output: html_document
+---
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(vcfR)    
+  library(dplyr)
+  library(SummarizedExperiment)
+  library(emmeans)
+  library(ggsci)
+  library(rstatix)
+  library(cowplot)
+  library(lme4)
+})
+```
+
+
+#read files into R
+```{r}
+snps <- vcfR::read.vcfR("/mnt/schratt/internData/2022_soutschek_Ngn2pLNAs_polyARNA/11_2022/star_indexed/Results_SNPs.bcf", convertNA  = TRUE)
+```
+
+#From the snps dataset, extract element “GT” using extract.gt and save it to an object called snps_num.
+```{r}
+snps_num <- vcfR::extract.gt(snps, 
+           element = "PL",
+           IDtoRowNames  = F,
+           as.numeric = F,
+           convertNA = T,
+           return.alleles = F)
+```
+
+
+#Transpose and save as data.frame
+```{r}
+snps_num_t <- t(snps_num) 
+snps_num_df <- data.frame(snps_num_t) 
+
+saveRDS(snps_num_df,"./MT_SNPS_df.rds")
+```
+
+
+#Find NAs in a dataset & Exclude columns with >50% NAs.
+##MS: It seems there are no NAs present
+```{r}
+snps_num_df <- readRDS("./MT_SNPS_df.rds")
+
+find_NAs <- function(x){
+  NAs_TF <- is.na(x)
+  i_NA <- which(NAs_TF == TRUE)
+  N_NA <- length(i_NA)
+  
+  cat("Results:",N_NA, "NAs present\n.")
+  return(i_NA)
+}
+
+# N_rows
+# number of rows (individuals)
+N_rows <- nrow(snps_num_t)
+
+# N_NA
+# vector to hold output (number of NAs)
+N_NA   <- rep(x = 0, times = N_rows)
+
+# N_SNPs
+# total number of columns (SNPs)
+N_SNPs <- ncol(snps_num_t)
+
+# the for() loop
+for(i in 1:N_rows){
+  
+  # for each row, find the location of
+  ## NAs with snps_num_t()
+  i_NA <- find_NAs(snps_num_t[i,]) 
+  
+  # then determine how many NAs
+  ## with length()
+  N_NA_i <- length(i_NA)
+  
+  # then save the output to 
+  ## our storage vector
+  N_NA[i] <- N_NA_i
+}
+```
+
+#MS, here I continue myself
+```{r}
+snps_num_df <- readRDS("./MT_SNPS_df.rds")
+```
+
+
+
+
+#Create dataframes for each genotype likelihood
+```{r}
+#reference genotype
+df1 <- apply(snps_num_df,2, FUN = function(x){
+  sapply(strsplit(x,","),"[",1)
+})
+df1 <- as.data.frame(df1)
+
+df1 <- apply(df1, 2,function(x){
+  sapply(x,as.numeric)
+})
+df1 <- as.data.frame(df1)
+df1$genotype <- 1
+
+df1t <- as.data.frame(t(df1))
+df1t$genotype <- 1
+```
+
+
+```{r}
+#second genotype
+df2 <- apply(snps_num_df,2, FUN = function(x){
+  sapply(strsplit(x,","),"[",2)
+})
+df2 <- as.data.frame(df2)
+
+df2 <- apply(df2, 2,function(x){
+  sapply(x,as.numeric)
+})
+df2 <- as.data.frame(df2)
+df2$genotype <- 2
+
+df2t <- as.data.frame(t(df2))
+df2t$genotype <- 2
+```
+
+
+```{r}
+#third genotype
+df3 <- apply(snps_num_df,2, FUN = function(x){
+  sapply(strsplit(x,","),"[",3)
+})
+df3 <- as.data.frame(df3)
+
+df3 <- apply(df3, 2,function(x){
+  sapply(x,as.numeric)
+})
+df3 <- as.data.frame(df3)
+df3$genotype <- 3
+
+df3t <- as.data.frame(t(df3))
+df3t$genotype <- 3
+```
+
+```{r}
+dft <- rbind(df1t,df2t,df3t)
+```
+
+#get sample info
+
+
+```{r}
+ll <- colnames(dft)[1:20]
+ll <- substring(ll,6)
+ll <- sapply(strsplit(ll,"\\."),"[",1)
+colnames(dft) <- c(ll,"genotype")
+```
+
+
+```{r}
+col_info <- read.csv("/mnt/schratt/internData/2022_soutschek_Ngn2pLNAs_polyARNA/11_2022/Sequencing_RNA_Samples_DNase_Randomization_summary.csv")
+col_info$diff <- sapply(strsplit(col_info$Sample.Name,"_"),"[",1)
+col_info$condition <- sapply(strsplit(col_info$Sample.Name,"_"),"[",2)
+row.names(col_info) <- col_info$Novogene
+```
+
+#exlude sample B_8
+```{r}
+dft <- dft[,!colnames(dft) %in% "B_8"]
+```
+
+
+#plot PCAs of each genotype??
+```{r}
+plgINS::plPCA(dft[dft$genotype == 1,!colnames(dft) %in% "genotype"], samples_data = col_info, colorBy = "condition", shapeBy = "diff",add.labels = FALSE, annotation_columns = colnames(col_info))%>%
+        layout(title = 'Probability Reference Genotype')
+```
+
+
+```{r}
+plgINS::plPCA(dft[dft$genotype == 2,!colnames(dft) %in% "genotype"], samples_data = col_info, colorBy = "condition", shapeBy = "diff",add.labels = FALSE, annotation_columns = colnames(col_info))%>%
+        layout(title = 'Probability heterozygous alternative genotype')
+```
+
+
+```{r}
+plgINS::plPCA(dft[dft$genotype == 3,!colnames(dft) %in% "genotype"], samples_data = col_info, colorBy = "condition", shapeBy = "diff",add.labels = FALSE, annotation_columns = colnames(col_info), )%>%
+        layout(title = 'Probability homozygous alternative genotype')
+```
+
+
+#plot individual probabilities
+
+```{r}
+df <- rbind(df1,df2,df3)
+dd <- row.names(df)
+dd <- substring(dd,6)
+dd <- sapply(strsplit(dd,"\\."),"[",1)
+df$Novogene <- dd
+df <- merge(col_info,df,by = "Novogene")
+df <- select(df,"genotype",everything())
+
+dfl <- reshape2::melt(df, id.vars = colnames(df)[1:6],
+                        variable.name = "Nt_pos", 
+                        value.name = "SNP_prob" )
+
+dfl$condition <- factor(dfl$condition, levels = c("Empty","pLNA-Ctrl","pLNA-1229","pLNA-181c","pLNA-3943"))
+dfl$genotype <- as.factor(dfl$genotype)
+#exclude sample 8
+dfl <- dfl[dfl$Novogene != "B_8",]
+```
+
+
+
+```{r}
+#exclude miR-3943
+dfl <- dfl[dfl$condition != "pLNA-3943",]
+
+#take only genotype 1
+dfl <- dfl[dfl$genotype == 1,]
+
+mod <- lm(SNP_prob ~ condition + diff, data = dfl)
+s1 <- emmeans(mod, trt.vs.ctrl ~ condition , ref="pLNA-1229")
+
+
+s1_df <- as.data.frame(s1$contrasts)
+s1_df$group1 <- "pLNA-1229"
+s1_df$group2 <- s1_df$contrast
+s1_df$group2 <- gsub(" - \\(pLNA-1229\\)","",s1_df$group2)
+s1_df$group2 <- gsub("\\)","",s1_df$group2)
+s1_df$group2 <- gsub("\\(", "",s1_df$group2)
+s1_df <- add_significance(s1_df,p.col = "p.value")
+
+y_pos <- max(dfl[,"SNP_prob"])
+s1_df$y_pos <- y_pos*1.1
+s1_df$y_pos2 <- c(11,9,13)
+```
+
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
+
+```
+
+
+```{r}
+labels <- c("Inv. Probability\nReference Genotype","Inv. Probability\nheterozygous alternative",
+            "Inv. Probability\nhomozygous alternative")
+names(labels) <- c("1","2","3")
+
+
+p1 <- ggplot(dfl, aes(condition,SNP_prob)) +
+  geom_boxplot(outlier.shape = NA) +
+  stat_summary(aes(color = diff),
+    show.legend = TRUE,
+    fun = median,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) + 
+   ggsignif::geom_signif(
+    data = s1_df,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE,tip_length = 0.0025,
+  ) +
+  ggtitle("Inv. Probability\nReference Genotype") + ylab("Inv. Probability for SNP") +
+  scale_color_manual(values = col_vec) +
+  guides(color=guide_legend(title="Diff.")) +
+  xlab("") +
+  coord_cartesian(ylim = c(NA,15)) +  theme_classic() + theme(strip.background = element_blank())
+
+
+ggsave2("../Figure_Output/SNPs/Mito_SNP_Probability.png",p1, width = 6,height = 4.5, bg = "white")
+```
+
+
+
+
+
+## Pierre-Luc adaption
+
+#read files into R
+```{r}
+snps <- vcfR::read.vcfR("/mnt/schratt/internData/2022_soutschek_Ngn2pLNAs_polyARNA/11_2022/star_indexed/Results_SNPs.bcf", convertNA  = TRUE)
+```
+
+#From the snps dataset, extract element “GT” using extract.gt and save it to an object called snps_num.
+```{r}
+snps_num <- vcfR::extract.gt(snps, 
+           element = "PL",
+           IDtoRowNames  = F,
+           as.numeric = F,
+           convertNA = T,
+           return.alleles = F)
+```
+
+
+
+
+```{r}
+# just getting your probability of reference genotype matrix in a simpler fashion
+tmp <- Map(snps_num, f=function(x) as.numeric(strsplit(x,",")[[1]]))
+ref <- 10^-matrix(sapply(tmp, FUN=function(x) x[1]), nrow=nrow(snps_num))
+# for other genotypes:
+het <- 10^-matrix(sapply(tmp, FUN=function(x) x[2]), nrow=nrow(snps_num))
+hom <- 10^-matrix(sapply(tmp, FUN=function(x) x[3]), nrow=nrow(snps_num))
+# restrict to non-reference nucleotides
+w <- which(rowSums(ref<1)>1)
+ref2 <- as.data.frame(ref[w,])
+colnames(ref2) <- gsub("\\./MT_|\\.sorted\\.bam","",colnames(snps_num))
+ref2 <- ref2[,!(colnames(ref2) %in% "B_8")]
+
+col_info <- read.csv("/mnt/schratt/internData/2022_soutschek_Ngn2pLNAs_polyARNA/11_2022/Sequencing_RNA_Samples_DNase_Randomization_summary.csv")
+col_info$diff <- sapply(strsplit(col_info$Sample.Name,"_"),"[",1)
+col_info$condition <- sapply(strsplit(col_info$Sample.Name,"_"),"[",2)
+row.names(col_info) <- col_info$Novogene
+
+col_info$nbNonReference <- sapply(ref2, FUN=function(x) sum(x<0.25))[row.names(col_info)]
+ggplot(col_info, aes(condition, nbNonReference)) + geom_boxplot() + geom_point(aes(colour=diff))
+```
+
+#They vary just by one SNP, so there's no way this difference is meaningful...
+#However this here is using p(ref) < 0.25, which might not show differences if each MT gets different mutations, and hence aggregated the probabilities that the whole sample is not reference at any given position isn't high at all. So we might do the same for the other genotypes:
+
+```{r}
+het <- 10^-matrix(sapply(tmp, FUN=function(x) x[2]), nrow=nrow(snps_num))
+hom <- 10^-matrix(sapply(tmp, FUN=function(x) x[3]), nrow=nrow(snps_num))
+pNonRef <- het+hom # this is more sensitive than p(ref) due to the rounding
+colnames(pNonRef) <- gsub("\\./MT_|\\.sorted\\.bam","",colnames(snps_num))
+pNonRef <- sapply(as.data.frame(pNonRef), FUN=function(x) sum(x>0.001))
+pNonRef <- pNonRef[!(names(pNonRef) %in% "B_8")]
+col_info$nbNonReference2 <- pNonRef[row.names(col_info)]
+```
+
+
+```{r}
+col_info <- col_info[col_info$condition != "pLNA-3943",]
+col_info$condition <- factor(col_info$condition,levels = c("Empty","pLNA-Ctrl","pLNA-1229","pLNA-181c"))
+
+mod <- lm(nbNonReference2 ~ condition + diff, data = col_info)
+s1 <- emmeans(mod, trt.vs.ctrl ~ condition , ref="pLNA-1229")
+
+s1_df <- as.data.frame(s1$contrasts)
+s1_df$group1 <- "pLNA-1229"
+s1_df$group2 <- s1_df$contrast
+s1_df$group2 <- gsub(" - \\(pLNA-1229\\)","",s1_df$group2)
+s1_df$group2 <- gsub("\\)","",s1_df$group2)
+s1_df$group2 <- gsub("\\(", "",s1_df$group2)
+s1_df <- add_significance(s1_df,p.col = "p.value")
+
+#add y_position
+y_pos <- max(col_info[!is.na(col_info$nbNonReference2),"nbNonReference2"])
+s1_df$y_pos <- y_pos*1.075
+s1_df$adj <- c(2,0,4)
+s1_df$y_pos2 <- s1_df$y_pos + s1_df$adj
+
+p2 <- ggplot(col_info, aes(condition, nbNonReference2)) + geom_boxplot() + geom_point(aes(colour=diff)) +
+    theme_classic() +
+    ylab("Number of mitochondrial\nnon-refernce mutations") + xlab("") +
+    scale_color_manual(values = col_vec) +
+    guides(color=guide_legend(title="Diff.")) +
+    coord_cartesian(ylim = c(0,NA)) +
+    ggsignif::geom_signif(
+      data = s1_df,
+      aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
+      textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE,tip_length = 0.05
+    ) +
+    theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+ggsave2("../Figure_Output/SNPs/Mito_SNP_NumberMutations.png",p2, width = 6,height = 4.5, bg = "white")
+```
+

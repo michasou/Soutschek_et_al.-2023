@@ -32,6 +32,15 @@ se$condition <- as.factor(se$condition)
 se$Day <- paste0("Day ",se$day)
 se$Day[which(se$Day == "Day 9")] <- "Day 09"
 se$Day <- factor(se$Day, levels = c("Day 0","Day 09","Day 15","Day 21","Day 27","Day 33","Day 40"))
+```
+
+```{r}
+replacement <- c("1" = "s1", "2" = "s2", "3" = "s3")
+se$experiment <- replacement[as.character(se$replicate)]
+se$experiment  <- factor(se$experiment ,levels = c("s1","s2","s3"))
+```
+
+```{r}
 se2 <- se[,se$day != 0]
 ```
 
@@ -44,7 +53,7 @@ g2 <- row.names(se)[grep("MT-", rowData(se)$GeneName)]
 ggplot(meltSE(se, g2, assayName = "imputed"), aes(condition, imputed)) + geom_violin() + geom_point(aes(color = replicate)) +  facet_wrap(~feature, scale="free")
 
 png("./Figure_Output/SingleGenes/SYN1.png", width=10, height=6, units="in", res=300)
-ggplot(meltSE(se, g1, assayName = "imputed"), aes(condition, imputed)) + geom_violin() + geom_point(aes(color = replicate)) +  facet_wrap(~feature, scale="free")
+ggplot(meltSE(se, g1, assayName = "imputed"), aes(condition, imputed)) + geom_violin() + geom_point(aes(color = experiment)) +  facet_wrap(~feature, scale="free") + theme_classic()
 dev.off()
 ```
 
@@ -89,7 +98,7 @@ text <- apply(samples_data[, annotation_columns, drop = F],
 
 #annotation
 colorBy = "Day"
-shapeBy = "replicate"
+shapeBy = "experiment"
 
 cb <- samples_data[, colorBy]
 if (is.numeric(cb)) cb <- as.character(cb)

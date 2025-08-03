@@ -23,6 +23,9 @@ suppressPackageStartupMessages({
 })
 ```
 
+```{r}
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[2])
+```
 
 # Load Data
 ```{r}
@@ -33,9 +36,17 @@ se$Day <- factor(se$Day, levels = c("Day 0","Day 09","Day 15","Day 21","Day 27",
 se$day <- as.factor(se$day)
 se$day2 <- paste0("Day_",se$day)
 se$replicate <- as.integer(gsub("SC","",se$experiment))
-se2 <- se[,se$day != 0]
 ```
 
+```{r}
+replacement <- c(SC1 = "s1", SC2 = "s2", SC3 = "s3")
+se$experiment <- replacement[as.character(se$experiment )]
+se$experiment  <- factor(se$experiment ,levels = c("s1","s2","s3"))
+```
+
+```{r}
+se2 <- se[,se$day != 0]
+```
 
 
 # Violine Figures:
@@ -43,8 +54,8 @@ se2 <- se[,se$day != 0]
 # example to get genes:
 g1 <- grep("-410-3p|-411-5p|-132-3p|-134-5p|-889|-181a-|-137",row.names(se),value=TRUE)
 
-png("Figure_Output/Single_Genes/Mouse_micro_example1.png", width=7, height=6, units="in", res=300)
-ggplot(meltSE(se, g1, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + geom_point(aes(color = experiment))
+png("Figure_Output/Single_miRNAs/Mouse_micro_example1.png", width=7, height=6, units="in", res=300)
+ggplot(meltSE(se, g1, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + geom_point(aes(color = experiment)) + scale_color_manual(values = col_vec) + theme_classic()
 dev.off()
 ```
 
@@ -53,11 +64,11 @@ dev.off()
 ## PCA
 
 ```{r pca, message=FALSE, warning=FALSE, eval=TRUE}
-## all stages
-p <- plPCA(assays(se)$logcpm, as.data.frame(colData(se)), colorBy = "Day", shapeBy = "replicate",add.labels = FALSE)
-
-orca(p, file = "Figure_Output/Exploratory/smallRNA_PCA.png")
-orca(p, file = "Figure_Output/Exploratory/smallRNA_PCA.pdf")
+# ## all stages
+# p <- plPCA(assays(se)$logcpm, as.data.frame(colData(se)), colorBy = "Day", shapeBy = "replicate",add.labels = FALSE)
+# 
+# orca(p, file = "Figure_Output/Exploratory/smallRNA_PCA.png")
+# orca(p, file = "Figure_Output/Exploratory/smallRNA_PCA.pdf")
 ```
 
 
@@ -88,7 +99,7 @@ text <- apply(samples_data[, annotation_columns, drop = F],
 
 #annotation
 colorBy = "Day"
-shapeBy = "replicate"
+shapeBy = "experiment"
 
 cb <- samples_data[, colorBy]
 if (is.numeric(cb)) cb <- as.character(cb)

@@ -49,27 +49,19 @@ colors <- full_col[25:230]
 
 
 #load data
-
 ```{r}
-# se <- readRDS("../GRCh38.p10_Ens91_Sushi-mapping/data/Long_RNA/longRNA.DEA.SE.rds")
-# head(row.names(se),20)
-```
-
-
-```{r}
-se_sal <- readRDS("V:/Michael/Bioinformatics/Internal_Data/2019_soutschek_Ngn2Timecourse_Human_RiboZero/02_R_TimeCourse_GRC38.p14_Ens112/data/SE.DEA.salmon.raw_ens112.rds")
+se_sal <- readRDS("../../RNA_GRCh38.p14_Ens112/data/SE.DEA.salmon.raw_ens112.rds")
 se_sal <- se_sal[,order(se_sal$day)]
 head(row.names(se_sal),20)
 ```
 
 
-
 ```{r}
-# segn <- se
-# row.names(se) <- gsub("\\..+","",row.names(se))
-# row.names(segn) <- sapply(strsplit(row.names(segn),"\\."),"[",2)
+replacement <- c(SC1 = "s1", SC2 = "s2", SC3 = "s3")
+se_sal$experiment <- replacement[as.character(se_sal$diff)]
+se_sal$experiment  <- factor(se_sal$experiment ,levels = c("s1","s2","s3"))
+se_sal$space <- "       "
 ```
-
 
 ```{r}
 segn <- se_sal
@@ -86,11 +78,11 @@ ref_li <- readRDS("data/LinNgn2scRNA.PB.rds")
 ccp <- stage(assay(segn, "TPM"), exp(assay(ref_li, "logcpm"))-1, correction = "mean")
 colnames(ccp) <- gsub("_long","",colnames(ccp))
 colnames(ccp) <- gsub("_","_Day",colnames(ccp))
-colnames(ccp) <- gsub("SC","A",colnames(ccp))
+colnames(ccp) <- gsub("SC","s",colnames(ccp))
 ccs <- stage(assay(segn, "TPM"), exp(assay(ref_li, "logcpm"))-1, method="spearman", correction = "mean")
 colnames(ccs) <- gsub("_long","",colnames(ccs))
 colnames(ccs) <- gsub("_","_Day",colnames(ccs))
-colnames(ccs) <- gsub("SC","A",colnames(ccs))
+colnames(ccs) <- gsub("SC","s",colnames(ccs))
 
 #plot
 Heatmap(ccp, cluster_rows = FALSE, cluster_columns = FALSE, name="Pearson", column_title="Pearson correlation", row_title="Lin et al., Stem Cell Rep. 2021") + 
@@ -123,8 +115,10 @@ draw(
   )
 dev.off()
 ```
+
 ```{r}
-h1 <- Heatmap(ccsr, col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=10), row_title="Lin et al., Stem Cell Rep. 2021", heatmap_legend_param = list(direction = "horizontal"))
+h1 <- Heatmap(ccsr, col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=10), row_title="Lin et al., Stem Cell Rep. 2021", heatmap_legend_param = list(direction = "horizontal"),
+              show_column_names = TRUE, column_labels = se_sal$space)
 ```
 
 
@@ -151,12 +145,12 @@ nr <- t(1000000*t(assay(ref_ma))/colSums(assay(ref_ma)))
 ccp <- stage(exp(assay(se_sal, "logcpm"))-1, nr, correction = "mean")
 colnames(ccp) <- gsub("_long","",colnames(ccp))
 colnames(ccp) <- gsub("_","_Day",colnames(ccp))
-colnames(ccp) <- gsub("SC","A",colnames(ccp))
+colnames(ccp) <- gsub("SC","s",colnames(ccp))
 ccp <- ccp[order(row.names(ccp)),]
 ccs <- stage(exp(assay(se_sal, "logcpm"))-1, nr, method="spearman", correction = "mean")
 colnames(ccs) <- gsub("_long","",colnames(ccs))
 colnames(ccs) <- gsub("_","_Day",colnames(ccs))
-colnames(ccs) <- gsub("SC","A",colnames(ccs))
+colnames(ccs) <- gsub("SC","s",colnames(ccs))
 ccs <- ccs[order(row.names(ccs)),]
 
 #plot
@@ -226,11 +220,11 @@ nr <- t(1000000*t(assay(ref_tre))/colSums(assay(ref_tre)))
 ccp <- stage(assay(se_sal, "TPM"), nr, correction = "mean")
 colnames(ccp) <- gsub("_long","",colnames(ccp))
 colnames(ccp) <- gsub("_","_Day",colnames(ccp))
-colnames(ccp) <- gsub("SC","A",colnames(ccp))
+colnames(ccp) <- gsub("SC","s",colnames(ccp))
 ccs <- stage(assay(se_sal, "TPM"), nr, method="spearman", correction = "mean")
 colnames(ccs) <- gsub("_long","",colnames(ccs))
 colnames(ccs) <- gsub("_","_Day",colnames(ccs))
-colnames(ccs) <- gsub("SC","A",colnames(ccs))
+colnames(ccs) <- gsub("SC","s",colnames(ccs))
 
 #plot
 Heatmap(ccp, cluster_rows = FALSE, cluster_columns = FALSE, name="Pearson", column_title="Pearson correlation", row_title="Trevino et al., 2021") + 
@@ -281,14 +275,16 @@ Heatmap(ccsr2,col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name=
 
 
 ```{r}
-h2 <- Heatmap(ccsr_tre,col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=10), row_title= "Trevino et al., Cell, 2021", heatmap_legend_param = list(direction = "horizontal"))
+h2 <- Heatmap(ccsr_tre,col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=10), row_title= "Trevino et al., Cell, 2021", heatmap_legend_param = list(direction = "horizontal"),
+              show_column_names = TRUE, column_labels = se_sal$space)
 ```
 
 
 ### Paper main figure
 ```{r}
 png("./FigureOutput/Main_Lin.png", width=4, height=6, units = "in", res=300)
-draw(h1,heatmap_legend_side = "bottom")
+draw(h1,heatmap_legend_side = "bottom"
+)
 dev.off()
 
 png("./FigureOutput/Main_Trevino.png", width=4.5, height=6, units = "in", res=300)

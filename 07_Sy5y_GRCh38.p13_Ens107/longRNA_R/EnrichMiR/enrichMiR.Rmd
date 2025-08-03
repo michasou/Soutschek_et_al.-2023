@@ -22,7 +22,6 @@ suppressPackageStartupMessages({
 ```{r}
 #sets
 sets_SC <- readRDS("V:/Michael/Bioinformatics/Reference/enrichMiR/scanMiR/scanMiR_GRCh38_gene.rds")
-#sets_TSall <- readRDS("V:/Michael/Bioinformatics/Reference/enrichMiR/Targetscan/20211124_Targetscan8_Human_AllPred_human.rds")
 
 #mir
 se_short <- readRDS("../../../01_TimeCourse_MultiOmics/smallRNA/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")

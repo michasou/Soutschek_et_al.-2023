@@ -23,6 +23,10 @@ suppressPackageStartupMessages({
 })
 ```
 
+```{r}
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[2])
+```
+
 
 # Load Data
 ```{r}
@@ -33,9 +37,17 @@ se$Day <- factor(se$Day, levels = c("Day 0","Day 09","Day 15","Day 21","Day 27",
 se$day <- as.factor(se$day)
 se$day2 <- paste0("Day_",se$day)
 se$replicate <- as.integer(gsub("SC","",se$experiment))
-se2 <- se[,se$day != 0]
 ```
 
+```{r}
+replacement <- c(SC1 = "s1", SC2 = "s2", SC3 = "s3")
+se$experiment <- replacement[as.character(se$experiment )]
+se$experiment  <- factor(se$experiment ,levels = c("s1","s2","s3"))
+```
+
+```{r}
+se2 <- se[,se$day != 0]
+```
 
 
 # Violine Figures:
@@ -50,20 +62,14 @@ g1
 g2 <- row.names(se)[ rowData(se)$symbol %in% c("SYN1","GRIA2","GRIA4","GRIN2B","GRIN2A")]
 g2
 
-# g3 <- row.names(se)[ rowData(se)$symbol %in% c("SLC1A3","SOX10","SOX9","GFAP","ALDH1L1","S100B","AQP4","MOG","OLIG2")]
-# g3
-
-g4 <- row.names(se)[ rowData(se)$symbol %in% c("MGAT4B")]
-g4
-
 png("Figure_Output/Single_Genes/Paper/Pluripotency_marker.png", width=8, height=4, units="in", res=300)
-ggplot(meltSE(se, g1, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + geom_point(aes(color = experiment)) + xlab("Day") + theme_classic()
+ggplot(meltSE(se, g1, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + geom_point(aes(color = experiment)) + xlab("Day") + theme_classic() + scale_color_manual(values = col_vec)
 dev.off()
 
 
 png("Figure_Output/Single_Genes/Paper/longRNA_syn-genes-examp.png", width=11, height=3, units="in", res=300)
 ggplot(meltSE(se, g2, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free", nrow = 1) +
-geom_point(aes(color = experiment)) + xlab("Day") + theme_classic()
+geom_point(aes(color = experiment)) + xlab("Day") + theme_classic() + scale_color_manual(values = col_vec)
 dev.off()
 
 
@@ -75,13 +81,13 @@ g3
 
 png("Figure_Output/Single_Genes/Paper/longRNA_glia-marker.png", width=6, height=6, units="in", res=300)
 ggplot(meltSE(se2, g3, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") +
-geom_point(aes(color = experiment)) + xlab("Day") + theme_classic()
+geom_point(aes(color = experiment)) + xlab("Day") + theme_classic() + scale_color_manual(values = col_vec)
 dev.off()
 
-png("Figure_Output/Single_Genes/Paper/Mgat4b.png", width=4, height=3, units="in", res=300)
-ggplot(meltSE(se, g4, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") +
-geom_point(aes(color = experiment)) + xlab("Day") + theme_classic() + coord_cartesian(ylim = c(0,NA))
-dev.off()
+# png("Figure_Output/Single_Genes/Paper/Mgat4b.png", width=4, height=3, units="in", res=300)
+# ggplot(meltSE(se, g4, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") +
+# geom_point(aes(color = experiment)) + xlab("Day") + theme_classic() + coord_cartesian(ylim = c(0,NA)) + scale_color_manual(values = col_vec)
+# dev.off()
 
 ```
 
@@ -93,12 +99,12 @@ dev.off()
 ## PCA
 
 ```{r pca, message=FALSE, warning=FALSE, eval=TRUE}
-
-## all stages
-p <- plPCA(assays(se)$logcpm, as.data.frame(colData(se)), colorBy = "Day", shapeBy = "replicate",add.labels = FALSE)
-
-orca(p, file = "Figure_Output/Exploratory/LongRNA_PCA.png")
-orca(p, file = "Figure_Output/Exploratory/LongRNA_PCA.pdf")
+# 
+# ## all stages
+# p <- plPCA(assays(se)$logcpm, as.data.frame(colData(se)), colorBy = "Day", shapeBy = "replicate",add.labels = FALSE)
+# 
+# orca(p, file = "Figure_Output/Exploratory/LongRNA_PCA.png")
+# orca(p, file = "Figure_Output/Exploratory/LongRNA_PCA.pdf")
 ```
 
 
@@ -133,7 +139,7 @@ text <- apply(samples_data[, annotation_columns, drop = F],
 
 #annotation
 colorBy = "Day"
-shapeBy = "replicate"
+shapeBy = "experiment"
 
 cb <- samples_data[, colorBy]
 if (is.numeric(cb)) cb <- as.character(cb)

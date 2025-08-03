@@ -1,24 +1,56 @@
-1) TimeCourse Synapse Image (replace with s1-s3)
->> Done in R
-2) TimeCourse Dendrite Image (replace with s1-s3)
->> Done in R
-3) Figure S6, replace with s1-s3 in PCA and
-single-gene images
-4) Figure S7, replace PCA
-5) S8, replace x-axis with s1-s3
-6) Fig 1c replace with s1-s3
->> Done in R
-7) S11, replace with s1-s3
-8) Replace 5b-c with n1-n3
->> Done in R
-9) Replace 5d with r1-r3
-10) Replace 5d with n1-n3
->> Done in R
-11) Replace 5g with m1-m3
->> Decide about SIM Day29
-12) Replace 5i with m1-m4
->> Done in R
-13) Replace 5k-l with n1-n3
->> Done in R
-14) Replace 5m with m1-m3
->> Done in R
+Done:
+- Cleaned up GitHub and wrote ReadMe
+- Replaced all Figure Legends
+- Methods
+
+
+
+Sunday:
+
+2) Supplement Figure Legends 
+3) Run enrichMiR (scanMiR and enrichMiR) on pLNA and Sy5y
+4) Maybe check those images for Fig. 5
+
+
+
+
+Monday:
+1) Start with TMRE
+2) Main Figures to send to Gerhard
+
+>> Then Supplement and TMRE final analysis
+>> Last model figure
+
+
+
+To Do concrete Main Text and Figures:
+
+1) Snippets mtKeima
+2) Image Day36 SIM
+3) Check which images Snips Day36 SIM (it could be that these were also Day29, in that case change)
+4) Seperate f from g again like in the original main fiugure
+5) Take out mtKeima automated analysis (statistics)
+6) Describe Novartis differentiations in Figure Legends
+7) Change Day of Novartis neurons in Text
+8) Make model figure (Fig. 6)
+
+
+
+
+Supplement:
+
+1) Include snapshots of Calcium Videos Fig. 5m) in Supplement
+3) Ask Ino about Spectronaut version
+
+
+>>> Check 
+ 
+***) Re-Segment TMRE
+> File Comparison
+> Analysis
+
+***) Decide about SIM, whether to exclude at Day 29
+ 
+
+ 
+

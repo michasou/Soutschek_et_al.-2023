@@ -1,0 +1,65 @@
+---
+title: "Untitled"
+author: "Michael"
+date: '2022-10-21'
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+  library(ggsci)
+  library(scales)
+  library(emmeans)
+  library(lmerTest)
+  library(ggpubr)
+  library(rstatix)
+  library(ggsignif)
+  library(cowplot)
+  library(viridis)
+  library(grid)
+  library(gtable)
+  library(MASS)
+})
+```
+
+
+
+
+#Load Data
+```{r}
+ms1 <- read.csv("../../raw/MS1/MS1_manual_annotations.csv")
+ms1$Diff <- "MS1"
+ms2 <- read.csv("../../raw/MS2/MS2_manual_annotations.csv")
+ms2$Diff <- "MS2"
+ms3 <- read.csv("../../raw/MS3/MS3_manual_annotations.csv")
+ms3$Diff <- "MS3"
+
+e <- rbind(ms1,ms2,ms3)
+e$sample <- gsub("control","pLNA-Ctrl",e$sample)
+e$sample <- gsub("1229","pLNA-1229",e$sample)
+e$sample <- factor(e$sample,levels = c("pLNA-Ctrl","pLNA-1229","TSB"))
+```
+
+```{r}
+replacement <- c(MS1 = "r1", MS2 = "r2", MS3 = "r3")
+e$Diff <- replacement[as.character(e$Diff)]
+e$Diff <- factor(e$Diff,levels = c("r1","r2","r3"))
+```
+
+```{r}
+e <- e[e$sample != "TSB",]
+e$sample <- droplevels(e$sample)
+```
+
+```{r}
+saveRDS(e,"../Data/manual.rds")
+```
+
+
+

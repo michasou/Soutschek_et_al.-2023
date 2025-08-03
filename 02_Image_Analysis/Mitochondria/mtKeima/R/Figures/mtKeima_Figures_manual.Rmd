@@ -1,0 +1,108 @@
+---
+title: "Untitled"
+author: "Michael"
+date: '2022-10-21'
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+  library(ggsci)
+  library(scales)
+  library(emmeans)
+  library(lmerTest)
+  library(ggpubr)
+  library(rstatix)
+  library(ggsignif)
+  library(cowplot)
+  library(viridis)
+  library(grid)
+  library(gtable)
+  library(MASS)
+})
+```
+
+```{r}
+show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
+```
+
+
+
+#Load Data
+```{r}
+e <- readRDS("../Data/manual.rds")
+```
+
+
+#statistics
+```{r}
+mod_s1 <- lm(sqrt(acidic_normalized_neutral_numbers) ~ sample + Diff,e)
+summary(mod_s1)
+s1 <- emmeans(mod_s1, trt.vs.ctrl ~ sample , ref="pLNA-Ctrl")
+s1
+
+
+s1_df <- as.data.frame(s1$contrasts)
+s1_df$group1 <- "pLNA-Ctrl"
+s1_df$group2 <- s1_df$contrast
+s1_df$group2 <- gsub("\\ - \\(pLNA-Ctrl\\)","",s1_df$group2)
+s1_df$group2 <- gsub("\\(", "",s1_df$group2)
+s1_df$group2 <- gsub("\\)", "",s1_df$group2)
+s1_df <- add_significance(s1_df,p.col = "p.value")
+s1_df$p.value.signif_number <- round(s1_df$p.value,3)
+
+#add y_position
+y_pos <- c()
+for(i in s1_df$group2) {
+  ll <- max(sqrt(e[e$sample == i,"acidic_normalized_neutral_numbers"]))
+  y_pos <- c(y_pos,ll)
+}
+
+s1_df$y_pos <- y_pos*1.15
+```
+
+
+```{r}
+p1 <- ggplot(e,aes(x = sample, y = sqrt(acidic_normalized_neutral_numbers))) +
+  geom_violin(show.legend = FALSE) +
+  stat_summary(
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  stat_summary(aes(color = Diff),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.35), size = 0.75
+  ) +
+  ggsignif::geom_signif(
+    data = s1_df,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  ylab("Acidi Mitos normalized by neutral numbers (sqrt)") +
+  theme_classic(base_size = 12)+
+  scale_color_manual(values = col_vec) +
+  #coord_cartesian(ylim = c(0,7)) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14),
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+ggsave2("../../FigureOutput/Manual_Count_Processes.png",p1, width = 6,height = 4.5, bg = "white")
+```
+
+
+
+
+

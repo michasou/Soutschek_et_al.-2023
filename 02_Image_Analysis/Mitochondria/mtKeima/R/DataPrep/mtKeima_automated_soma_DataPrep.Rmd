@@ -1,0 +1,75 @@
+---
+title: "Untitled"
+author: "Michael"
+date: '2022-10-21'
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+  library(ggsci)
+  library(scales)
+  library(emmeans)
+  library(lmerTest)
+  library(ggpubr)
+  library(rstatix)
+  library(ggsignif)
+  library(cowplot)
+  library(viridis)
+  library(grid)
+  library(gtable)
+})
+```
+
+
+
+
+#Load Data
+```{r}
+e <- read.csv("../../raw/Soma_automated_MS123/soma_index.csv")
+e$Diff <- sapply(strsplit(e$replicate,"_"),"[",2)
+e$sample <- gsub("control","pLNA-Ctrl",e$sample)
+e$sample <- gsub("1229","pLNA-1229",e$sample)
+e$sample <- factor(e$sample,levels = c("pLNA-Ctrl","pLNA-1229","TSB"))
+e$ratio <- e$acidic_intensity / (e$acidic_intensity + e$neutral_intensity)
+```
+
+```{r}
+replacement <- c(MS1 = "r1", MS2 = "r2", MS3 = "r3")
+e$Diff <- replacement[as.character(e$Diff)]
+e$Diff <- factor(e$Diff,levels = c("r1","r2","r3"))
+```
+
+
+```{r}
+#area
+e <- e[e$area > 5,]
+
+#soma
+soma_number <- aggregate(e$label,e[,c("Diff","sample","image","soma")], FUN=length)
+colnames(soma_number)[5] <- "count_mito_soma"
+
+e <- merge(e,soma_number,by = c("Diff","sample","image","soma"),all.x = TRUE)
+e <- e[e$count_mito_soma > 10,]
+```
+
+```{r}
+#exclude the TSB condition
+e <- e[e$sample != "TSB",]
+e$sample <- droplevels(e$sample)
+```
+
+
+
+```{r}
+saveRDS(e,"../Data/automated_soma.rds")
+```
+
+
+

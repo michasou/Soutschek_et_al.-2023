@@ -17,6 +17,7 @@ suppressPackageStartupMessages({
   library(tidyr)
   library(plotly)
   library(cowplot)
+  library(ggsci)
 })
 ```
 
@@ -26,20 +27,21 @@ suppressPackageStartupMessages({
 se <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
 ```
 
+```{r}
+se$cond_name2 <- se$cond_name
+se$cond_name2 <- gsub("20pmol","10nM",se$cond_name2)
+se$cond_name2 <- gsub("40pmol","20nM",se$cond_name2)
+se$cond_name2 <- factor(se$cond_name2,levels = c("NegCtrl","miR_10nM","miR_20nM"))
+```
 
 
 # Violine Figures:
 ```{r}
 # example to get genes:
+g1 <- row.names(se)[rowData(se)$gene_name %in% c("EIF4G2")]
 
-g1 <- row.names(se)[rowData(se)$gene_name %in% c("PINK1")]
-
+png("../Figure_Output/Single_Genes/Eif4g2.png", width=10, height=6, units="in", res=300)
 ggplot(meltSE(se, g1, assayName = "logcpm"), aes(condition, logcpm)) + geom_violin() + geom_point(aes(color = experiment)) +  facet_wrap(~feature, scale="free") + theme_classic()
-
-ggplot(meltSE(se, g1, assayName = "counts"), aes(condition, counts)) + geom_violin() + geom_point(aes(color = diff)) +  facet_wrap(~feature, scale="free")
-
-png("./Figure_Output/Single_Genes/Septin14+Pseudo_counts.png", width=10, height=6, units="in", res=300)
-ggplot(meltSE(se, g1, assayName = "counts"), aes(condition, counts)) + geom_point(aes(color = diff)) + geom_violin() + facet_wrap(~feature, scale="free")
 dev.off()
 ```
 
@@ -49,15 +51,66 @@ dev.off()
 
 
 ## PCA
+```{r}
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
 
-```{r pca, message=FALSE, warning=FALSE, eval=TRUE}
 
-## all stages
-p <- plgINS::plPCA(assays(se)$corrected, as.data.frame(colData(se)), colorBy = "condition", shapeBy = "diff",
-              add.labels = FALSE, annotation_columns = colnames(colData(se)))
+#assay
+x <- assays(se)$corrected
 
-orca(p, file = "Figure_Output/Exploratory/LongRNA_star_PCA.png")
-orca(p, file = "Figure_Output/Exploratory/LongRNA_PCA.pdf")
+#preparation
+x <- t(x[which(!(apply(x, 1, var) == 0)), ])
+pca <- prcomp(x)
+
+#annotation
+samples_data = as.data.frame(colData(se))
+annotation_columns = colnames(colData(se))
+
+samples_data <- samples_data[row.names(pca$x), ]
+samples_data$names <- row.names(samples_data)
+labs <- annotation_columns
+labs[which(labs == "names")] <- ""
+text <- apply(samples_data[, annotation_columns, drop = F], 
+                  1, labs = labs, FUN = function(x, labs) {
+                    paste(paste(labs, x), collapse = "\n")
+                  })
+
+#annotation
+colorBy = "cond_name2"
+shapeBy = "experiment"
+
+cb <- samples_data[, colorBy]
+    if (!is.numeric(cb)) 
+      cb <- as.character(cb)
+
+sb <- samples_data[, shapeBy]
+      if (!is.numeric(cb)) 
+        cb <- as.factor(as.character(cb))
+
+
+#plot components
+xlab <- paste("PC ", "1", " (", round(pca$sdev[1]/sum(pca$sdev) *
+                                                       100, 0), "%)", sep = "")
+ylab <- paste("PC ", "2", " (", round(pca$sdev[2]/sum(pca$sdev) *
+                                                       100, 0), "%)", sep = "")
+
+df <- data.frame(x = pca$x[,1],y = pca$x[,2])
+
+p1 <- ggplot(df, aes(x = x, y = y)) +
+  geom_hline(yintercept=0, linewidth = 0.25) +
+  geom_vline(xintercept=0, linewidth = 0.25) +
+  geom_point(aes(color = cb, shape = sb),size = 3) +
+  theme_classic() +
+  xlab(xlab) + ylab(ylab) + 
+  scale_color_manual(values = col_vec) +
+  theme(text = element_text(size = 14), 
+        axis.text.x = element_text(size = rel(1)),
+        axis.text.y = element_text(size = rel(1))) +
+  guides(color=guide_legend(title="Condition"),shape=guide_legend(title="Differentiation"))
+  
+
+ggsave("../Figure_Output/Exploratory/PCA_man.png",p1, width = 6.5,height = 4.5, bg = "white")
+
 ```
 
 
