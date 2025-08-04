@@ -50,34 +50,25 @@ col <- "#36454F"
 
 # Load Data
 ```{r}
-se <- readRDS("../../../TimeCourse_GRCh38.p10_Ens91/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+se <- readRDS("../../../01_TimeCourse_MultiOmics/smallRNA/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
 se$day <- as.factor(se$day)
+```
+
+
+```{r}
+replacement <- c(SC1 = "s1", SC2 = "s2", SC3 = "s3")
+se$experiment <- replacement[as.character(se$experiment )]
+se$experiment  <- factor(se$experiment ,levels = c("s1","s2","s3"))
+```
+
+```{r}
 se2 <- se[,se$day != 0]
 ```
+
 
 # expressed MiRs
 ```{r}
 res <- as.data.frame(rowData(se)$DEA.all)
-
-
-#Don't filter futher since the max expression is for all miRs above 2
-# smallRNA_counts <- se  %>%
-#   assays() %>%
-#   `[[`("logcpm") %>%
-#   as.data.frame() %>%
-#   rownames_to_column(var = "ID") %>%
-#   pivot_longer(cols = starts_with("SC")) %>%
-#   group_by(ID) %>%
-#   summarize(
-#     min_exp = min(value),
-#     max_exp = max(value),
-#     mean_exp = mean(value),
-#     median_exp = median(value)) %>%
-#   inner_join(mcols(grl)[c("Name", "Derives_from")], by = c("ID" = "Name"), copy=TRUE) %>%
-#   left_join(mcols(grl)[c("Name", "ID")], by = c("Derives_from" = "ID"), copy=TRUE) %>%
-#   dplyr::select(-Derives_from) %>%
-#   rename(precursor = Name)
-
 res <- res[grep("hsa-",row.names(res)),]
 res$miRNA_id <- row.names(res)
 res$miRNA_id <- gsub("-3p$|-5p$","",res$miRNA_id)
@@ -147,7 +138,7 @@ p2 <- ggplot(df[df$feature %in% H_seed_g,], aes(as.factor(day), logcpm)) + geom_
  
 pp <- cowplot::plot_grid(p1,p2,ncol = 1)
 
-png("Figure_Output/Human_Specific_miRs.png", width=7, height=6, units="in", res=300)
+png("./Figure_Output/Human_Specific_miRs.png", width=7, height=6, units="in", res=300)
 pp
 dev.off()
 

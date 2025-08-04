@@ -45,7 +45,8 @@ e$Differentiation <- tolower(e$Differentiation)
 
 ```{r}
 #exclude the wrongly processed ones
-e <- e[!grepl("^230511_michael_M1_control_2023_05_11_[0-9_]*_SIM²\\.czi$", e$file), ]
+#would lead to the same results, therefore leave in
+#e <- e[!grepl("^230511_michael_M1_control_2023_05_11_[0-9_]*_SIM²\\.czi$", e$file), ]
 ```
 
 
@@ -127,7 +128,7 @@ p1 <- ggplot(ag_area,aes(x = Condition, y = x)) +
         axis.text.x = element_text(size = rel(1))) +
   scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
 
-ggsave2("../Figure_Output/SIM_MitoArea_excl.png",p1, width = 7,height = 4.75, bg = "white")
+ggsave2("../Figure_Output/SIM_MitoArea.png",p1, width = 7,height = 4.75, bg = "white")
 ```
 
 
@@ -153,11 +154,12 @@ p1b <- ggplot(ag_area[ag_area$Day == "Day 36",],aes(x = Condition, y = x)) +
     textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
   ) +
   coord_cartesian(ylim = c(0,NA)) +
-  ggtitle("SIM - Day 36")+
+  facet_wrap(~Day) +
   ylab("Mitochondrial Area in µm²") +
   theme_classic(base_size = 12)+
   scale_color_manual(values = col_vec) +
   coord_cartesian(ylim = c(0,0.3)) +
+  labs(color = "Diff") +
   theme(strip.text.x = element_text(size = rel(1)),
         strip.placement = "inside",
         text = element_text(size = 16), 
@@ -165,7 +167,7 @@ p1b <- ggplot(ag_area[ag_area$Day == "Day 36",],aes(x = Condition, y = x)) +
         axis.text.x = element_text(size = rel(1))) +
   scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
 
-ggsave2("../Figure_Output/SIM_MitoArea_Day36.png",p1b, width = 5,height = 4.75, bg = "white")
+ggsave2("../Figure_Output/SIM_MitoArea_Day36.png",p1b, width = 4.25,height = 4.75, bg = "white")
 ```
 
 
@@ -247,17 +249,16 @@ p2 <- ggplot(ag_length,aes(x = Condition, y = x)) +
         strip.placement = "inside",
         text = element_text(size = 16), 
         axis.title.x=element_blank(),
-        axis.text.x = element_text(size = rel(1)),
-        legend.position = "bottom") +
+        axis.text.x = element_text(size = rel(1))) +
   scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
   
-ggsave2("../Figure_Output/SIM_MitoLength.png",p2, width = 5.5,height = 4.75, bg = "white")
-ggsave2("../Figure_Output/SIM_MitoLength.pdf",p2, width = 5.5,height = 4.75, bg = "white")
+ggsave2("../Figure_Output/SIM_MitoLength.png",p2, width = 7,height = 4.75, bg = "white")
+ggsave2("../Figure_Output/SIM_MitoLength.pdf",p2, width = 7,height = 4.75, bg = "white")
 ```
 
 ```{r}
 p2a <- p2 + coord_cartesian(ylim = c(0.7,1.25)) + theme(legend.position = "right")
-ggsave2("../Figure_Output/SIM_MitoLength_zoom.png",p2a, width = 7,height = 4.75, bg = "white")
+ggsave2("../Figure_Output/SIM_MitoLength_zoom.png",p2a, width = 5,height = 4.75, bg = "white")
 ```
 
 

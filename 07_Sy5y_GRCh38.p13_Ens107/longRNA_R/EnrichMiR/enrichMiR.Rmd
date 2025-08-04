@@ -50,6 +50,8 @@ dea3 <- rowData(se)[["DEA.ind.MiR"]]
 e_SC <- testEnrichment(dea1,sets = sets_SC,tests = c("areamir","siteoverlap"), sets.properties = miRs)
 res_SC_area <- getResults(e_SC,test = c("areamir"),flatten = TRUE)
 res_SC_so <- getResults(e_SC,test = c("siteoverlap.down"),flatten = TRUE)
+#filter out miRNAs without family
+res_SC_so <- res_SC_so[!is.na(res_SC_so$members),]
 ```
 
 # enrichMiR ind_DEA 10nM (miR-1229 only present in TSall)
@@ -57,6 +59,8 @@ res_SC_so <- getResults(e_SC,test = c("siteoverlap.down"),flatten = TRUE)
 e_SC_ind10 <- testEnrichment(dea2,sets = sets_SC,tests = c("areamir","siteoverlap"), sets.properties = miRs)
 res_SC_ind10_area <- getResults(e_SC_ind10,test = c("areamir"),flatten = TRUE)
 res_SC_ind10_so <- getResults(e_SC_ind10,test = c("siteoverlap.down"),flatten = TRUE)
+#filter out miRNAs without family
+res_SC_ind10_so<- res_SC_ind10_so[!is.na(res_SC_ind10_so$members),]
 ```
 
 # enrichMiR ind_DEA 20nM (miR-1229 only present in TSall)
@@ -64,6 +68,8 @@ res_SC_ind10_so <- getResults(e_SC_ind10,test = c("siteoverlap.down"),flatten = 
 e_SC_ind20 <- testEnrichment(dea3,sets = sets_SC,tests = c("areamir","siteoverlap"), sets.properties = miRs)
 res_SC_ind20_area <- getResults(e_SC_ind20,test = c("areamir"),flatten = TRUE)
 res_SC_ind20_so <- getResults(e_SC_ind20,test = c("siteoverlap.down"),flatten = TRUE)
+#filter out miRNAs without family
+res_SC_ind20_so <- res_SC_ind20_so[!is.na(res_SC_ind20_so$members),]
 ```
 
 

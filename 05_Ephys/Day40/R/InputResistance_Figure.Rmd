@@ -1,0 +1,115 @@
+---
+title: "Untitled"
+author: "Michael"
+date: '2022-10-21'
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+
+```{r}
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+  library(ggsci)
+  library(scales)
+  library(emmeans)
+  library(lmerTest)
+  library(ggpubr)
+  library(rstatix)
+  library(ggsignif)
+  library(cowplot)
+  library(viridis)
+  library(grid)
+  library(gtable)
+})
+```
+
+
+
+
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],"darkgrey","black","lightgrey","darkgrey")
+```
+
+
+
+
+
+#####################
+#####################
+#resistance
+```{r}
+resis <- read.csv("../raw/resistance2.csv")
+
+#input resistance
+resis$condition <- gsub("pLNA1229","pLNA-1229",resis$condition)
+resis$condition <- gsub("pLNA Ctrl","pLNA-Ctrl",resis$condition)
+resis$condition <- factor(resis$condition,levels = c("pLNA-Ctrl","pLNA-1229"))
+
+resis$Differentiation <- tolower(resis$Differentiation)
+resis$Differentiation <- factor(resis$Differentiation,levels = c("m1","m2","m3"))
+
+mod_s6 <- lm(input ~ condition + Differentiation,data = resis)
+s6 <- emmeans(mod_s6, trt.vs.ctrl ~ condition, ref="pLNA-Ctrl")
+
+s6_df <- as.data.frame(s6$contrasts)
+s6_df$group1 <- "pLNA-Ctrl"
+s6_df$group2 <- s6_df$contrast
+s6_df$group2 <- gsub("\\) - \\(pLNA-Ctrl\\)","",s6_df$group2)
+s6_df$group2 <- gsub("\\(","",s6_df$group2)
+s6_df <- add_significance(s6_df,p.col = "p.value")
+
+#add y_position
+y_pos <-max(resis[,"input"])
+s6_df$y_pos <- y_pos*1.2
+
+
+
+p6 <- ggplot(resis,aes(x = condition, y = input)) + 
+  geom_boxplot() +
+  stat_summary(aes(color = Differentiation),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(
+    data = s6_df,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  ylab("Input Resistance [MOhm]") +
+  theme_classic(base_size = 12)+
+  scale_color_manual(values = col_vec) +
+  coord_cartesian(ylim = c(0,NA)) +
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
+
+
+
+ggsave2("../Figures/Input_resistance.png",p6, width = 4.5,height = 4, bg = "white")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

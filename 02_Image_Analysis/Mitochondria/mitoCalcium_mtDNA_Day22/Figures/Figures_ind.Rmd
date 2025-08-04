@@ -44,6 +44,7 @@ res$Diff <- factor(res$Diff,levels = c("n1","n2","n3"))
 ## Area aggregated
 ```{r}
 ag_area <- aggregate(res$Area_um,res[,c("Diff","Condition","ImageNumber","Compartment")], FUN=mean)
+ag_area$day <- "Day 25"
 ```
 
 ```{r}
@@ -96,7 +97,7 @@ p1 <- ggplot(aes(x = Condition, y = x), data = ag_area[ag_area$Compartment == "P
   size        = 0.75,
   colour      = "black"
   ) +
-  ggtitle("iSIM - Day 25")+
+  facet_grid(~day) +
   ylab("Mitochondrial Area in µm²") +
   theme_classic(base_size = 12) +
   coord_cartesian(ylim = c(0,0.6)) +
@@ -106,6 +107,7 @@ p1 <- ggplot(aes(x = Condition, y = x), data = ag_area[ag_area$Compartment == "P
         text = element_text(size = 16), 
         axis.title.x=element_blank(),
         axis.text.x = element_text(size = rel(1))) +
+  labs(color = "Differentiation") +
   scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
 
 
@@ -117,6 +119,7 @@ ggsave2("../Figure_Output/Area_um_aggregated_white.png",p1, width = 5,height = 4
 ## Length aggregated
 ```{r}
 ag_length <- aggregate(res$Length_um,res[,c("Diff","Condition","ImageNumber","Compartment")], FUN=mean)
+ag_length$day <- "Day 25"
 ```
 
 
@@ -169,23 +172,21 @@ p2 <- ggplot(aes(x = Condition, y = x), data = ag_length[ag_length$Compartment =
   size        = 0.75,
   colour      = "black"
   ) +
-  facet_grid(~Compartment) +
+  facet_grid(~day) +
   ylab("Mitochondrial Length in µm") +
-  theme_classic(base_size = 18) +
-  coord_cartesian(ylim = c(0,1.75)) +
+  theme_classic(base_size = 12) +
+  coord_cartesian(ylim = c(0,1.35)) +
   scale_color_manual(values = col_vec) +
-  scale_pattern_discrete(choices = c("none","stripe"))+
-  theme(strip.text.x = element_text(size = rel(1.1)),
-        strip.text.y = element_text(size = rel(1.1)),
+  theme(strip.text.x = element_text(size = rel(1)),
         strip.placement = "inside",
-        text = element_text(size = 18),
-        )+ 
-    guides(pattern = guide_legend(override.aes = list(shape = NA)),
-           colour = guide_legend(override.aes = list(linetype=0,pattern_colour = "white"))
-           )
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1))) +
+  labs(color = "Differentiation") +
+  scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
 
 
-ggsave2("../Figure_Output/Length_um_aggregated_white.png",p2, width = 5,height = 6, bg = "transparent")
+ggsave2("../Figure_Output/Length_um_aggregated_white.png",p2, width = 5,height = 4.75, bg = "transparent")
 ```
 
 
@@ -736,7 +737,6 @@ p4 <- ggplot(aes(x = Condition, y = fraction_with_mtDNA), data = ag_perc[ag_perc
       ) +
   ylab("% Mitochondria with mtDNA") +
   xlab("") +
-  facet_wrap(~Compartment)+
   scale_color_manual(values = col_vec) +
   coord_cartesian(ylim = c(0,0.6)) +
   theme_classic(base_size = 18)+

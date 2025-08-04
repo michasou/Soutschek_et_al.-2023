@@ -20,7 +20,7 @@ suppressPackageStartupMessages({
 #load enrichMiR Data
 ```{r}
 #sets
-sets_SC <- readRDS("V:/Michael/Bioinformatics/Reference/enrichMiR/scanMiR/scanMiR_GRCh38_gene.rds")
+sets_SC <- readRDS("V:/Michael/Bioinformatics/Reference/enrichMiR/scanMiR/archive/scanMiR_GRCh38_gene.rds")
 
 #mir
 se_short <- readRDS("../../../01_TimeCourse_MultiOmics/smallRNA/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
@@ -48,25 +48,31 @@ dea3943 <- rowData(se)[["DEA.pLNA-3943"]]
 
 # enrichMiR 1229 (only present in TSall)
 ```{r}
-enr_1229_SC <- testEnrichment(dea1229,sets = sets_SC,tests = c("areamir","siteoverlap"), sets.properties = miRs)
+enr_1229_SC <- testEnrichment(dea1229,sets = sets_SC,tests = c("areamir","siteoverlap"), sets.properties = miRs,th.FDR = 0.5)
 res_1229_SC_ar <- getResults(enr_1229_SC,test = c("areamir"),flatten = TRUE)
 res_1229_SC_so <- getResults(enr_1229_SC,test = c("siteoverlap.up"),flatten = TRUE)
+#filter out miRNAs without family
+res_1229_SC_so <- res_1229_SC_so[!is.na(res_1229_SC_so$members),]
 ```
 
 
 # enrichMiR 3943 (sites only present in TSall)
 ```{r}
-enr_3943_SC <- testEnrichment(dea3943,sets = sets_SC,tests = c("areamir","siteoverlap"), sets.properties = miRs)
-res_3943_SC_ar <- getResults(enr_3943TS,test = c("areamir"),flatten = TRUE)
-res_3943_SC_so <- getResults(enr_3943TS,test = c("siteoverlap.up"),flatten = TRUE)
+enr_3943_SC <- testEnrichment(dea3943,sets = sets_SC,tests = c("areamir","siteoverlap"), sets.properties = miRs,th.FDR = 0.5)
+res_3943_SC_ar <- getResults(enr_3943_SC,test = c("areamir"),flatten = TRUE)
+res_3943_SC_so <- getResults(enr_3943_SC,test = c("siteoverlap.up"),flatten = TRUE)
+#filter out miRNAs without family
+res_3943_SC_so <- res_3943_SC_so[!is.na(res_3943_SC_so$members),]
 ```
 
 
 # enrichMiR 181
 ```{r}
-enr_181_SC <- testEnrichment(dea181c,sets = sets_SC,tests = c("areamir","siteoverlap"), sets.properties = miRs)
+enr_181_SC <- testEnrichment(dea181c,sets = sets_SC,tests = c("areamir","siteoverlap"), sets.properties = miRs, th.FDR = 0.5)
 res_181_SC_ar <- getResults(enr_181_SC,test = c("areamir"),flatten = TRUE)
 res_181_SC_so <- getResults(enr_181_SC,test = c("siteoverlap.up"),flatten = TRUE)
+#filter out miRNAs without family
+res_181_SC_so <- res_181_SC_so[!is.na(res_181_SC_so$members),]
 ```
 
 #########
@@ -75,7 +81,7 @@ res_181_SC_so <- getResults(enr_181_SC,test = c("siteoverlap.up"),flatten = TRUE
 #EnrichPlot 1229
 ```{r}
 #siteoverlap
-p1 <- enrichPlot(res = res_1229_SC_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.05)
+p1 <- enrichPlot(res = res_1229_SC_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.75)
 
 #fix the axis labels
 p1 <- p1 + scale_y_continuous(
@@ -113,7 +119,7 @@ ggsave2("../Figures/Figure_Output/EnrichMiR/miR1229_EnrichPlot_Comb.png",pp1_leg
 #EnrichPlot 181c
 ```{r}
 #siteoverlap
-p3 <- enrichPlot(res = res_181_SC_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.05)
+p3 <- enrichPlot(res = res_181_SC_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.0175)
 
 #fix the axis labels
 p3 <- p3 + scale_y_continuous(
@@ -136,7 +142,7 @@ p4 <- p4 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.t
 
 legend <- get_plot_component(p4, 'guide-box-bottom', return_all = TRUE)
 
-title2 <- ggdraw() + draw_label("DEA miR-1229", fontface='italic', size = 18)
+title2 <- ggdraw() + draw_label("DEA miR-181", fontface='italic', size = 18)
 pp2 <- plot_grid(p3+ theme(legend.position = "none"),
                  p4+ theme(legend.position = "none"), nrow = 1)
 pp2_leg <- plot_grid(title2,NULL,pp2,legend,ncol = 1, rel_heights = c(0.05,0.05,1,0.1))
