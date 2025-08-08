@@ -2,5 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
+.DS_Store
 Soutschek_et_al_PaperScripts.Rproj
 Soutschek_et_al.-2023.Rproj
