@@ -121,6 +121,7 @@ syn_res <- syn_res[,-grep("StDev_",colnames(syn_res))]
 #cleanup
 ```{r}
 syn_res$Condition <- factor(syn_res$Condition, levels = c("empty","pLNA-Ctrl","pLNA-1229","TSB"))
+syn_res$Differentiation <- factor(syn_res$Differentiation)
 ```
 
 

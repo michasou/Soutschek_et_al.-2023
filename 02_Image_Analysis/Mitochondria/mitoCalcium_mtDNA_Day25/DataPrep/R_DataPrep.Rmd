@@ -1,0 +1,189 @@
+---
+title: "Segmentation_Quantification"
+author: "Michael Soutschek"
+date: "2024-06-25"
+output: html_document
+---
+
+#libraries
+```{r}
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(scales)
+  library(ggsci)
+  library(cowplot)
+})
+```
+
+##means
+
+#Import Data
+
+```{r}
+nv11 <- read.csv("../../05_cellprofiler/cp_out_nv11/20250717_nv11_mean.csv")
+nv11$Diff <- "Nv11"
+nv12 <- read.csv("../../05_cellprofiler/cp_out_nv12/20250717_nv12_mean.csv")
+nv12$Diff <- "Nv12"
+nv13 <- read.csv("../../05_cellprofiler/cp_out_nv13/20250717_nv13_mean.csv")
+nv13$Diff <- "Nv13"
+```
+
+
+
+```{r}
+#means
+mean <- rbind(nv11,nv12,nv13)
+```
+
+
+#blinding
+```{r}
+mean$blinding <- paste0(sapply(strsplit(mean$FileName_mtDNA,"_"),"[",5),"_",sapply(strsplit(mean$FileName_mtDNA,"_"),"[",6))
+mean$blinding <- gsub(".tif","",mean$blinding)
+```
+
+```{r}
+blind <- readRDS("../../250715_blinding_mtdna.rds")
+blind$check <- NULL
+blind$blinding <- gsub("raw_mip_","",blind$blinding)
+```
+
+```{r}
+mean <- merge(mean,blind,by = "blinding", all.x = TRUE)
+```
+
+
+
+#cleanup mean
+```{r}
+colnames(mean)[which(grepl("Skeleton",colnames(mean)))] <- "MitoLength"
+colnames(mean)[which(grepl("Mean_Mito_AreaShape_Area",colnames(mean)))] <- "MitoArea"
+colnames(mean)[which(grepl("Mean_Mito_Intensity_MeanIntensity_Croprawcalcium",colnames(mean)))] <- "MitoCalciumIntensity"
+colnames(mean)[which(grepl("Mean_Soma_Intensity_MeanIntensity_Croprawcalcium",colnames(mean)))] <- "SomaCalciumIntensity"
+colnames(mean)[which(grepl("Mean_mtDNA_Intensity_MeanIntensity_Croprawmtdna",colnames(mean)))] <- "mtDNAIntensity"
+```
+
+```{r}
+mean <- mean[,-grep("FileName",colnames(mean))]
+mean <- mean[,-grep("Mean_Mito_Children_mtDNAinMito_Count",colnames(mean))]
+mean <- mean[,-grep("Mean_Mito_Parent_Soma" ,colnames(mean))]
+```
+
+
+#experimental condition
+```{r}
+mean$Condition <- sapply(strsplit(mean$file,"_"),"[",8)
+mean$ImageNumber <- sapply(strsplit(mean$file,"_"),"[",9)
+mean$ImageNumber <- gsub(".vsi","",mean$ImageNumber)
+```
+
+```{r}
+mean$Diff <- factor(mean$Diff, levels = c("Nv11","Nv12","Nv13"))
+mean$Condition <- factor(mean$Condition, levels = c("Ctrl","1229"))
+```
+
+
+
+```{r}
+saveRDS(mean,"../Data/mean_res.rds")
+```
+
+
+
+
+
+#######################
+#######################
+
+## Individual Mitochondria
+
+#Data Import
+```{r}
+mitoNV8 <- read.csv("../../05_cellprofiler/cp_out/20250630_CP_PKMDR_Mitochondria.csv")
+```
+
+#CleanUp
+```{r}
+all_tables <- list("mitoNV8" = mitoNV8,"mitoNV9" = mitoNV9,"mitoNV10" = mitoNV10,"mitoNV11" = mitoNV11)
+all_tables_clean <- list()
+```
+
+```{r}
+#remove two headers
+for (i in names(all_tables)){
+  j <- all_tables[[i]]
+  j <- j[,-grep("PathName_",as.character(j[1,]))]
+  j <- j[,-grep("FileName_[PST]",as.character(j[1,]))]
+  j <- j[,-grep("Number",as.character(j[1,]))]
+  colnames(j) <- paste(colnames(j),as.character(j[1,]),sep ="_")
+  j <- j[-1,]
+  colnames(j)[which(grepl("FileName",colnames(j)))] <- "FileName"
+  all_tables_clean[[i]] <- j
+}
+
+res_mito <- do.call(rbind,all_tables_clean)
+row.names(res_mito) <- NULL
+```
+
+
+
+```{r}
+#naming
+colnames(res_mito)[which(grepl("Skeleton",colnames(res_mito)))] <- "Length"
+colnames(res_mito)[which(grepl("AreaShape",colnames(res_mito)))] <- "Area"
+colnames(res_mito)[which(grepl("Intensity",colnames(res_mito)))] <- "Intensity_TMRE"
+colnames(res_mito)[which(grepl("Children",colnames(res_mito)))] <- "Count_mtDNA"
+colnames(res_mito)[which(grepl("Parent",colnames(res_mito)))] <- "InSoma"
+```
+
+```{r}
+#Infos1
+res_mito$Compartment <- ifelse(res_mito$InSoma > 0,"Soma","Processes")
+res_mito$mtDNA <- ifelse(res_mito$Count_mtDNA > 0,"yes","no")
+```
+
+```{r}
+#formating
+res_mito$Length <- as.numeric(res_mito$Length)
+res_mito$Area <- as.numeric(res_mito$Area)
+res_mito$Intensity_TMRE <- as.numeric(res_mito$Intensity_TMRE)
+res_mito$Count_mtDNA <- as.numeric(res_mito$Count_mtDNA)
+res_mito$InSoma <- as.numeric(res_mito$InSoma)
+
+res_mito$Compartment <- factor(res_mito$Compartment, levels = c("Processes","Soma"))
+res_mito$mtDNA <- factor(res_mito$mtDNA, levels = c("yes","no"))
+```
+
+```{r}
+#Check for your images!!
+res_mito$Area_um <- res_mito$Area / (21.7391^2)
+res_mito$Length_um <- res_mito$Length / 21.7391
+```
+
+```{r}
+#Infos2
+res_mito$mtDNA_Density_inMito <- res_mito$Count_mtDNA / res_mito$Area_um 
+res_mito$mtDNA_Density_inMito <- as.numeric(res_mito$mtDNA_Density_inMito)
+```
+
+
+#experimental condition
+```{r}
+res_mito$Diff <- sapply(strsplit(res_mito$FileName,"_"),"[",5)
+res_mito$Day <- sapply(strsplit(res_mito$FileName,"_"),"[",6)
+
+res_mito$Image <- sapply(strsplit(res_mito$FileName,"_"),"[",8)
+res_mito$Image <- gsub(".vsi","",res_mito$Image)
+```
+
+```{r}
+res_mito$Day <- factor(res_mito$Day,levels = c("DIV2","DIV6","DIV8","DIV13","DIV20","DIV23","DIV28"))
+res_mito$Diff <- factor(res_mito$Diff, levels = c("NV8","NV9","NV10","NV11"))
+res_mito$Image <- as.numeric(res_mito$Image)
+```
+
+
+
+```{r}
+saveRDS(res_mito,"./Data/mito_res.rds")
+```

@@ -59,7 +59,7 @@ Targets <- Targets[Targets$FDR < 0.05,]
 
 ```{r}
 #check for expressed targets in human neurons
-dea_plna <- read.csv("../../../pLNA_GRCh38.p13_Ens107/pLNA_experiment/Target_Analysis/miR1229/target_data/dea1229_targets_genebased.csv")
+dea_plna <- read.csv("../../../03_pLNA_GRCh38.p13_Ens107/pLNA_experiment/Target_Analysis/miR1229/target_data/dea1229_targets_genebased.csv")
 colnames(dea_plna)[which(colnames(dea_plna) == "logCPM")] <- "logCPM_pLNA"
 
 Targets <- merge(Targets,dea_plna[,c("gene_name","logCPM_pLNA")],by = "gene_name",all.x = TRUE)

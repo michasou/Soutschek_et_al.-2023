@@ -79,10 +79,12 @@ ccp <- stage(assay(segn, "TPM"), exp(assay(ref_li, "logcpm"))-1, correction = "m
 colnames(ccp) <- gsub("_long","",colnames(ccp))
 colnames(ccp) <- gsub("_","_Day",colnames(ccp))
 colnames(ccp) <- gsub("SC","s",colnames(ccp))
+colnames(ccp) <- sub("s(\\d+)_Day(\\d+)", "Day\\2 (\\1)", colnames(ccp))
 ccs <- stage(assay(segn, "TPM"), exp(assay(ref_li, "logcpm"))-1, method="spearman", correction = "mean")
 colnames(ccs) <- gsub("_long","",colnames(ccs))
 colnames(ccs) <- gsub("_","_Day",colnames(ccs))
 colnames(ccs) <- gsub("SC","s",colnames(ccs))
+colnames(ccs) <- sub("s(\\d+)_Day(\\d+)", "Day\\2 (\\1)", colnames(ccs))
 
 #plot
 Heatmap(ccp, cluster_rows = FALSE, cluster_columns = FALSE, name="Pearson", column_title="Pearson correlation", row_title="Lin et al., Stem Cell Rep. 2021") + 
@@ -146,11 +148,13 @@ ccp <- stage(exp(assay(se_sal, "logcpm"))-1, nr, correction = "mean")
 colnames(ccp) <- gsub("_long","",colnames(ccp))
 colnames(ccp) <- gsub("_","_Day",colnames(ccp))
 colnames(ccp) <- gsub("SC","s",colnames(ccp))
+colnames(ccp) <- sub("s(\\d+)_Day(\\d+)", "Day\\2 (\\1)", colnames(ccp))
 ccp <- ccp[order(row.names(ccp)),]
 ccs <- stage(exp(assay(se_sal, "logcpm"))-1, nr, method="spearman", correction = "mean")
 colnames(ccs) <- gsub("_long","",colnames(ccs))
 colnames(ccs) <- gsub("_","_Day",colnames(ccs))
 colnames(ccs) <- gsub("SC","s",colnames(ccs))
+colnames(ccs) <- sub("s(\\d+)_Day(\\d+)", "Day\\2 (\\1)", colnames(ccs))
 ccs <- ccs[order(row.names(ccs)),]
 
 #plot
@@ -221,10 +225,12 @@ ccp <- stage(assay(se_sal, "TPM"), nr, correction = "mean")
 colnames(ccp) <- gsub("_long","",colnames(ccp))
 colnames(ccp) <- gsub("_","_Day",colnames(ccp))
 colnames(ccp) <- gsub("SC","s",colnames(ccp))
+colnames(ccp) <- sub("s(\\d+)_Day(\\d+)", "Day\\2 (\\1)", colnames(ccp))
 ccs <- stage(assay(se_sal, "TPM"), nr, method="spearman", correction = "mean")
 colnames(ccs) <- gsub("_long","",colnames(ccs))
 colnames(ccs) <- gsub("_","_Day",colnames(ccs))
 colnames(ccs) <- gsub("SC","s",colnames(ccs))
+colnames(ccs) <- sub("s(\\d+)_Day(\\d+)", "Day\\2 (\\1)", colnames(ccs))
 
 #plot
 Heatmap(ccp, cluster_rows = FALSE, cluster_columns = FALSE, name="Pearson", column_title="Pearson correlation", row_title="Trevino et al., 2021") + 

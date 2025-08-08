@@ -14,13 +14,15 @@ suppressPackageStartupMessages({
   library(SummarizedExperiment)
   library(ggrepel)
   library(scales)
+  library(cowplot)
 })
 ```
 
 #load enrichMiR Data
 ```{r}
 #sets
-sets_SC <- readRDS("V:/Michael/Bioinformatics/Reference/enrichMiR/scanMiR/archive/scanMiR_GRCh38_gene.rds")
+sets_SC <- readRDS("V:/Michael/Bioinformatics/Reference/enrichMiR/scanMiR/scanMiR_GRCh38_gene.rds")
+sets_TS <- readRDS("V:/Michael/Bioinformatics/Reference/enrichMiR/Targetscan/20211124_Targetscan8_Human_AllPred_human.rds")
 
 #mir
 se_short <- readRDS("../../../01_TimeCourse_MultiOmics/smallRNA/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
@@ -74,6 +76,15 @@ res_181_SC_so <- getResults(enr_181_SC,test = c("siteoverlap.up"),flatten = TRUE
 #filter out miRNAs without family
 res_181_SC_so <- res_181_SC_so[!is.na(res_181_SC_so$members),]
 ```
+# enrichMiR 181 (TargetScan)
+```{r}
+enr_181_TS <- testEnrichment(dea181c,sets = sets_TS,tests = c("areamir","siteoverlap"), sets.properties = miRs, th.FDR = 0.5)
+res_181_TS_ar <- getResults(enr_181_TS,test = c("areamir"),flatten = TRUE)
+res_181_TS_so <- getResults(enr_181_TS,test = c("siteoverlap.up"),flatten = TRUE)
+#filter out miRNAs without family
+res_181_TS_so <- res_181_TS_so[!is.na(res_181_TS_so$members),]
+```
+
 
 #########
 ## EnrichPlots
@@ -152,6 +163,52 @@ pp2_leg <- plot_grid(title2,NULL,pp2,legend,ncol = 1, rel_heights = c(0.05,0.05,
 ggsave2("../Figures/Figure_Output/EnrichMiR/miR181_EnrichPlot_SO.png",p3, width = 7,height = 5, bg = "white")
 ggsave2("../Figures/Figure_Output/EnrichMiR/miR181_EnrichPlot_Comb.png",pp2_leg, width = 12,height = 5, bg = "white")
 ```
+
+
+
+#EnrichPlot 181c TargetScan
+```{r}
+#siteoverlap
+p3b <- enrichPlot(res = res_181_TS_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.0175)
+
+#fix the axis labels
+p3b <- p3b + scale_y_continuous(
+    trans  = enrichMiR:::.reverselog_trans(10),
+    breaks = log_breaks(base = 10)
+  )
+
+p3b <- p3b + scale_color_viridis_c(direction = -1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("TargetScan all - siteoverlap") + labs(color="Expression")
+
+#areamir
+p4b <- enrichPlot(res = res_181_TS_ar,enr.field = "enrichment",col.field = "props",sig.field = "FDR", size.field = NULL, label.sig.thres = 0.05, label.field = "members")
+
+#fix the axis labels
+p4b <- p4b + scale_y_continuous(
+    trans  = enrichMiR:::.reverselog_trans(10),
+    breaks = log_breaks(base = 10)
+  )
+
+p4b <- p4b + scale_color_viridis_c(direction = -1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12), legend.position = "bottom") + ggtitle("TargetScan all - areamir") + labs(color="Expression") + guides(colour = guide_colourbar(title.position="left", title.hjust = 0.5))
+
+legend <- get_plot_component(p4b, 'guide-box-bottom', return_all = TRUE)
+
+title2 <- ggdraw() + draw_label("DEA miR-181", fontface='italic', size = 18)
+pp2b <- plot_grid(p3b+ theme(legend.position = "none"),
+                 p4b+ theme(legend.position = "none"), nrow = 1)
+pp2b_leg <- plot_grid(title2,NULL,pp2b,legend,ncol = 1, rel_heights = c(0.05,0.05,1,0.1))
+```
+
+```{r}
+ggsave2("../Figures/Figure_Output/EnrichMiR/miR181_EnrichPlot_TargetScan_SO.png",p3b, width = 7,height = 5, bg = "white")
+ggsave2("../Figures/Figure_Output/EnrichMiR/miR181_EnrichPlot_TargetScan_Comb.png",pp2b_leg, width = 12,height = 5, bg = "white")
+```
+
+
+
+
+
+
+
 
 #######
 ##CD Plots
