@@ -33,91 +33,22 @@ suppressPackageStartupMessages({
 
 ```{r}
 #re00
-re00 <- read.csv("../../analysis/240315_Re00/Re00_Cellprofiler/Re00_cp_out/250807_Re00_240315mito.csv") 
-re00_check <- re00
-re00$Diff <- "Re00"
-re00$blinded_numbers <- re00$FileName_raw
-re00 <- re00[,-grep("PathName",colnames(re00))]
-re00 <- re00[,-grep("FileName",colnames(re00))]
+re00 <- readRDS("../data/re00_raw.rds")
 
-re00_blind <- read.csv("../../raw/240315_Re00/blinded_numbers.csv")
-re00_blind$blinded_numbers <- gsub("A_","Re00_",re00_blind$blinded_numbers)
-re00 <- merge(re00,re00_blind, by = "blinded_numbers",all.x = TRUE)
-re00$sample <- sapply(strsplit(re00$image,"\\_"),"[",5)
-re00$sample <- gsub("control","pLNA-Ctrl",re00$sample)
-re00$sample <- gsub("1229","pLNA-1229",re00$sample)
-```
-
-```{r}
 #re02
-re02 <- read.csv("../../analysis/240614_Re02/Re02_Cellprofiler/Re02_cp_out/250807_Re02_240614mito.csv") 
-re02_check <- re02
-re02$Diff <- "Re02"
-re02$blinded_numbers <- re02$FileName_raw
-re02 <- re02[,-grep("PathName",colnames(re02))]
-re02 <- re02[,-grep("FileName",colnames(re02))]
+re02 <- readRDS("../data/re02_raw.rds")
 
-re02_blind <- read.csv("../../raw/240614_Re02/blinded_numbers.csv")
-re02_blind$blinded_numbers <- gsub("A_","Re02_",re02_blind$blinded_numbers)
-re02 <- merge(re02,re02_blind, by = "blinded_numbers",all.x = TRUE)
-re02$sample <- sapply(strsplit(re02$image,"\\_"),"[",5)
-re02$sample <- gsub("CNTRL","pLNA-Ctrl",re02$sample)
-re02$sample <- gsub("1229","pLNA-1229",re02$sample)
-```
-
-
-```{r}
 #re03
-re03 <- read.csv("../../analysis/240621_Re03/Re03_Cellprofiler/Re03_cp_out/250807_Re03_240621mito.csv") 
-re03_check <- re03
-re03$Diff <- "Re03"
-re03$blinded_numbers <- re03$FileName_raw
-re03 <- re03[,-grep("PathName",colnames(re03))]
-re03 <- re03[,-grep("FileName",colnames(re03))]
+re03 <- readRDS("../data/re03_raw.rds")
 
-re03_blind <- read.csv("../../raw/240621_Re03/blinded_numbers.csv")
-re03_blind$blinded_numbers <- gsub("A_","Re03_",re03_blind$blinded_numbers)
-re03 <- merge(re03,re03_blind, by = "blinded_numbers",all.x = TRUE)
-re03$sample <- sapply(strsplit(re03$image,"\\_"),"[",5)
-re03$sample <- gsub("CNTRL","pLNA-Ctrl",re03$sample)
-re03$sample <- gsub("1229","pLNA-1229",re03$sample)
-```
-
-
-```{r}
 #ms2
-ms2 <- read.csv("../../analysis/241129_MS2/MS2_Cellprofiler/MS2_cp_out/250807_MS2_241129mito.csv")
-ms2_check <- ms2
-ms2$Diff <- "MS2"
-ms2$blinded_numbers <- ms2$FileName_raw
-ms2 <- ms2[,-grep("PathName",colnames(ms2))]
-ms2 <- ms2[,-grep("FileName",colnames(ms2))]
+ms2 <- readRDS("../data/ms2_raw.rds")
 
-ms2_blind <- read.csv("../../raw/241129_MS2/blinded_numbers.csv")
-ms2_blind$blinded_numbers <- gsub("A_","MS2_",ms2_blind$blinded_numbers)
-ms2 <- merge(ms2,ms2_blind, by = "blinded_numbers",all.x = TRUE)
-ms2$sample <- sapply(strsplit(ms2$image,"\\_"),"[",4)
-ms2$sample <- gsub("control","pLNA-Ctrl",ms2$sample)
-ms2$sample <- gsub("1229","pLNA-1229",ms2$sample)
-```
-
-
-```{r}
 #ms3
-ms3 <- read.csv("../../analysis/241206_MS3/MS3_Cellprofiler/MS3_cp_out/250807_MS3_241206mito.csv")
-ms3_check <- ms3
-ms3$Diff <- "MS3"
-ms3$blinded_numbers <- ms3$FileName_raw
-ms3 <- ms3[,-grep("PathName",colnames(ms3))]
-ms3 <- ms3[,-grep("FileName",colnames(ms3))]
-
-ms3_blind <- read.csv("../../raw/241206_MS3/blinded_numbers.csv")
-ms3_blind$blinded_numbers <- gsub("A_","MS3_",ms3_blind$blinded_numbers)
-ms3 <- merge(ms3,ms3_blind, by = "blinded_numbers",all.x = TRUE)
-ms3$sample <- sapply(strsplit(ms3$image,"\\_"),"[",4)
-ms3$sample <- gsub("Control","pLNA-Ctrl",ms3$sample)
-ms3$sample <- gsub("1229","pLNA-1229",ms3$sample)
+ms3 <- readRDS("../data/ms3_raw.rds")
 ```
+
+
 
 #Exclude images with somas that couldn't be well found by Ilastik
 Re00 
@@ -138,6 +69,8 @@ re03 <- re03[!(re03$blinded_numbers %in% c("Re03_10.tif","Re03_31.tif")),]
 #ms2
 ms2 <- ms2[ms2$blinded_numbers != "MS2_17.tif",]
 ```
+
+
 
 #Filter out all mitos that are not in the soma and have a higher intensity than 5x the standard deviation
 ```{r}
@@ -216,22 +149,6 @@ saveRDS(e,"../data/TMRE_Data.rds")
 ```
 
 
-
-
-
-
-
-
-```{r}
-#check whether all names are correct
-check <- rbind(re00_check,re02_check,re03_check,ms2_check,ms3_check)
-check <- check[,grep("FileName",colnames(check))]
-check$FileName_mito <- gsub("Probabilities_0_","",check$FileName_mito)
-check$FileName_soma <- gsub("Probabilities_0_","",check$FileName_soma)
-
-check$correct_name <- apply(check[,colnames(check)], 1, function(row) length(unique(row)) == 1)
-all(check$correct_name == "TRUE")
-```
 
 
 
