@@ -138,6 +138,49 @@ ggsave("./Normlized_U6andEmpty.png", width = 8, height = 4.5)
 ```
 
 
+```{r}
+#black
+
+ggplot(data3.plot,aes(x = Cond,y=norm.emp)) + 
+  geom_boxplot(
+    fill = "black",     # box fill
+    color = "white",    # box border and whiskers
+    median.colour = "white" # median line
+  ) + 
+  geom_point(aes(color = Diff), size = 2) +
+  geom_signif(
+    data = st_df2,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
+    textsize = 4, vjust = -0.1, size = 0.75,na.rm = TRUE, manual = TRUE
+  ) +
+  facet_wrap(~ Target, scales = "fixed") +
+  theme_classic() + xlab("")  + ylim(0,NA) + ylab("Normalized to U6 & Empty") +
+  scale_color_manual(values = col_vec) + 
+  coord_cartesian(ylim = c(NA,1.4)) +
+  theme(strip.text.x = element_text(size = rel(1),color = "white"),
+        strip.background = element_blank(),
+        strip.placement = "inside",
+        text = element_text(size = 16),
+        panel.background = element_rect(fill = "black", color = NA),
+        plot.background = element_rect(fill = "black", color = NA),
+        axis.title.x=element_blank(),
+        axis.title = element_text(color = "white"),
+        axis.text.x = element_text(size = rel(1),color = "white"),
+        axis.text.y = element_text(size = rel(1),color = "white"),
+        axis.text = element_text(color = "white"),
+        axis.line = element_line(color = "white"),
+        axis.ticks = element_line(color = "white"),
+        strip.text = element_text(color = "white"),
+        legend.text = element_text(size = 14, color = "white"),
+        legend.title = element_text(size = 14, color = "white"),
+        legend.background = element_rect(fill = "black", color = "black"),
+        ) +
+  guides(color=guide_legend(title="Differentiation")) +
+  scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n181c","pLNA-\n1229","pLNA-\n3943"))
+
+ggsave("./Normlized_U6andEmpty_black.png", width = 8, height = 4.5)
+ggsave("./Normlized_U6andEmpty_black.pdf", width = 8, height = 4.5)
+```
 
 
 

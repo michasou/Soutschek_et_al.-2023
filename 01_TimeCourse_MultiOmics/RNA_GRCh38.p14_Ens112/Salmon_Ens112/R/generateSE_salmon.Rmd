@@ -55,7 +55,7 @@ tx2ge$gene_name <- sapply(strsplit(tx2ge$V2,"\\."),"[",2)
 tx2ge$gene_id <- sapply(strsplit(tx2ge$V2,"\\."),"[",1)
 colnames(tx2ge) <- c("transcript_id","gene","gene_name","gene_id")
 gene <- tx2ge[,-which(colnames(tx2ge) %in% "transcript_id")]
-gene <- gene[!duplicated(gene$gene_name) & !is.na(gene$gene_name),]
+gene <- gene[!duplicated(gene$gene_id) & !is.na(gene$gene_name),]
 row.names(gene) <- gene$gene
 
 

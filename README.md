@@ -84,3 +84,6 @@ and Denisovan RNA-sequencing reads in the genomic region of miR-1229-3p.
 ### 10_miRNA_expression_HumanTissue
 Scripts to plot the miRNA expression analyses from human post-mortem tissue samples can be found in this folder. 
 
+### 11_SEApp
+Scripts to prepare the SummarizedExperiment data for publication in the SEApp
+

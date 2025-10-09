@@ -174,10 +174,16 @@ saveRDS(data, file="../data/data.reference.raw.rds")
 #load data
 ```{r}
 se <- readRDS("../data/Proteomics.Reference_SE_raw.rds")
+row.names(se) <- sapply(strsplit(row.names(se),";"),"[",1)
+```
+
+
+```{r}
 data <- readRDS("../data/data.reference.raw.rds")
 data$Protein.IDs <- paste("ID_",c(1:nrow(data)),sep = "")
 data <- make_unique(data, "PG.ProteinAccessions", "Protein.IDs", delim = ";")
 data$ID <- paste0(data$name,".",data$PG.Genes)
+data$ID <- sapply(strsplit(data$ID,";"),"[",1)
 ```
 
 #LogFC
@@ -208,13 +214,20 @@ prot.dea <- function(se,data,use = NULL,name,model){
   resp <- as.data.frame(topTable(fitp, number=Inf))
   resp$ID <- row.names(resp)
   assign2 <- match(resp$ID, data$ID)
-  resp$StrippedSequences <- data[assign2,"PG.NrOfStrippedSequencesMeasured"]
   resp$GeneName <- data[assign2,"PG.Genes"]
   resp$UniProtName <- data[assign2,"PG.ProteinNames"]
   resp <- resp[rownames(se.sub),]
   resp$GeneName <- sub("^;{1,3}", "", resp$GeneName)
   resp$GeneName <- ifelse(is.na(resp$GeneName),resp$UniProtName,resp$GeneName)
   resp$GeneName <- gsub("_HUMAN","",x = resp$GeneName)
+  resp$ID <- NULL
+  resp$UniProtName <- NULL
+  resp$F <- NULL
+  resp$t <- NULL
+  resp$B <- NULL
+  colnames(resp)[which(colnames(resp)=="P.Value")] <- "PValue"
+  colnames(resp)[which(colnames(resp)=="adj.P.Val")] <- "FDR"
+  
    # add DEA results to SE
   dea_name <- paste0("DEA.", name)
   rowData(se)[[dea_name]] <- DataFrame(resp)

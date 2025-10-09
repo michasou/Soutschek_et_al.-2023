@@ -46,6 +46,7 @@ norm_to <- function(df,norm_to){
 ```{r}
 #show_col(pal_uchicago("default")(9))
 col_vec <- c("darkgrey","black","lightgrey","darkgrey")
+col_vec_black <- c("darkgrey","white","lightgrey","darkgrey")
 col_vec2 <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
 ```
 
@@ -118,11 +119,12 @@ st_df_mea$p.value.signif[st_df_mea$p.value.signif == "ns"] <- NA
 
 ```
 
+```{r}
+st_df_mea2 <- st_df_mea[st_df_mea$group1 != "Empty",]
+```
 
 
 ```{r}
-st_df_mea2 <- st_df_mea[st_df_mea$group1 != "Empty",]
-
 p1b <- ggplot(e,aes(x = Condition, y = sqrt(Synapses_per_DendArea_um2_per_Nuclei))) + 
   geom_violin(aes(colour = isEmpty2),show.legend = FALSE) +
   stat_summary(
@@ -197,6 +199,90 @@ ggsave("../Figures/pLNA_Synapses.pdf",gt1b, width = 8,height = 5, bg = "white")
 
 
 
+```{r}
+#black
+p1c <- ggplot(e,aes(x = Condition, y = sqrt(Synapses_per_DendArea_um2_per_Nuclei))) + 
+  geom_violin(aes(colour = isEmpty2),fill = "black", show.legend = FALSE) +
+  stat_summary(
+    aes(color = isEmpty),
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = col_vec_black,guide = "none") +
+  new_scale_color() +
+  stat_summary(aes(color = Differentiation, alpha = isEmpty),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  scale_alpha_discrete(range = c(0.3, 0.6), guide = "none") +
+  scale_color_manual(values = col_vec2) +
+  ggsignif::geom_signif(
+    data = st_df_mea2,
+    aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
+    textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
+  ) +
+  facet_wrap(~ Day) +
+  ylab("Synapses per µm2 area per cell (sqrt)") +
+  theme_classic()+
+  #coord_cartesian(ylim = c(NA,10)) +
+  theme(strip.text.x = element_text(size = rel(1),color = "white"),
+        strip.background = element_rect(fill = "black", color = "white"),
+        strip.placement = "inside",
+        text = element_text(size = 16),
+        panel.background = element_rect(fill = "black", color = NA),
+        plot.background = element_rect(fill = "black", color = NA),
+        axis.title.x=element_blank(),
+        axis.title = element_text(color = "white"),
+        axis.text.x = element_text(size = rel(1),color = "white"),
+        axis.text.y = element_text(size = rel(1),color = "white"),
+        axis.text = element_text(color = "white"),
+        axis.line = element_line(color = "white"),
+        axis.ticks = element_line(color = "white"),
+        strip.text = element_text(color = "white"),
+        legend.background = element_rect(fill = "black", color = "black"),
+        legend.position = "bottom",
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0),color = "white"),
+        legend.text = element_text(size = 16), color = "white") +
+  scale_x_discrete(labels=c("Empty","pLNA-\nCtrl","pLNA-\n1229","pLNA-\n181c"))
+
+
+
+gt1c <- ggplotGrob(p1c)
+
+
+panels = subset(gt1c$layout, grepl("panel", gt1c$layout$name), t:r)
+
+# The span of the vertical gap
+Bmin = min(panels$t) - 1
+Bmax = max(panels$t)
+
+# The columns of the gaps (two to the right of the panels
+cols = unique(panels$r)[-length(unique(panels$r))] + 2
+
+# The grob
+g <- linesGrob(x = unit(c(.5, .5), "npc"),
+              y = unit(c(0.01,0.94), "npc"),
+              gp = gpar(col = "white", lty = "dotted", lwd = 1.5) )
+
+
+## Add lines into the vertical gaps
+gt1c <- gtable_add_grob(gt1c, 
+      rep(list(g), length(cols)),
+      t=Bmin, l = cols, b=Bmax)
+
+## Draw it
+grid.newpage()
+grid.draw(gt1c)
+
+#p1c
+
+ggsave("../Figures/pLNA_Synapses_black.png",gt1c, width = 8,height = 5, bg = "white")
+ggsave("../Figures/pLNA_Synapses_black.pdf",gt1c, width = 8,height = 5, bg = "white")
+```
 
 
 

@@ -331,6 +331,7 @@ ggplot(res,aes(x = as.factor(Day),y = sqrt(Co_Cluster_perArea_um))) +
         )
 
 ggsave("../Figures/Co_Cluster_smooth_defense_black.png", width = 7, height = 4)
+ggsave("../Figures/Co_Cluster_smooth_defense_black.pdf", width = 7, height = 4)
 ```
 
 

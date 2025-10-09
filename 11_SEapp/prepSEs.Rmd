@@ -1,0 +1,213 @@
+---
+title: "prepSEs"
+author: "Pierre-Luc Germain"
+date: "3/24/2022"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+})
+```
+
+
+#RiboZero
+```{r}
+se_ribo <- readRDS("../01_TimeCourse_MultiOmics/RNA_GRCh38.p10_Ens91/data/Long_RNA/longRNA.DEA.SE.rds")
+```
+
+
+```{r}
+metadata(se_ribo)$name <- "igNeuron_TimeCourse_RiboZero"
+metadata(se_ribo)$title <- "RNAseq during a time course of igNeuron differentiation"
+metadata(se_ribo)$description <- "Ribosomal depletion RNA sequencing at seven time points (Day0, Day9, Day15, Day21, Day27, Day33, Day40).
+  STAR-based quantification on the Ensembl 91 transcriptome."
+
+colData(se_ribo)$Day <- colData(se_ribo)$stage
+colData(se_ribo)$day <- NULL
+colData(se_ribo)$stage <- NULL
+colData(se_ribo)$is.SC1 <- NULL
+
+metadata(se_ribo)$default_view <- list(
+  assay= c("logcpm","log2FC.neur","log2FC.all"),
+  groupvar ="Day",
+  colvar = "Day"
+ )
+
+metadata(se_ribo)$anno_colors <- list(Day=c("0"="#3F3F3F",
+                       "9" ="#575757",
+                       "15" ="#707070",
+                       "21" = "#898989",
+                       "27" ="#A1A1A1",
+                       "33" ="#BABABA",
+                       "40" = "#D3D3D3" 
+))
+
+metadata(se_ribo)$hmcols <- viridis::inferno(255)
+```
+
+
+```{r}
+write.csv(as.data.frame(rowData(se_ribo)$DEA.all),"./igNeuron_TimeCourse_RiboZero_DEA.all.csv")
+write.csv(as.data.frame(assays(se_ribo)$counts),"./igNeuron_TimeCourse_RiboZero_counts.csv")
+
+saveRDS(se_ribo, "./igNeuron_TimeCourse_RiboZero.SE.rds")
+saveRDS(se_ribo, "/mnt/schratt/SEs_for_SEV/igNeuron_TC_RiboZero.SE.rds")
+```
+
+
+#shortRNA
+
+```{r}
+se_short <- readRDS("../01_TimeCourse_MultiOmics/smallRNA/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+```
+
+```{r}
+se_short <- se_short[grep("hsa|RNA|RNU|sno|SNO",row.names(se_short)),]
+```
+
+
+```{r}
+metadata(se_short)$name <- "igNeuron_TimeCourse_shortRNA"
+metadata(se_short)$title <- "Small RNAseq during a time course of igNeuron differentiation"
+metadata(se_short)$description <- "Small RNA sequencing at seven time points (Day0, Day9, Day15, Day21, Day27, Day33, Day40).
+  Quantification and alignment was performed based on hg38."
+
+colData(se_short)$Day <- colData(se_short)$stage
+colData(se_short)$day <- NULL
+colData(se_short)$stage <- NULL
+
+metadata(se_short)$default_view <- list(
+  assay= c("logcpm","log2FC.neur","log2FC.all"),
+  groupvar ="Day",
+  colvar = "Day"
+ )
+
+metadata(se_short)$anno_colors <- list(Day=c("0"="#3F3F3F",
+                       "9" ="#575757",
+                       "15" ="#707070",
+                       "21" = "#898989",
+                       "27" ="#A1A1A1",
+                       "33" ="#BABABA",
+                       "40" = "#D3D3D3" 
+))
+
+metadata(se_short)$hmcols <- viridis::inferno(255)
+```
+
+
+```{r}
+write.csv(as.data.frame(rowData(se_short)$DEA.all),"./igNeuron_TimeCourse_SmallRNA_DEA.all.csv")
+write.csv(as.data.frame(assays(se_short)$counts),"./igNeuron_TimeCourse_SmallRNA_counts.csv")
+
+saveRDS(se_short, "./igNeuron_TimeCourse_SmallRNA.SE.rds")
+saveRDS(se_short, "/mnt/schratt/SEs_for_SEV/igNeuron_TC_SmallRNA.SE.rds")
+```
+
+
+
+#circRNA
+
+```{r}
+se_circ <- readRDS("../01_TimeCourse_MultiOmics/RNA_GRCh38.p10_Ens91/data/circRNA/longRNA.circ.ce.DEA.SE.rds")
+```
+
+
+```{r}
+metadata(se_circ)$name <- "igNeuron_TimeCourse_circRNA"
+metadata(se_circ)$title <- "Small RNAseq during a time course of igNeuron differentiation"
+metadata(se_circ)$description <- "Ribosomal depletion RNA sequencing at seven time points (Day0, Day9, Day15, Day21, Day27, Day33, Day40). circRNA quantification based on chimeric reads with CIRCexplorer."
+
+colData(se_circ)$Day <- colData(se_circ)$stage
+colData(se_circ)$day <- NULL
+colData(se_circ)$stage <- NULL
+
+metadata(se_circ)$default_view <- list(
+  assay= c("logcpm","log2FC.neur","log2FC.all"),
+  groupvar ="Day",
+  colvar = "Day"
+ )
+
+metadata(se_circ)$anno_colors <- list(Day=c("0"="#3F3F3F",
+                       "9" ="#575757",
+                       "15" ="#707070",
+                       "21" = "#898989",
+                       "27" ="#A1A1A1",
+                       "33" ="#BABABA",
+                       "40" = "#D3D3D3" 
+))
+
+metadata(se_circ)$hmcols <- viridis::inferno(255)
+```
+
+
+```{r}
+write.csv(as.data.frame(rowData(se_circ)$DEA.all),"./igNeuron_TimeCourse_circRNA_DEA.all.csv")
+write.csv(as.data.frame(assays(se_circ)$logcpm),"./igNeuron_TimeCourse_circRNA_logcpm.csv")
+
+saveRDS(se_circ, "./igNeuron_TimeCourse_circRNA.SE.rds")
+saveRDS(se_circ, "/mnt/schratt/SEs_for_SEV/igNeuron_TC_circRNA.SE.rds")
+```
+
+
+
+
+#Proteomics
+
+```{r}
+se_prot <- readRDS("../01_TimeCourse_MultiOmics/Proteomics/data/Proteomics/Proteomics.Reference.SE_DEA.rds")
+```
+
+
+```{r}
+#add "logFC" to DEA.all and DEA.neur
+DEA.all <- as.data.frame(rowData(se_prot)$DEA.all)
+colnames(DEA.all)[grep("stage",colnames(DEA.all))] <- paste0("logFC.",colnames(DEA.all)[grep("stage",colnames(DEA.all))])
+rowData(se_prot)$DEA.all <- DataFrame(DEA.all)
+
+DEA.neuronal <- as.data.frame(rowData(se_prot)$DEA.neuronal)
+colnames(DEA.neuronal)[grep("stage",colnames(DEA.neuronal))] <- paste0("logFC.",colnames(DEA.neuronal)[grep("stage",colnames(DEA.neuronal))])
+rowData(se_prot)$DEA.neuronal <- DataFrame(DEA.neuronal)
+```
+
+
+```{r}
+metadata(se_prot)$name <- "igNeuron_TimeCourse_Proteomics"
+metadata(se_prot)$title <- "Label-free Proteomics during a time course of igNeuron differentiation"
+metadata(se_prot)$description <- "Proteomics was performed at seven time points (Day0, Day9, Day15, Day21, Day27, Day33, Day40). Quantification based on Uniprot - H.Sapiens (2024-05)."
+
+colData(se_prot)$Day <- colData(se_prot)$stage
+colData(se_prot)$day <- NULL
+colData(se_prot)$stage <- NULL
+colData(se_prot)$experiment <- as.factor(paste0("SC",colData(se_prot)$replicate))
+colData(se_prot)$replicate <- NULL
+colData(se_prot)$ID <- NULL
+
+metadata(se_prot)$default_view <- list(
+  assay= c("imputed","log2FC.neur","log2FC.all"),
+  groupvar ="Day",
+  colvar = "Day"
+ )
+
+metadata(se_prot)$anno_colors <- list(Day=c("0"="#3F3F3F",
+                       "9" ="#575757",
+                       "15" ="#707070",
+                       "21" = "#898989",
+                       "27" ="#A1A1A1",
+                       "33" ="#BABABA",
+                       "40" = "#D3D3D3" 
+))
+
+metadata(se_prot)$hmcols <- viridis::inferno(255)
+```
+
+
+```{r}
+write.csv(as.data.frame(rowData(se_prot)$DEA.all),"./igNeuron_TimeCourse_Proteomics_DEA.all.csv")
+write.csv(as.data.frame(assays(se_prot)$imputed),"./igNeuron_TimeCourse_Proteomics_imputed.csv")
+
+saveRDS(se_prot, "./igNeuron_TimeCourse_Proteomics.SE.rds")
+```
+
+
