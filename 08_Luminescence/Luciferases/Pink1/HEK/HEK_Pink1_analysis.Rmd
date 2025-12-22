@@ -40,9 +40,9 @@ col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uch
 #Format table
 ```{r}
 res <- as.data.frame(t(as.matrix(res)))
-colnames(res) <- c("exp1","exp2","exp3","exp4")
+colnames(res) <- c("N1","N2","N3","N4")
 res$info <- row.names(res)
-res1 <-  gather(res, key = "experiment", value = "value", exp1:exp4, factor_key=TRUE)
+res1 <-  gather(res, key = "experiment", value = "value", N1:N4, factor_key=TRUE)
 ```
 
 ```{r}
@@ -70,6 +70,7 @@ mod <- lm(value ~ condition*amount*sequence + experiment, data = res1)
 s1 <- emmeans(mod,trt.vs.ctrl ~ condition|sequence|amount, ref = "Ctrl.")
 s2 <- emmeans(mod,trt.vs.ctrl ~ sequence|condition|amount, ref = "Pink1 3'UTR")
 ```
+
 
 ```{r}
 s1_df <- as.data.frame(s1$contrasts)
@@ -136,6 +137,7 @@ p1 <- ggplot(res1, aes(x = group, y = round(value,3))) +
         axis.title.y = element_text(size = rel(1.25))) +
   guides(pattern = guide_legend(override.aes = list(shape = NA))
          ) +
+  labs(color = "Replicate", pattern = "Condition") +
   coord_cartesian(ylim = c(0,0.1)) +
   scale_x_discrete(labels=c("Pink1\n3'UTR","Pink1\n3'UTR","Pink1\n3'UTR\nmut.","Pink1\n3'UTR\nmut."))
 
@@ -184,6 +186,7 @@ p2 <- ggplot(res2, aes(x = group, y = round(value,3))) +
         axis.title.y = element_text(size = rel(1.25))) +
   guides(pattern = guide_legend(override.aes = list(shape = NA))
          ) +
+  labs(color = "Replicate", pattern = "Condition") +
   coord_cartesian(ylim = c(0,0.1)) +
   scale_x_discrete(labels=c("Pink1\n3'UTR","Pink1\n3'UTR","Pink1\n3'UTR\nmut.","Pink1\n3'UTR\nmut."))
 

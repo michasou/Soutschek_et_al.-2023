@@ -24,25 +24,25 @@ library(ggpattern)
 ```
 
 
-
-#import data
-
-```{r}
-res <- read.csv("./CTX_Pink1_mimic.csv")
-```
-
-
 ```{r}
 #show_col(pal_uchicago("default")(9))
 col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],pal_uchicago("default")(9)[2],"#607345FF")
 ```
 
+
+
+#import data
+```{r}
+res <- read.csv("./CTX_Pink1_mimic.csv")
+```
+
+
 #Format table
 ```{r}
 res <- as.data.frame(t(as.matrix(res)))
-colnames(res) <- c("exp1","exp2","exp3","exp4","exp5")
+colnames(res) <- c("N1","N2","N3","N4","N5")
 res$info <- row.names(res)
-res1 <-  gather(res, key = "experiment", value = "value", exp1:exp5, factor_key=TRUE)
+res1 <-  gather(res, key = "experiment", value = "value", N1:N5, factor_key=TRUE)
 ```
 
 ```{r}
@@ -127,11 +127,11 @@ p1 <- ggplot(res1, aes(x = group, y = value)) +
         axis.text.x = element_text(size = rel(1))) +
   guides(pattern = guide_legend(override.aes = list(shape = NA))
          ) +
+  labs(color = "Replicate", pattern = "Condition") +
   scale_x_discrete(labels=c("Pink1\n3'UTR","Pink1\n3'UTR","Pink1\n3'UTR mut.","Pink1\n3'UTR mut."))
 
 ggsave2("./Ctx_Pink1.png",p1, width = 6,height = 6.5, bg = "white")
 ```
-
 
 
 

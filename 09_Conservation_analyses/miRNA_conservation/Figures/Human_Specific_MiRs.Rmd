@@ -142,7 +142,22 @@ png("./Figure_Output/Human_Specific_miRs.png", width=7, height=6, units="in", re
 pp
 dev.off()
 
+pdf("./Figure_Output/Human_Specific_miRs.pdf", width=7, height=6)
+pp
+dev.off()
 ```
+
+```{r}
+#Source data Fig. 2c
+ll <- df[,c("day","logcpm","conservation","feature","experiment")]
+write.csv(ll,file = "../../../12_SourceData/Fig2/Fig_2c.csv")
+```
+
+
+
+
+
+
 
 
 ```{r}

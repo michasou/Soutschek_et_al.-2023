@@ -34,7 +34,8 @@ ancols <- list(day=c("0"="#3F3F3F",
                        "40" = "#D3D3D3" 
 ) )
 
-heatcol = inferno(255)
+# heatcol = inferno(255)
+heatcol <- c("#4B0C6B","#CF4446","#FFAD33")
 ```
 
 
@@ -109,7 +110,7 @@ sum(sig_all %in% row.names(lncRNA.se))
 
 
 # lncRNAs all days, normalized Day9
-a <- sechm(lncRNA.se, sig_all_01, top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, anno_colors = ancols, show_colnames = FALSE, column_title = "lncRNA", name = "logFC", annocol_title_side=NA)
+a <- sechm(lncRNA.se, sig_all_01, top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, anno_colors = ancols, show_colnames = FALSE, column_title = "lncRNA", name = "logFC", annocol_title_side=NA, cluster_rows = TRUE, show_row_dend = FALSE)
 
 png("Figure_Output/Heat/LongRNA_lncRNA_alldays_normDay9.png", width=7, height=5, units="in", res=300)
 a
@@ -147,7 +148,7 @@ sum(sig_all %in% row.names(mRNA.se))
 sum(sig_plot %in% row.names(mRNA.se))
 
 # all days, normalized Day9
-a <- sechm(mRNA.se, sig_plot, top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, anno_colors = ancols, show_colnames = FALSE, column_title = "mRNA", name = "logFC", annocol_title_side=NA)
+a <- sechm(mRNA.se, sig_plot, top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, anno_colors = ancols, show_colnames = FALSE, column_title = "mRNA", name = "logFC", annocol_title_side=NA, cluster_rows = TRUE, show_row_dend = FALSE)
 
 
 png("Figure_Output/Heat/Heat_mRNAs_alldays_normDay9.png", width=8, height=6, units="in", res=300)
@@ -163,8 +164,6 @@ se_mito <- se
 row.names(se_mito) <- sapply(strsplit(row.names(se_mito),"\\."),"[",2)
 MT_genes <- grep(pattern = "^MT-C|^MT-A|^MT-N",row.names(se_mito))
 
-
-heatcol <- c("#4B0C6B","#CF4446","#FFAD33")
 
 # all days, normalized Day9
 c <- sechm(se_mito, MT_genes, top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = TRUE, hmcols = heatcol, anno_colors = ancols, show_colnames = FALSE, column_title = "Mitochondrial mRNAs", do.scale = FALSE, name = "logFC", annocol_title_side=NA)

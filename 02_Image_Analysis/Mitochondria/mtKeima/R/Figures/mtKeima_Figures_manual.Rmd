@@ -41,14 +41,19 @@ e <- readRDS("../Data/manual.rds")
 ```
 
 
+
 #statistics
 ```{r}
-mod_s1 <- lm(sqrt(acidic_normalized_neutral_numbers) ~ sample + Diff,e)
-summary(mod_s1)
+ag <- aggregate(sqrt(e$acidic_normalized_neutral_numbers),e[,c("sample","Diff")],FUN = mean)
+```
+
+```{r}
+mod_s1 <- rlm(x ~ sample + Diff,data = ag,psi = psi.huber)
 s1 <- emmeans(mod_s1, trt.vs.ctrl ~ sample , ref="pLNA-Ctrl")
-s1
+```
 
 
+```{r}
 s1_df <- as.data.frame(s1$contrasts)
 s1_df$group1 <- "pLNA-Ctrl"
 s1_df$group2 <- s1_df$contrast
@@ -89,7 +94,7 @@ p1 <- ggplot(e,aes(x = sample, y = sqrt(acidic_normalized_neutral_numbers))) +
     aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
     textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
   ) +
-  ylab("Acidi Mitos normalized by neutral numbers (sqrt)") +
+  ylab("Acidic Mitos normalized by neutral numbers (sqrt)") +
   theme_classic(base_size = 12)+
   scale_color_manual(values = col_vec) +
   #coord_cartesian(ylim = c(0,7)) +
@@ -99,9 +104,14 @@ p1 <- ggplot(e,aes(x = sample, y = sqrt(acidic_normalized_neutral_numbers))) +
         axis.title.x=element_blank(),
         axis.text.x = element_text(size = rel(1)))
 
-ggsave2("../../FigureOutput/Manual_Count_Processes.png",p1, width = 5,height = 4.5, bg = "white")
+ggsave2("../../FigureOutput/Manual_Count_Processes.pdf",p1, width = 5,height = 4.5, bg = "white")
 ```
 
+
+```{r}
+#Source Data Fig. 5d
+write.csv(e,file = "../../../../../12_SourceData/Fig5/Fig_5d.csv")
+```
 
 
 

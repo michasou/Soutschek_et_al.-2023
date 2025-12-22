@@ -53,10 +53,38 @@ resis$condition <- factor(resis$condition,levels = c("pLNA-Ctrl","pLNA-1229"))
 
 resis$Differentiation <- tolower(resis$Differentiation)
 resis$Differentiation <- factor(resis$Differentiation,levels = c("m1","m2","m3"))
+```
 
+```{r}
+# Several CVS were recorded per date, just account for Differentiation and Condition in the DishID
+
+## Dish = Differentiation × condition
+resis$DishID <- interaction(resis$Differentiation, resis$condition, drop = TRUE)
+```
+
+
+```{r}
+# Test for Intraclass Correlation Coefficient (ICC)
+icc_resis <- lmer(input ~ condition + Differentiation +  (1 | DishID), data = resis)
+vc <- VarCorr(icc_resis)
+var_dish <- as.numeric(vc$DishID)
+var_res  <- attr(vc, "sc")^2
+ICC <- var_dish / (var_dish + var_res)
+ICC
+```
+
+
+# ICC of about 0%, perform statistic on cellular level
+
+#####################
+
+```{r}
 mod_s6 <- lm(input ~ condition + Differentiation,data = resis)
 s6 <- emmeans(mod_s6, trt.vs.ctrl ~ condition, ref="pLNA-Ctrl")
+```
 
+
+```{r}
 s6_df <- as.data.frame(s6$contrasts)
 s6_df$group1 <- "pLNA-Ctrl"
 s6_df$group2 <- s6_df$contrast
@@ -71,7 +99,7 @@ s6_df$y_pos <- y_pos*1.2
 
 
 p6 <- ggplot(resis,aes(x = condition, y = input)) + 
-  geom_boxplot() +
+  geom_violin() +
   stat_summary(aes(color = Differentiation),
     show.legend = TRUE,
     fun = mean,
@@ -79,6 +107,8 @@ p6 <- ggplot(resis,aes(x = condition, y = input)) +
     fun.min = function(x) {mean(x) - sd(x)},
     geom="pointrange", position=position_dodge(width=0.5), size = 0.75
   ) +
+  geom_point(aes(color = Differentiation), alpha = 0.25,position=position_dodge(width=0.5)) +
+  stat_summary(geom = "crossbar",fun = mean) +
   ggsignif::geom_signif(
     data = s6_df,
     aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),

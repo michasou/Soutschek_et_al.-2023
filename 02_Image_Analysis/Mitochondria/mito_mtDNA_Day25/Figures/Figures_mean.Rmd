@@ -1,0 +1,129 @@
+---
+title: "Segmentation_Quantification"
+author: "Michael Soutschek"
+date: "2024-06-25"
+output: html_document
+---
+
+#libraries
+```{r}
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(scales)
+  library(ggsci)
+  library(cowplot)
+  library(ggpattern)
+  library(dplyr)
+  library(tidyr)
+  library(MASS)
+  library(emmeans)
+  library(ggsignif)
+  library(rstatix)
+})
+```
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
+```
+
+
+#Data Import
+```{r}
+res_mean <- readRDS("../Data/mean_res.rds")
+replacement <- c(Nv11 = "n1", Nv12 = "n2", Nv13 = "n3")
+res_mean$Diff <- replacement[as.character(res_mean$Diff)]
+res_mean$Diff <- factor(res_mean$Diff,levels = c("n1","n2","n3"))
+```
+
+
+## Percentage of mtDNA
+
+```{r}
+res_mean$Percentage_of_mtDNA <- res_mean$Count_mtDNAinMito / res_mean$Count_mtDNA
+ag_pc <- aggregate(res_mean$Percentage_of_mtDNA,res_mean[,c("Diff","Condition")], FUN = mean)
+```
+
+```{r}
+mod_s1 <- rlm(x ~ Condition + Diff, data = ag_pc, psi = psi.huber)
+s1 <- emmeans(mod_s1, trt.vs.ctrl ~ Condition , ref="Ctrl")
+```
+
+```{r}
+s1_df <- as.data.frame(s1$contrasts)
+s1_df$group1 <- "Ctrl"
+s1_df$group2 <- s1_df$contrast
+s1_df$group2 <- gsub("Ctrl - ","",s1_df$group2)
+s1_df <- add_significance(s1_df,p.col = "p.value")
+s1_df$p.value.num <- round(s1_df$p.value,3)
+s1_df$p.value.signif[s1_df$p.value.signif == "ns"] <- NA
+
+#add y_position
+y_pos <- max(res_mean$Percentage_of_mtDNA)
+
+s1_df$y_pos <- y_pos + 0.1
+```
+
+```{r}
+#white
+p1 <- ggplot(aes(x = Condition, y = Percentage_of_mtDNA), data = res_mean) +
+  geom_violin() +
+    stat_summary(
+      fun = mean,
+      geom="crossbar",
+      show.legend = FALSE
+      ) +
+  stat_summary(aes(color = Diff),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(data = s1_df,
+      aes(
+      xmin        = group1,
+      xmax        = group2,
+      annotations = p.value.signif,
+      y_position  = y_pos
+      ),
+      manual      = TRUE,
+      textsize    = 4,
+      vjust       = -0.1,
+      size        = 0.75,
+      colour      = "black"
+      ) +
+  ylab("% mtDNA inside Mitochondria") +
+  coord_cartesian(ylim = c(0,1)) +
+  scale_color_manual(values = col_vec) +
+  xlab("") +
+  theme_classic(base_size = 18)+
+  scale_pattern_discrete(choices = c("none","stripe"))+
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.text.y = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 18),
+        )
+
+
+
+ggsave2("../Figure_Output/mtDNA_percentage_inside.pdf",p1, width = 5,height = 5.5, bg = "transparent")
+```
+
+
+```{r}
+#Source Data Fig. 5c
+write.csv(res_mean,file = "../../../../12_SourceData/Fig5/Fig_5c.csv")
+```
+
+
+
+
+
+
+
+
+
+
+
+

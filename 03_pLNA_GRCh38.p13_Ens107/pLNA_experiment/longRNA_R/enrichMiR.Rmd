@@ -129,39 +129,39 @@ ggsave2("../Figures/Figure_Output/EnrichMiR/miR1229_EnrichPlot_Comb.png",pp1_leg
 
 #EnrichPlot 181c
 ```{r}
-#siteoverlap
-p3 <- enrichPlot(res = res_181_SC_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.0175)
-
-#fix the axis labels
-p3 <- p3 + scale_y_continuous(
-    trans  = enrichMiR:::.reverselog_trans(10),
-    breaks = log_breaks(base = 10)
-  )
-
-p3 <- p3 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("scanMiR can. - siteoverlap") + labs(color="Expression")
-
-#areamir
-p4 <- enrichPlot(res = res_181_SC_ar,enr.field = "enrichment",col.field = "props",sig.field = "FDR", size.field = NULL, label.sig.thres = 0.05)
-
-#fix the axis labels
-p4 <- p4 + scale_y_continuous(
-    trans  = enrichMiR:::.reverselog_trans(10),
-    breaks = log_breaks(base = 10)
-  )
-
-p4 <- p4 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12), legend.position = "bottom") + ggtitle("scanMiR can. - areamir") + labs(color="Expression") + guides(colour = guide_colourbar(title.position="left", title.hjust = 0.5))
-
-legend <- get_plot_component(p4, 'guide-box-bottom', return_all = TRUE)
-
-title2 <- ggdraw() + draw_label("DEA miR-181", fontface='italic', size = 18)
-pp2 <- plot_grid(p3+ theme(legend.position = "none"),
-                 p4+ theme(legend.position = "none"), nrow = 1)
-pp2_leg <- plot_grid(title2,NULL,pp2,legend,ncol = 1, rel_heights = c(0.05,0.05,1,0.1))
+# #siteoverlap
+# p3 <- enrichPlot(res = res_181_SC_so,enr.field = "enrichment",col.field = "props",sig.field = "FDR",label.field = "members", size.field = "overlap", label.sig.thres = 0.0175)
+# 
+# #fix the axis labels
+# p3 <- p3 + scale_y_continuous(
+#     trans  = enrichMiR:::.reverselog_trans(10),
+#     breaks = log_breaks(base = 10)
+#   )
+# 
+# p3 <- p3 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("scanMiR can. - siteoverlap") + labs(color="Expression")
+# 
+# #areamir
+# p4 <- enrichPlot(res = res_181_SC_ar,enr.field = "enrichment",col.field = "props",sig.field = "FDR", size.field = NULL, label.sig.thres = 0.05)
+# 
+# #fix the axis labels
+# p4 <- p4 + scale_y_continuous(
+#     trans  = enrichMiR:::.reverselog_trans(10),
+#     breaks = log_breaks(base = 10)
+#   )
+# 
+# p4 <- p4 + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12), legend.position = "bottom") + ggtitle("scanMiR can. - areamir") + labs(color="Expression") + guides(colour = guide_colourbar(title.position="left", title.hjust = 0.5))
+# 
+# legend <- get_plot_component(p4, 'guide-box-bottom', return_all = TRUE)
+# 
+# title2 <- ggdraw() + draw_label("DEA pLNA-181c", fontface='italic', size = 18)
+# pp2 <- plot_grid(p3+ theme(legend.position = "none"),
+#                  p4+ theme(legend.position = "none"), nrow = 1)
+# pp2_leg <- plot_grid(title2,NULL,pp2,legend,ncol = 1, rel_heights = c(0.05,0.05,1,0.1))
 ```
 
 ```{r}
-ggsave2("../Figures/Figure_Output/EnrichMiR/miR181_EnrichPlot_SO.png",p3, width = 7,height = 5, bg = "white")
-ggsave2("../Figures/Figure_Output/EnrichMiR/miR181_EnrichPlot_Comb.png",pp2_leg, width = 12,height = 5, bg = "white")
+# ggsave2("../Figures/Figure_Output/EnrichMiR/miR181_EnrichPlot_SO.png",p3, width = 7,height = 5, bg = "white")
+# ggsave2("../Figures/Figure_Output/EnrichMiR/miR181_EnrichPlot_Comb.png",pp2_leg, width = 12,height = 5, bg = "white")
 ```
 
 
@@ -192,7 +192,7 @@ p4b <- p4b + scale_color_viridis_c(direction = -1) + theme_classic() + theme(plo
 
 legend <- get_plot_component(p4b, 'guide-box-bottom', return_all = TRUE)
 
-title2 <- ggdraw() + draw_label("DEA miR-181", fontface='italic', size = 18)
+title2 <- ggdraw() + draw_label("DEA pLNA-181c", fontface='italic', size = 18)
 pp2b <- plot_grid(p3b+ theme(legend.position = "none"),
                  p4b+ theme(legend.position = "none"), nrow = 1)
 pp2b_leg <- plot_grid(title2,NULL,pp2b,legend,ncol = 1, rel_heights = c(0.05,0.05,1,0.1))

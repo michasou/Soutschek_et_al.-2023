@@ -1,0 +1,319 @@
+---
+title: "Segmentation_Quantification"
+author: "Michael Soutschek"
+date: "2024-06-25"
+output: html_document
+---
+
+#libraries
+```{r}
+suppressPackageStartupMessages({
+  library(ggplot2)
+  library(scales)
+  library(ggsci)
+  library(cowplot)
+  library(ggpattern)
+  library(dplyr)
+  library(tidyr)
+  library(MASS)
+  library(emmeans)
+  library(ggsignif)
+  library(rstatix)
+  library(lme4)
+})
+```
+
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
+```
+
+
+```{r}
+res <- readRDS("../Data/mito_res.rds")
+replacement <- c(Nv11 = "n1", Nv12 = "n2", Nv13 = "n3")
+res$Diff <- replacement[as.character(res$Diff)]
+res$Diff <- factor(res$Diff,levels = c("n1","n2","n3"))
+```
+
+
+
+#Plot Data
+
+## Area aggregated
+```{r}
+ag_area <- aggregate(res$Area_um,res[,c("Diff","Condition","ImageNumber","Compartment")], FUN=mean)
+ag_area$day <- "Day 25"
+ag_area_stat <- aggregate(ag_area$x,ag_area[,c("Diff","Condition","Compartment")], FUN=mean)
+```
+
+```{r}
+mod_s1 <- rlm(x ~ Condition + Diff, psi = psi.huber, data = ag_area_stat[ag_area_stat$Compartment == "Processes",])
+s1 <- emmeans(mod_s1, trt.vs.ctrl ~ Condition , ref="Ctrl")
+```
+
+```{r}
+s1_df <- as.data.frame(s1$contrasts)
+s1_df$group1 <- "Ctrl"
+s1_df$group2 <- s1_df$contrast
+s1_df$group2 <- gsub("Ctrl - ","",s1_df$group2)
+s1_df <- add_significance(s1_df,p.col = "p.value")
+s1_df$p.value.num <- round(s1_df$p.value,3)
+s1_df$p.value.signif[s1_df$p.value.signif == "ns"] <- NA
+
+#add y_position
+tt <- ag_area[ag_area$Compartment == "Processes",]
+y_pos <- max(tt[,"x"])
+
+s1_df$y_pos <- y_pos + 0.05
+```
+
+
+```{r}
+p1 <- ggplot(aes(x = Condition, y = x), data = ag_area[ag_area$Compartment == "Processes",]) +
+  geom_violin() +
+  stat_summary(
+      fun = mean,
+      geom="crossbar",
+      show.legend = FALSE
+      ) +
+  stat_summary(aes(color = Diff),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(data = s1_df,
+    aes(
+    xmin        = group1,
+    xmax        = group2,
+    annotations = p.value.signif,
+    y_position  = y_pos
+  ),
+  manual      = TRUE,
+  textsize    = 4,
+  vjust       = -0.1,
+  size        = 0.75,
+  colour      = "black"
+  ) +
+  facet_grid(~day) +
+  ylab("Mitochondrial Area in µm²") +
+  theme_classic(base_size = 12) +
+  coord_cartesian(ylim = c(0,0.6)) +
+  scale_color_manual(values = col_vec) +
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1))) +
+  labs(color = "Differentiation") +
+  scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
+
+
+ggsave2("../Figure_Output/Area_um_aggregated_white.png",p1, width = 5.25,height = 4.5, bg = "transparent")
+```
+
+
+
+## Length aggregated
+```{r}
+ag_length <- aggregate(res$Length_um,res[,c("Diff","Condition","ImageNumber","Compartment")], FUN=mean)
+ag_length$day <- "Day 25"
+ag_length_stat <- aggregate(ag_length$x,ag_length[,c("Diff","Condition","Compartment")], FUN=mean)
+```
+
+
+```{r}
+mod_s2 <- rlm(x ~ Condition + Diff,psi = psi.huber, data = ag_length_stat[ag_length_stat$Compartment == "Processes",])
+s2 <- emmeans(mod_s2, trt.vs.ctrl ~ Condition , ref="Ctrl")
+```
+
+```{r}
+s2_df <- as.data.frame(s2$contrasts)
+s2_df$group1 <- "Ctrl"
+s2_df$group2 <- s2_df$contrast
+s2_df$group2 <- gsub("Ctrl - ","",s2_df$group2)
+s2_df <- add_significance(s2_df,p.col = "p.value")
+s2_df$p.value.num <- round(s2_df$p.value,3)
+s2_df$p.value.signif[s2_df$p.value.signif == "ns"] <- NA
+
+#add y_position
+tt <- ag_length[ag_length$Compartment == "Processes",]
+y_pos <- max(tt[,"x"])
+
+s2_df$y_pos <- y_pos + 0.1
+```
+
+```{r}
+p2 <- ggplot(aes(x = Condition, y = x), data = ag_length[ag_length$Compartment == "Processes",]) +
+  geom_violin() +
+  stat_summary(
+      fun = mean,
+      geom="crossbar",
+      show.legend = FALSE
+      ) +
+  stat_summary(aes(color = Diff),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(data = s2_df,
+    aes(
+    xmin        = group1,
+    xmax        = group2,
+    annotations = p.value.signif,
+    y_position  = y_pos
+  ),
+  manual      = TRUE,
+  textsize    = 4,
+  vjust       = -0.1,
+  size        = 0.75,
+  colour      = "black"
+  ) +
+  facet_grid(~day) +
+  ylab("Mitochondrial Length in µm") +
+  theme_classic(base_size = 12) +
+  coord_cartesian(ylim = c(0,1.35)) +
+  scale_color_manual(values = col_vec) +
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1))) +
+  labs(color = "Differentiation") +
+  scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
+
+
+ggsave2("../Figure_Output/Length_um_aggregated_white.png",p2, width = 5.25,height = 4.5, bg = "transparent")
+```
+
+
+
+
+## DNA content
+
+```{r}
+res_proc <- res[res$Compartment == "Processes",]
+```
+
+
+```{r}
+ag_perc_proc <- res_proc %>%
+  group_by(Diff, Condition, ImageNumber) %>%
+  summarise(
+    total_mito = n(),
+    mito_with_mtDNA = sum(mtDNA == "yes"),
+    fraction_with_mtDNA = mito_with_mtDNA / total_mito
+  ) %>%
+  ungroup()
+```
+
+
+```{r}
+#prepare for statistics
+res_proc$mtDNA <- factor(res_proc$mtDNA, levels = c("yes","no"))
+res_proc$ImageNumber <- factor(res_proc$ImageNumber)
+res_proc$DishID  <- interaction(res_proc$Diff, res_proc$Condition, drop=TRUE)
+res_proc$ImageID <- interaction(res_proc$DishID, res_proc$ImageNumber, drop=TRUE)
+```
+
+```{r}
+mod_s4 <- lme4::glmer(mtDNA ~ Condition +
+                       Diff +        # fixed effect for differentiation
+                       (1|DishID) +      # dish-level
+                       (1|ImageID),      # image-level clustering
+                     data = res_proc,
+                     family = binomial)
+
+s4 <- emmeans(mod_s4, trt.vs.ctrl ~ Condition , ref="Ctrl")
+```
+
+```{r}
+#check for overdispersion
+overdisp_fun <- function(model) {
+  rdf <- df.residual(model)
+  rp <- residuals(model, type = "pearson")
+  sqrt(sum(rp^2)/rdf)
+}
+
+overdisp_fun(mod_s4)
+```
+
+
+```{r}
+s4_df <- as.data.frame(s4$contrasts)
+s4_df$group1 <- "Ctrl"
+s4_df$group2 <- s4_df$contrast
+s4_df$group2 <- gsub("Ctrl - ","",s4_df$group2)
+s4_df <- add_significance(s4_df,p.col = "p.value")
+s4_df$p.value.num <- round(s4_df$p.value,3)
+s4_df$p.value.signif[s4_df$p.value.signif == "ns"] <- NA
+
+#add y_position
+y_pos <- max(ag_perc_proc$fraction_with_mtDNA)
+  
+s4_df$y_pos <- y_pos + 0.05
+```
+
+
+
+```{r}
+#white
+p4 <- ggplot(aes(x = Condition, y = fraction_with_mtDNA), data = ag_perc_proc) +
+  geom_violin() +
+    stat_summary(
+      fun = mean,
+      geom="crossbar",
+      show.legend = FALSE
+      ) +
+  stat_summary(aes(color = Diff),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  ggsignif::geom_signif(data = s4_df,
+      aes(
+      xmin        = group1,
+      xmax        = group2,
+      annotations = p.value.signif,
+      y_position  = y_pos
+      ),
+      manual      = TRUE,
+      textsize    = 4,
+      vjust       = -0.1,
+      size        = 0.75,
+      colour      = "black"
+      ) +
+  ylab("% Mitochondria with mtDNA") +
+  xlab("") +
+  scale_color_manual(values = col_vec) +
+  coord_cartesian(ylim = c(0,0.6)) +
+  theme_classic(base_size = 18)+
+  scale_pattern_discrete(choices = c("none","stripe"))+
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.text.y = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 18),
+        ) + 
+  guides(shape = "none")
+
+
+ggsave2("../Figure_Output/Percentage_mtDNA_aggregated_white.pdf",p4, width = 5,height = 5.5, bg = "transparent")
+```
+
+```{r}
+#Source Data Fig. 5b
+write.csv(res_proc,file = "../../../../12_SourceData/Fig5/Fig_5b.csv")
+```
+
+
+
+
+
+

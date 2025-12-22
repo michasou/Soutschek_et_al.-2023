@@ -1,0 +1,82 @@
+---
+title: "generateSE_salmon"
+author: "Michael Soutschek"
+date: "9/23/2022"
+output: html_document
+---
+
+
+```{r}
+suppressPackageStartupMessages({
+   library(tximport)
+   library(SummarizedExperiment)
+   library(readxl)
+})
+```
+
+
+#reference
+```{r}
+tx2ge <- read.delim("/reference/Mus_musculus/GENCODE/GRCm38.p6/Annotation/Release_M20-2019-01-09/salmon_130/tx2gene", header=FALSE)
+
+#RowData Information via the reference files on the server
+g <- rtracklayer::import.gff("/mnt/reference/reference/Mus_musculus/GENCODE/GRCm38.p6/Annotation/Release_M20-2019-01-09/features.gtf")
+gm <- g@elementMetadata
+gm2 <- gm[!duplicated(gm$transcript_id) & !is.na(gm$transcript_id),c("transcript_id","gene_id", "gene_type")]
+```
+
+#data import
+```{r}
+lf <- list.files(path = "/mnt/schratt/externData/2020_whipple_GSE140838_RiboZero_ClusterKOMouseCulture/salmon/", pattern="quant\\.sf", recursive=TRUE, full=TRUE)
+names(lf) <- basename(dirname(lf))
+ti <- tximport(lf, type="salmon", tx2gene=tx2ge)
+```
+
+#Get the experiment description
+```{r}
+dirs <- dir("/mnt/schratt/externData/2020_whipple_GSE140838_RiboZero_ClusterKOMouseCulture/salmon/", full.names = FALSE)
+SRA_Table <- read.table("/mnt/schratt/externData/2020_whipple_GSE140838_RiboZero_ClusterKOMouseCulture/SraRunTable.txt", sep=",", header=TRUE)
+cd <- SRA_Table
+cd$condition <- ifelse(cd$Genotype == "Mirg(fl/+)","WT","clustKO")
+cd$condition <- factor(cd$condition, levels = c("WT", "clustKO"))
+cd$Day <- factor(cd$differentiation_day,levels = c("Day 0","Day 10"))
+cd$expressing <- NULL
+cd$rip_antibody <- NULL
+```
+
+
+
+
+
+#construct the summarized experiment
+```{r}
+se <- SummarizedExperiment(list(counts=ti$counts, TPM=ti$abundance),colData = cd)
+rowData(se)$medianLength <- matrixStats::rowMedians(ti$length)
+```
+
+
+#add more info
+```{r}
+#adapt the tx2ge file
+colnames(tx2ge) <- c("transcript_id","gene_name")
+tx2ge <- merge(tx2ge,gm2,by="transcript_id",all.x = TRUE)
+tx2ge$gene_id <- gsub("\\..*","",tx2ge$gene_id)
+gene <- tx2ge[,-which(colnames(tx2ge) %in% "transcript_id")]
+gene <- gene[!duplicated(gene$gene_name) & !is.na(gene$gene_name),]
+row.names(gene) <- gene$gene_name
+
+
+#add info to the se object
+rowData(se) <- cbind(rowData(se), gene[row.names(se),])
+row.names(se) <- paste(rowData(se)$gene_id,rowData(se)$gene_name,sep = ".")
+se <- se[,order(se$condition)]
+```
+
+
+#save
+```{r}
+saveRDS(se, file="SE.Gene.salmon.raw.rds")
+```
+
+
+

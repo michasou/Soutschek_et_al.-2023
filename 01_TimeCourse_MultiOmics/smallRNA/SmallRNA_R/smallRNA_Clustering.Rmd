@@ -23,11 +23,23 @@ suppressPackageStartupMessages({
   library(igraph)
   library(RUVSeq)
   library(sechm)
+  library(viridis)
 })
-source("../../functions/clustering.R")
-source("../../functions/clusterEnrichment.R")
+source("../../../00_functions/clustering.R")
+source("../../../00_functions/clusterEnrichment.R")
 ```
 
+#As of igraph version 1.6.0. the knn.graph function has to be corrected:
+```{r}
+knn.graph <- function(d, k=5){
+    d <- as.matrix(d)
+    diag(d) <- 0
+    for(i in seq_len(nrow(d))){
+        d[i,-order(d[i,])[seq_len(k)]] <- 0
+    }
+    igraph::graph_from_adjacency_matrix(d, "max", weighted=TRUE)
+}
+```
 
 
 # Color Definitions
@@ -84,62 +96,62 @@ sig.neu <- row.names(res.neu)[which(res.neu$FDR<0.05)]
 >> Maybe try to get less total clusters?
 
 ```{r}
-set.seed(1234)
-ruv <- RUVs(assays(se)$logcpm, row.names(se), k=2, makeGroups(se$day), isLog = TRUE)
-assays(se)$corrected <- ruv$normalizedCounts
-sm <- getSmoothedMeans(assays(se)$corrected[sig.all,], as.numeric(factor(se$day)), method = "loess", f=0.8)
-g <- knn.graph(compoundPatternsDist(sm),15)
-se <- setcl(se, cluster_walktrap(g, steps = 15))
+# set.seed(1234)
+# ruv <- RUVs(assays(se)$logcpm, row.names(se), k=2, makeGroups(se$day), isLog = TRUE)
+# assays(se)$corrected <- ruv$normalizedCounts
+# sm <- getSmoothedMeans(assays(se)$corrected[sig.all,], as.numeric(factor(se$day)), method = "loess", f=0.8)
+# g <- knn.graph(compoundPatternsDist(sm),15)
+# se <- setcl(se, cluster_walktrap(g, steps = 15))
 ```
 
 ```{r}
-plotClusterLFCs(sm-rowMeans(sm), rowData(se[sig.all,])$cluster)
-
-png("../Figures_Omics/SmallRNA/Figure_Output/Cluster/DEG_knn-cluster_15_15_all-days.png", width=7, height=5, units="in", res=300)
-plotClusterLFCs(sm-rowMeans(sm), rowData(se[sig.all,])$cluster)
-dev.off()
+# plotClusterLFCs(sm-rowMeans(sm), rowData(se[sig.all,])$cluster)
+# 
+# png("../../Figures_Omics/SmallRNA/Figure_Output/Cluster/DEG_knn-cluster_15_15_all-days.png", width=7, height=5, units="in", res=300)
+# plotClusterLFCs(sm-rowMeans(sm), rowData(se[sig.all,])$cluster)
+# dev.off()
 ```
 
 Plot all Clusters (all days)
 
 
 ```{r, fig.height=10, fig.width=6}
-se$assigned <- colSums(assay(se))
-sehm(se, sig.all, assayName = "corrected", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("cluster"), breaks=0.99, toporder = "cluster",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE)
+# se$assigned <- colSums(assay(se))
+# sehm(se, sig.all, assayName = "corrected", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("cluster"), breaks=0.99, toporder = "cluster",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE)
 ```
 
 Plot single Cluster (all days)
 ```{r, fig.height=8, fig.width=6}
-clusters <- split(sig.all, rowData(se[sig.all,])$cluster)
-cluster3 <- clusters[["3"]]
-cluster3_mirs <- grep("miR",cluster3,value = TRUE)
-cluster3_no_mirs <- cluster3[! cluster3 %in% cluster3_mirs]
-
-
-png("../Figures_Omics/SmallRNA/Figure_Output/Cluster/Cluster3_all-days_mirs.png", width=7, height=5, units="in", res=300)
-sehm(se, cluster3_mirs, assayName = "corrected", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("logcpm"), breaks=0.99, main="(3) up-down",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE)
-dev.off()
-
-png("../Figures_Omics/SmallRNA/Figure_Output/Cluster/Cluster3_all-days_no_mirs.png", width=7, height=5, units="in", res=300)
-sehm(se, cluster3_no_mirs, assayName = "corrected", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("logcpm"), breaks=0.99, main="(3) up-down snoRNAs & piRNAs",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE)
-dev.off()
+# clusters <- split(sig.all, rowData(se[sig.all,])$cluster)
+# cluster3 <- clusters[["3"]]
+# cluster3_mirs <- grep("miR",cluster3,value = TRUE)
+# cluster3_no_mirs <- cluster3[! cluster3 %in% cluster3_mirs]
+# 
+# 
+# png("../../Figures_Omics/SmallRNA/Figure_Output/Cluster/Cluster3_all-days_mirs.png", width=7, height=5, units="in", res=300)
+# sehm(se, cluster3_mirs, assayName = "corrected", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("logcpm"), breaks=0.99, main="(3) up-down",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE)
+# dev.off()
+# 
+# png("../../Figures_Omics/SmallRNA/Figure_Output/Cluster/Cluster3_all-days_no_mirs.png", width=7, height=5, units="in", res=300)
+# sehm(se, cluster3_no_mirs, assayName = "corrected", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("logcpm"), breaks=0.99, main="(3) up-down snoRNAs & piRNAs",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE)
+# dev.off()
 ```
 
 
 # Merge Cluster 4 & 8 and plot
 ```{r}
-clusters <- split(sig.all, rowData(se[sig.all,])$cluster)
-cluster4 <- clusters[["4"]]
-cluster4_mirs <- grep("miR",cluster4,value = TRUE)
-
-cluster8 <- clusters[["8"]]
-cluster8_mirs <- grep("miR",cluster8,value = TRUE)
-
-cluster_up <- c(cluster4_mirs,cluster8_mirs)
-
-png("../Figures_Omics/SmallRNA/Figure_Output/Cluster/Cluster4u8_all-days_mirs.png", width=7, height=8, units="in", res=300)
-sehm(se, cluster_up, assayName = "corrected", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("logcpm"), breaks=0.99, main="(4 & 8) miRs",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE, show_rownames = TRUE)
-dev.off()
+# clusters <- split(sig.all, rowData(se[sig.all,])$cluster)
+# cluster4 <- clusters[["4"]]
+# cluster4_mirs <- grep("miR",cluster4,value = TRUE)
+# 
+# cluster8 <- clusters[["8"]]
+# cluster8_mirs <- grep("miR",cluster8,value = TRUE)
+# 
+# cluster_up <- c(cluster4_mirs,cluster8_mirs)
+# 
+# png("../../Figures_Omics/SmallRNA/Figure_Output/Cluster/Cluster4u8_all-days_mirs.png", width=7, height=8, units="in", res=300)
+# sehm(se, cluster_up, assayName = "corrected", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("logcpm"), breaks=0.99, main="(4 & 8) miRs",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE, show_rownames = TRUE)
+# dev.off()
 ```
 
 
@@ -161,7 +173,7 @@ plotClusterLFCs(sm2-rowMeans(sm2), rowData(se2[sig.neu,])$cluster)
 
 
 ```{r}
-png("../Figures_Omics/SmallRNA/Figure_Output/Cluster/DEG_knn-cluster_15_15_neur-days.png", width=7, height=5, units="in", res=300)
+png("../../Figures_Omics/SmallRNA/Figure_Output/Cluster/DEG_knn-cluster_15_15_neur-days.png", width=7, height=5, units="in", res=300)
 plotClusterLFCs(sm2-rowMeans(sm2), rowData(se2[sig.neu,])$cluster)
 dev.off()
 ```
@@ -172,7 +184,7 @@ Plot all neuronal Clusters
 ```{r, fig.height=10, fig.width=6}
 se2$assigned <- colSums(assay(se2))
 
-png("../Figures_Omics/SmallRNA/Figure_Output/Cluster/DEG_knn-cluster_15_15_Heat_neur-days.png", width=7, height=7, units="in", res=300)
+png("../../Figures_Omics/SmallRNA/Figure_Output/Cluster/DEG_knn-cluster_15_15_Heat_neur-days.png", width=7, height=7, units="in", res=300)
 sechm(se2, sig.neu, assayName = "corrected", do.scale=TRUE, top_annotation = c("day"), left_annotation = c("cluster"), breaks=0.99, toporder = "cluster",hmcols = heatcol, anno_colors = ancols2, annocol_title_side=NA, name = "scaled\nexpression", gaps_row = c("cluster"))
 dev.off()
 ```
@@ -188,44 +200,17 @@ clusters2 <- split(sig.neu, rowData(se2[sig.neu,])$cluster)
 ```{r, fig.height=8, fig.width=6}
 cluster2_2 <- clusters2[["2"]]
 
-png("../Figures_Omics/SmallRNA/Figure_Output/Cluster/Cluster2_neur-days_mirs.png", width=7, height=7, units="in", res=300)
+png("../../Figures_Omics/SmallRNA/Figure_Output/Cluster/Cluster2_neur-days_mirs.png", width=7, height=7, units="in", res=300)
 sechm(se2, cluster2_2, assayName = "corrected", do.scale=TRUE, top_annotation = c("day"), breaks=0.99, column_title="(2) begin up",hmcols = heatcol, anno_colors = ancols,annocol_title_side=NA,name = "scaled\nexpression")
-dev.off()
-```
-
-
-# Cluster1
-```{r, fig.height=8, fig.width=6}
-# cluster2_1 <- clusters2[["1"]]
-# cluster2_1_p <- grep("p-",cluster2_1 ,value = TRUE)
-# cluster2_1_mirs <- grep("miR",cluster2_1 ,value = TRUE)
-# cluster2_1_mirs <- cluster2_1_mirs[!cluster2_1_mirs %in% cluster2_1_p]
-# 
-# 
-# png("../Figures_Omics/SmallRNA/Figure_Output/Cluster/Cluster1_neur-days_mirs.png", width=7, height=5, units="in", res=300)
-# sehm(se2, cluster2_1_mirs, assayName = "corrected", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("logcpm"), breaks=0.99, main="(1) const up (mirs)",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE,show_rownames = TRUE)
-# dev.off()
-```
-
-
-# Cluster4
-```{r, fig.height=8, fig.width=6}
-cluster2_4 <- clusters2[["4"]]
-
-png("../Figures_Omics/SmallRNA/Figure_Output/Cluster/Cluster4_neur-days_mirs.png", width=7, height=5, units="in", res=300)
-sechm(se2, cluster2_4, assayName = "corrected", do.scale=TRUE, top_annotation = c("day"), breaks=0.99, column_title="(4) late up",hmcols = heatcol, anno_colors = ancols,annocol_title_side=NA,name = "scaled\nexpression",show_rownames = TRUE)
 dev.off()
 ```
 
 
 # Cluster5
 ```{r, fig.height=8, fig.width=6}
-# cluster2_5 <- clusters2[["5"]]
-# cluster2_5_p <- grep("p-",cluster2_5 ,value = TRUE)
-# cluster2_5_mirs <- grep("miR",cluster2_5 ,value = TRUE)
-# cluster2_5_mirs <- cluster2_5_mirs[!cluster2_5_mirs %in% cluster2_5_p]
-# 
-# png("../Figures_Omics/SmallRNA/Figure_Output/Cluster/Cluster5_neur-days_mirs.png", width=7, height=5, units="in", res=300)
-# sehm(se2, cluster2_5_mirs, assayName = "corrected", do.scale=TRUE, anno_columns = c("day"), anno_rows = c("logcpm"), main="(5) begin down (mirs)",hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE,show_rownames = TRUE)
-# dev.off()
+cluster2_5 <- clusters2[["5"]]
+
+png("../../Figures_Omics/SmallRNA/Figure_Output/Cluster/Cluster5_neur-days_mirs.png", width=7, height=5, units="in", res=300)
+sechm(se2, cluster2_5, assayName = "corrected", do.scale=TRUE, top_annotation = c("day"), breaks=0.99, column_title="(5) late up",hmcols = heatcol, anno_colors = ancols,annocol_title_side=NA,name = "scaled\nexpression",show_rownames = TRUE)
+dev.off()
 ```

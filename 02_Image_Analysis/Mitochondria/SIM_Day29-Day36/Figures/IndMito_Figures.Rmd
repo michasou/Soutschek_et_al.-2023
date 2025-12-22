@@ -53,21 +53,32 @@ e$Differentiation <- tolower(e$Differentiation)
 ##################
 ##################
 ## All Mitos
+
+
+##################
+## Area
+
 ## Aggregate by image
 ```{r}
-#area
 ag_area <- aggregate(e$Mito_Area_um,e[,c("Differentiation","Condition","Day","Image")], FUN=mean)
+```
 
-mod_s1a <- lm(x ~ Condition + Differentiation,data = ag_area[ag_area$Day == "Day 29",])
+
+# statistics
+```{r}
+ag_area_stat <- aggregate(ag_area$x,ag_area[,c("Differentiation","Condition","Day")], FUN=mean)
+
+mod_s1a <- rlm(x ~ Condition + Differentiation, psi = psi.huber, data = ag_area_stat[ag_area_stat$Day == "Day 29",])
 s1a <- emmeans(mod_s1a, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
 
-mod_s1b <- lm(x ~ Condition + Differentiation,data = ag_area[ag_area$Day == "Day 36",])
+mod_s1b <- rlm(x ~ Condition + Differentiation, psi = psi.huber, data = ag_area_stat[ag_area_stat$Day == "Day 36",])
 s1b <- emmeans(mod_s1b, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
 
-mod_s1 <- lm(x ~ Condition*Day + Differentiation*Day,data = ag_area)
+mod_s1 <- rlm(x ~ Condition*Day + Differentiation*Day, psi = psi.huber, data = ag_area_stat)
 s1 <- emmeans(mod_s1, trt.vs.ctrl ~ Condition | Day , ref="pLNA-Ctrl")
+```
 
-
+```{r}
 s1a_df <- as.data.frame(s1a$contrasts)
 s1a_df$group1 <- "pLNA-Ctrl"
 s1a_df$group2 <- s1a_df$contrast
@@ -87,7 +98,6 @@ s1b_df$Day <- "Day 36"
 
 s1_df <- rbind(s1a_df,s1b_df)
 
-
 y_pos <- c()
 for(i in s1_df$Day) {
   ll <- max(ag_area[ag_area$Day == i,"x"])
@@ -95,7 +105,11 @@ for(i in s1_df$Day) {
 }
 
 s1_df$y_pos <- y_pos*1.05
+```
 
+# plot
+
+```{r}
 p1 <- ggplot(ag_area,aes(x = Condition, y = x)) + 
   geom_violin(show.legend = FALSE) +
   stat_summary(
@@ -128,7 +142,8 @@ p1 <- ggplot(ag_area,aes(x = Condition, y = x)) +
         axis.text.x = element_text(size = rel(1))) +
   scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
 
-ggsave2("../Figure_Output/SIM_MitoArea.png",p1, width = 7,height = 4.75, bg = "white")
+
+ggsave2("../Figure_Output/SIM_MitoArea.png",p1, width = 6,height = 4.25, bg = "white")
 ```
 
 
@@ -167,37 +182,51 @@ p1b <- ggplot(ag_area[ag_area$Day == "Day 36",],aes(x = Condition, y = x)) +
         axis.text.x = element_text(size = rel(1))) +
   scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
 
-ggsave2("../Figure_Output/SIM_MitoArea_Day36.png",p1b, width = 4.25,height = 4.75, bg = "white")
+ggsave2("../Figure_Output/SIM_MitoArea_Day36.pdf",p1b, width = 4.25,height = 4.75, bg = "white")
+```
+
+
+
+```{r}
+#Source Data Fig. 5f
+write.csv(ag_area[ag_area$Day == "Day 36",],file = "../../../../12_SourceData/Fig5/Fig_5f.csv")
 ```
 
 
 
 
+##################
+## Length
+
+## Aggregate by image
+```{r}
+ag_length <- aggregate(e$Length,e[,c("Differentiation","Condition","Day","Image")], FUN=mean)
+```
 
 
-
-
+# statistics
 
 ```{r}
-#length
-ag_length <- aggregate(e$Length,e[,c("Differentiation","Condition","Day","Image")], FUN=mean)
+ag_length_stat <- aggregate(ag_length$x,ag_length[,c("Differentiation","Condition","Day")], FUN=mean)
 
-
-mod_s2a <- lm(x ~ Condition + Differentiation,data = ag_length[ag_length$Day == "Day 29",])
+mod_s2a <- rlm(x ~ Condition + Differentiation, psi = psi.huber, data = ag_length_stat[ag_length_stat$Day == "Day 29",])
 s2a <- emmeans(mod_s2a, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
 
-mod_s2b <- lm(x ~ Condition + Differentiation,data = ag_length[ag_length$Day == "Day 36",])
+mod_s2b <- rlm(x ~ Condition + Differentiation, psi = psi.huber, data = ag_length_stat[ag_length_stat$Day == "Day 36",])
 s2b <- emmeans(mod_s2b, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
 
-mod_s2 <- lm(x ~ Condition*Day + Differentiation*Day,data = ag_length)
+mod_s2 <- rlm(x ~ Condition*Day + Differentiation*Day, psi = psi.huber, data = ag_length_stat)
 s2 <- emmeans(mod_s2, trt.vs.ctrl ~ Condition | Day , ref="pLNA-Ctrl")
+```
 
+```{r}
 s2a_df <- as.data.frame(s2a$contrasts)
 s2a_df$group1 <- "pLNA-Ctrl"
 s2a_df$group2 <- s2a_df$contrast
 s2a_df$group2 <- gsub("\\) - \\(pLNA-Ctrl\\)","",s2a_df$group2)
 s2a_df$group2 <- gsub("\\(", "",s2a_df$group2)
 s2a_df <- add_significance(s2a_df,p.col = "p.value")
+s2a_df$p.value.signif <- round(s2a_df$p.value,3)
 s2a_df$Day <- "Day 29"
 
 s2b_df <- as.data.frame(s2b$contrasts)
@@ -218,9 +247,12 @@ for(i in s2_df$Day) {
 }
 
 s2_df$y_pos <- y_pos*1.05
+```
 
 
+# plot
 
+```{r}
 p2 <- ggplot(ag_length,aes(x = Condition, y = x)) + 
   geom_violin(show.legend = FALSE) +
   stat_summary(
@@ -241,7 +273,7 @@ p2 <- ggplot(ag_length,aes(x = Condition, y = x)) +
     textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
   ) +
   facet_wrap(~Day) +
-  ylab("MitoLength per Image [µm]") +
+  ylab("Mitochondrial Length in µm") +
   theme_classic()+
   scale_color_manual(values = col_vec) +
   coord_cartesian(ylim = c(0,1.3)) +
@@ -252,47 +284,50 @@ p2 <- ggplot(ag_length,aes(x = Condition, y = x)) +
         axis.text.x = element_text(size = rel(1))) +
   scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
   
-ggsave2("../Figure_Output/SIM_MitoLength.png",p2, width = 7,height = 4.75, bg = "white")
-ggsave2("../Figure_Output/SIM_MitoLength.pdf",p2, width = 7,height = 4.75, bg = "white")
+ggsave2("../Figure_Output/SIM_MitoLength.png",p2, width = 6,height = 4.25, bg = "white")
 ```
 
 ```{r}
-p2a <- p2 + coord_cartesian(ylim = c(0.7,1.25)) + theme(legend.position = "right")
-ggsave2("../Figure_Output/SIM_MitoLength_zoom.png",p2a, width = 5,height = 4.75, bg = "white")
-```
-
-
-
-```{r}
-legend <- get_legend(p1)
-
-pp <- plot_grid(p1 + theme(legend.position="none"),
-                p2 + theme(legend.position="none"),
-                legend, rel_widths = c(1,1,0.3),nrow = 1)
-ggsave2("../Figure_Output/SIM_summary.png",pp, width = 12,height = 3.75, bg = "white")
+# p2a <- p2 + coord_cartesian(ylim = c(0.7,1.25)) + theme(legend.position = "right")
+# ggsave2("../Figure_Output/SIM_MitoLength_zoom.png",p2a, width = 5,height = 4.75, bg = "white")
 ```
 
 
 
+##################
+## Intensity
+
+## Aggregate by image
+
 ```{r}
-#Intensity
 ag_inten <- aggregate(e$Mito_MeanIntensity_SIM,e[,c("Differentiation","Condition","Image","Day")], FUN=mean)
+```
 
-mod_s3a <- lm(x ~ Condition + Differentiation,data = ag_inten[ag_inten$Day == "Day 29",])
+# statistics
+
+```{r}
+ag_inten_stat <- aggregate(ag_inten$x,ag_inten[,c("Differentiation","Condition","Day")], FUN=mean)
+```
+
+```{r}
+mod_s3a <- rlm(x ~ Condition + Differentiation, psi = psi.huber, data = ag_inten_stat[ag_inten_stat$Day == "Day 29",])
 s3a <- emmeans(mod_s3a, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
 
-mod_s3b <- lm(x ~ Condition + Differentiation,data = ag_inten[ag_inten$Day == "Day 36",])
+mod_s3b <- rlm(x ~ Condition + Differentiation, psi = psi.huber, data = ag_inten_stat[ag_inten_stat$Day == "Day 36",])
 s3b <- emmeans(mod_s3b, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
 
-mod_s3 <- lm(x ~ Condition*Day + Differentiation*Day,data = ag_inten)
+mod_s3 <- rlm(x ~ Condition*Day + Differentiation*Day, psi = psi.huber, data = ag_inten_stat)
 s3 <- emmeans(mod_s3, trt.vs.ctrl ~ Condition | Day , ref="pLNA-Ctrl")
+```
 
+```{r}
 s3a_df <- as.data.frame(s3a$contrasts)
 s3a_df$group1 <- "pLNA-Ctrl"
 s3a_df$group2 <- s3a_df$contrast
 s3a_df$group2 <- gsub("\\) - \\(pLNA-Ctrl\\)","",s3a_df$group2)
 s3a_df$group2 <- gsub("\\(", "",s3a_df$group2)
 s3a_df <- add_significance(s3a_df,p.col = "p.value")
+s3a_df$p.value.signif <- round(s3a_df$p.value,3)
 s3a_df$Day <- "Day 29"
 
 s3b_df <- as.data.frame(s3b$contrasts)
@@ -313,7 +348,12 @@ for(i in s3_df$Day) {
 }
 
 s3_df$y_pos <- y_pos*1.05
+```
 
+
+# plot
+
+```{r}
 p3 <- ggplot(ag_inten,aes(x = Condition, y = x)) + 
   geom_violin(show.legend = FALSE) +
   stat_summary(
@@ -345,11 +385,27 @@ p3 <- ggplot(ag_inten,aes(x = Condition, y = x)) +
         axis.text.x = element_text(size = rel(1))) +
   scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
 
-ggsave2("../Figure_Output/SIM_MitoMeanIntensity.png",p3,width = 7,height = 4.75, bg = "white")
+ggsave2("../Figure_Output/SIM_MitoMeanIntensity.png",p3,width = 6,height = 4.25, bg = "white")
 ```
 
+#####
 
+## Intensity / Area correlation
+```{r}
+# p4a <- ggplot(data = e, aes(x = Mito_Area_um, y = Mito_MeanIntensity_SIM)) +
+#   geom_point() + 
+#   geom_smooth(method = "lm", se = FALSE) +
+#   stat_cor(method = "pearson") +
+#   facet_wrap( ~ Day)
+```
 
+```{r}
+# p4b <- ggplot(data = e, aes(x = Mito_Area_um, y = Mito_MeanIntensity_SIM)) +
+#   geom_point() + 
+#   geom_smooth(method = "loess", se = FALSE) +
+#   stat_cor(method = "pearson") +
+#   facet_wrap( ~ Day)
+```
 
 
 

@@ -29,10 +29,6 @@ syn_res <- readRDS("../Data/Synapsecluster_Result_TSB_Raw.rds")
 
 # cleanup
 ```{r}
-#Length
-syn_res$Length <- syn_res$Intensity_TotalIntensity_SkelSomaRm
-syn_res$Intensity_TotalIntensity_SkelSomaRm <- NULL
-syn_res$Length_um <- syn_res$Length / 14.1607
 colnames(syn_res)[which(colnames(syn_res)=="Diff")] <- "Differentiation"
 ```
 
@@ -64,22 +60,9 @@ syn_res[is.na(syn_res)] <- 0
 colnames(syn_res)[which(colnames(syn_res) == "Math_SynByPSDdendArea")] <- "Synapses_by_area"
 colnames(syn_res)[which(colnames(syn_res) == "Math_DensitySynByPSDdend")] <- "Synapses_by_length"
 colnames(syn_res)[which(colnames(syn_res) == "Math_SynapseDensityPerCell")] <- "Synapses_by_Cell"
-
 colnames(syn_res)[which(colnames(syn_res) == "Count_MaskedSynByPSDdend")] <- "SynapseCounts"
-colnames(syn_res)[which(colnames(syn_res) == "AreaOccupied_AreaOccupied_DendMapTubeSomaRm")] <- "DendriteArea"
 colnames(syn_res)[which(colnames(syn_res) == "AreaOccupied_AreaOccupied_Soma")] <- "SomaArea"
-syn_res$DendriteArea_um2 <- syn_res$DendriteArea / (14.1607^2)
-
-
-syn_res$Synapses_perArea_um2 <- syn_res$Synapses_by_area * (14.1607^2)
-syn_res$Synapses_perLength_um <- syn_res$Synapses_by_length * 14.1607
-syn_res$DendArea_per_Nuclei <- syn_res$DendriteArea / syn_res$Count_MaskedNuclei
-syn_res$DendArea_um2_per_Nuclei <- syn_res$DendriteArea_um2 / syn_res$Count_MaskedNuclei
-syn_res$Length_per_Nuclei <- syn_res$Length / syn_res$Count_MaskedNuclei
-
-syn_res$Synapses_per_DendArea_per_Nuclei <- syn_res$SynapseCounts / syn_res$DendArea_per_Nuclei
-syn_res$Synapses_per_DendArea_um2_per_Nuclei <- syn_res$SynapseCounts / syn_res$DendArea_um2_per_Nuclei 
-syn_res$Synapses_per_Length_per_Nuclei <- syn_res$SynapseCounts / syn_res$Length_per_Nuclei
+syn_res$Synapses_perArea_um2 <- syn_res$SynapseCounts / syn_res$DendriteArea_um2
 ```
 
 
@@ -90,17 +73,14 @@ syn_res$Synapses_per_Length_per_Nuclei <- syn_res$SynapseCounts / syn_res$Length
 #PSD per neuron
 syn_res$PSD_per_length_micron <- syn_res$Count_PSDMaskByDEND / syn_res$Length_um
 syn_res$PSD_per_area <- syn_res$Count_PSDMaskByDEND / syn_res$DendriteArea
-syn_res$PSD_per_area_um2 <- syn_res$PSD_per_area * (14.1607^2)
-syn_res$PSD_per_area_per_Nuclei <- syn_res$Count_PSDMaskByDEND / syn_res$DendArea_per_Nuclei
-syn_res$PSD_per_area_um2_per_Nuclei <- syn_res$Count_PSDMaskByDEND / syn_res$DendArea_um2_per_Nuclei 
+syn_res$PSD_per_area_um2 <- syn_res$Count_PSDMaskByDEND / syn_res$DendriteArea_um2
 
 
 #Syn Per neuron
 syn_res$Syn_per_length_micron <- syn_res$Count_SynMaskByDend / syn_res$Length_um
 syn_res$Syn_per_area <- syn_res$Count_SynMaskByDend / syn_res$DendriteArea
-syn_res$Syn_per_area_um2 <- syn_res$Syn_per_area * (14.1607^2)
-syn_res$Syn_per_area_per_Nuclei <- syn_res$Count_SynMaskByDend / syn_res$DendArea_per_Nuclei
-syn_res$Syn_per_area_um2_per_Nuclei <- syn_res$Count_SynMaskByDend / syn_res$DendArea_um2_per_Nuclei 
+syn_res$Syn_per_area_um2 <- syn_res$Count_SynMaskByDend /syn_res$DendriteArea_um2
+
 ```
 
 
@@ -138,7 +118,7 @@ saveRDS(syn_res,"../Data/Synapsecluster_Result_TSB.rds")
 ```{r}
 options(digits=4)
 
-p1 <- ggplot(syn_res,aes(x = Condition, y = sqrt(Synapses_per_DendArea_um2_per_Nuclei))) + 
+p1 <- ggplot(syn_res,aes(x = Condition, y = sqrt(Synapses_perArea_um2))) + 
   geom_violin(show.legend = FALSE) +
   stat_summary(
     fun = mean,
@@ -151,7 +131,7 @@ p1 <- ggplot(syn_res,aes(x = Condition, y = sqrt(Synapses_per_DendArea_um2_per_N
   facet_wrap(~Differentiation) +
   theme_classic()
 
-p2 <- ggplot(syn_res,aes(x = Condition, y = sqrt(PSD_per_area_um2_per_Nuclei))) + 
+p2 <- ggplot(syn_res,aes(x = Condition, y = sqrt(PSD_per_area_um2))) + 
   geom_violin(show.legend = FALSE) +
   stat_summary(
     fun = mean,
@@ -163,7 +143,7 @@ p2 <- ggplot(syn_res,aes(x = Condition, y = sqrt(PSD_per_area_um2_per_Nuclei))) 
   scale_y_continuous(labels = comma) +
   theme_classic()
 
-p3 <- ggplot(syn_res,aes(x = Condition, y = sqrt(Syn_per_area_um2_per_Nuclei))) + 
+p3 <- ggplot(syn_res,aes(x = Condition, y = sqrt(Syn_per_area_um2))) + 
   geom_violin(show.legend = FALSE) +
   stat_summary(
     fun = mean,
@@ -175,20 +155,20 @@ p3 <- ggplot(syn_res,aes(x = Condition, y = sqrt(Syn_per_area_um2_per_Nuclei))) 
   scale_y_continuous(labels = comma) +
   theme_classic()
 
-p4a <- ggplot(syn_res,aes(x = Differentiation, y = DendArea_um2_per_Nuclei)) + 
+p4a <- ggplot(syn_res,aes(x = Differentiation, y = DendriteArea_um2)) + 
   geom_violin(show.legend = FALSE) +
   stat_summary(
     fun = mean,
     geom="crossbar",
     show.legend = FALSE
   ) +
-  geom_point(aes(color = CVS)) +
+  geom_point() +
   coord_cartesian(ylim = c(0,NA)) +
   ylim(0,NA) +
   scale_y_continuous(labels = comma) +
   theme_classic() 
 
-p4b <- ggplot(syn_res,aes(x = Condition, y = DendArea_um2_per_Nuclei)) + 
+p4b <- ggplot(syn_res,aes(x = Condition, y = DendriteArea_um2)) + 
   geom_violin(show.legend = FALSE) +
   stat_summary(
     fun = mean,
@@ -202,7 +182,7 @@ p4b <- ggplot(syn_res,aes(x = Condition, y = DendArea_um2_per_Nuclei)) +
   facet_wrap(~Differentiation,nrow = 1) +
   theme_classic() 
 
-p4c <- ggplot(syn_res,aes(x = Condition, y = DendArea_um2_per_Nuclei)) + 
+p4c <- ggplot(syn_res,aes(x = Condition, y = DendriteArea_um2)) + 
   geom_violin(show.legend = FALSE) +
   stat_summary(
     fun = median,
@@ -215,18 +195,6 @@ p4c <- ggplot(syn_res,aes(x = Condition, y = DendArea_um2_per_Nuclei)) +
   scale_y_continuous(labels = comma) +
   facet_wrap(~Differentiation,nrow = 1) +
   theme_classic() 
-
-p5 <- ggplot(syn_res,aes(x = Diff, y = Synapses_per_DendArea_um2_per_Nuclei)) + 
-  geom_violin(show.legend = FALSE) +
-  stat_summary(
-    fun = mean,
-    geom="crossbar",
-    show.legend = FALSE
-  ) +
-  geom_point(aes(color = CVS)) +
-  ylim(0,NA) +
-  scale_y_continuous(labels = comma) +
-  theme_classic()
 ```
 
 

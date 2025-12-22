@@ -28,21 +28,166 @@ suppressPackageStartupMessages({
 })
 ```
 
+# Heatmap colors
+```{r}
+heatcol = inferno(256)
+
+
+ancols <- list(day = c("0"="#3F3F3F",
+                      "9" ="#575757",
+                      "15" ="#707070",
+                      "21" = "#898989",
+                      "27" ="#A1A1A1",
+                      "33" ="#BABABA",
+                      "40" = "#D3D3D3" 
+                      ) )
+
+```
+
+# set colors
+```{r}
+#show_col(pal_uchicago("default")(3))
+red <- pal_uchicago("default")(3)[1]
+grey <- pal_uchicago("default")(3)[2]
+yellow <- pal_uchicago("default")(3)[3]
+```
+
+
+```{r}
+plotVolcano <- function(
+    df,
+    sig = 0.05,
+    text.size = 20,
+    anno = NULL,
+    xlim_min = -5, xlim_max = 5,
+    colors = c("blue", "red", "grey"),
+    text_color = c("black", "white"),
+    ybreaks = c(0, 3, 6, 9, 12),
+    yaxis_mode = c("FDR", "neglog10"),
+    ...
+){
+  library(ggplot2)
+  library(ggrepel)
+  library(ggnewscale)
+  library(scales)
+
+  yaxis_mode <- match.arg(yaxis_mode)
+
+  # Convert DFrame if needed
+  if (inherits(df, "DFrame")) df <- as.data.frame(df)
+
+  # Significance flag
+  df$`Sign.` <- ifelse(df$FDR >= sig, "not",
+                       ifelse(df$logFC > 0, "up", "down"))
+  df$`Sign.` <- factor(df$`Sign.`, levels = c("up", "down", "not"))
+
+  if (is.null(df$names)) df$names <- row.names(df)
+  df$dir <- ifelse(df$logFC < 0, "downr", "upr")
+
+  # Avoid log issues
+  df$FDR[df$FDR < 1e-300] <- 1e-300
+  df$neglog10FDR <- -log10(df$FDR)
+
+  # Annotation subset
+  if (!is.null(anno)) {
+    anno <- df[df$names %in% anno, ]
+  }
+
+  # Optional reverse-log transform
+  reverselog_trans <- function(base = 10) {
+    trans <- function(x) -log(x, base)
+    inv   <- function(x) base^(-x)
+    trans_new(
+      paste0("reverselog-", base),
+      trans, inv,
+      domain = c(1e-300, 1)
+    )
+  }
+
+  # Core plot
+  p <- ggplot(
+    df,
+    aes(
+      x = logFC,
+      y = if (yaxis_mode == "neglog10") neglog10FDR else FDR
+    )
+  ) +
+    geom_point(aes(alpha = 0.7, color = `Sign.`)) +
+    scale_color_manual(values = c(
+      "up"   = colors[1],
+      "down" = colors[2],
+      "not"  = colors[3]
+    )) +
+    labs(alpha = NULL)
+
+  # ----- Y-AXIS OPTIONS -----
+  if (yaxis_mode == "neglog10") {
+
+    p <- p + scale_y_continuous(
+      name = expression(-log[10](FDR)),
+      breaks = ybreaks,
+      labels = function(x) format(10^(-x), scientific = TRUE),
+      expand = expansion(mult = c(0.02, 0.05))
+    )
+
+  } else if (yaxis_mode == "FDR") {
+
+    p <- p + scale_y_continuous(
+      name = "FDR",
+      trans = reverselog_trans(base = 10),
+      breaks = 10^(-ybreaks),                 # <-- transforms back to FDR values
+      labels = scales::scientific,
+      expand = expansion(mult = c(0.02, 0.05))
+    )
+  }
+
+  # Annotation layer
+  p <- p +
+    new_scale_color() +
+    geom_label_repel(
+      data = anno,
+      aes(label = names, color = dir),
+      segment.colour = "black",
+      show.legend = FALSE,
+      max.overlaps = 100,
+      force_pull = 1,
+      ...
+    ) +
+    scale_color_manual(values = c(
+      "upr"   = text_color[1],
+      "downr" = text_color[2]
+    )) +
+    xlab("log2-Fold Change") +
+    xlim(xlim_min, xlim_max) +
+    theme_classic(base_size = text.size) +
+    theme(
+      legend.title = element_text(size = text.size - 1),
+      legend.text  = element_text(size = text.size - 3),
+      axis.title   = element_text(size = text.size)
+    ) +
+    guides(alpha = "none")
+
+  p
+}
+```
+
 
 
 
 #Load Data
 ```{r}
-se.syn <- readRDS("../../data/Small_RNA/smallRNA_oasis.DEA.SynCoClust_Shift_normcell.SE.rds")
+se.syn <- readRDS("../../smallRNA/data/Small_RNA/smallRNA_oasis.DEA.SynCoClust_Shift.SE.rds")
 res <- as.data.frame(rowData(se.syn)$DEA.SynCoCluster_Shift)
 
-se <- readRDS("../../data/Small_RNA/smallRNA_oasis_noRound.DEA.SE.rds")
+se <- readRDS("../../smallRNA/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
 se$day <- as.factor(se$day)
 ```
+
 
 # Quick Analysis
 ```{r}
 res.cpm2 <- res
+res.cpm2.mir <- res.cpm2[grepl("hsa-miR",row.names(res.cpm2)),]
 
 #Don't filter futher since the max expression is for all miRs above 2
 # smallRNA_counts <- se  %>%
@@ -61,31 +206,12 @@ res.cpm2 <- res
 #   left_join(mcols(grl)[c("Name", "ID")], by = c("Derives_from" = "ID"), copy=TRUE) %>%
 #   dplyr::select(-Derives_from) %>%
 #   rename(precursor = Name)
+```
 
-
-res.cpm2.mir <- res.cpm2[grep("hsa-",row.names(res.cpm2)),]
-
+```{r}
 top10.mir <- row.names(head(res.cpm2.mir[order(res.cpm2.mir$FDR),],10))
 res.cpm2.mir.down <- res.cpm2.mir[res.cpm2.mir$logFC < 0,]
 top10.mir.down <- row.names(head(res.cpm2.mir.down[order(res.cpm2.mir.down$FDR),],10))
-```
-
-
-
-# Heatmap colors
-```{r}
-heatcol = inferno(256)
-
-
-ancols <- list(day = c("0"="#3F3F3F",
-                      "9" ="#575757",
-                      "15" ="#707070",
-                      "21" = "#898989",
-                      "27" ="#A1A1A1",
-                      "33" ="#BABABA",
-                      "40" = "#D3D3D3" 
-                      ) )
-
 ```
 
 
@@ -96,7 +222,7 @@ ancols <- list(day = c("0"="#3F3F3F",
 sechm(se, top10.mir, top_annotation=c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = TRUE, hmcols = heatcol, anno_colors = ancols, sortRowsOn = NULL, cluster_rows = FALSE )
 
 png("Figure_Output/SynCoDea_Shift/Heat_Top10.png", width=7, height=5, units="in", res=300)
-sehm(se, top10, anno_columns=c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = TRUE, hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE, sortRowsOn = NULL, cluster_rows = FALSE )
+sehm(se, top10.mir, anno_columns=c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = TRUE, hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE, sortRowsOn = NULL, cluster_rows = FALSE )
 dev.off()
 ```
 
@@ -106,106 +232,24 @@ dev.off()
 sechm(se, top10.mir.down, top_annotation=c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = TRUE, hmcols = heatcol, anno_colors = ancols, sortRowsOn = NULL, cluster_rows = FALSE )
 
 png("Figure_Output/SynCoDea_Shift/Heat_Top10_Down_Mir.png", width=7, height=5, units="in", res=300)
-sehm(se, top10.down.mir, anno_columns=c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = TRUE, hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE, sortRowsOn = NULL, cluster_rows = FALSE )
+sehm(se, top10.mir.down, anno_columns=c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = TRUE, hmcols = heatcol, anno_colors = ancols,annotation_names_col = FALSE, sortRowsOn = NULL, cluster_rows = FALSE )
 dev.off()
 ```
 
 
 
-
-
-
-
-
-# Volcano
-
-# set colors
-```{r}
-#show_col(pal_uchicago("default")(3))
-red <- pal_uchicago("default")(3)[1]
-grey <- pal_uchicago("default")(3)[2]
-yellow <- pal_uchicago("default")(3)[3]
-```
-
-```{r}
-#source("../../functions/plotVolcano.R")
-```
-
-
-
-# plotVolcano Function
-```{r}
-plotVolcano <- function(df,sig = 0.05, text.size = 20, log.base = exp(1), anno,
-                        xlim_min = -5, xlim_max = 5,
-                        colors = c("blue","red","grey"),
-                        text_color = c("black","white"),
-                        ...){
-
-  # trans function
-  reverselog_trans <- function(base = log.base) {
-    trans <- function(x) -log(x, base)
-    inv <- function(x) base^(-x)
-    trans_new(paste0("reverselog-", format(base)), trans, inv,
-              log_breaks(base = base),
-              domain = c(-Inf, Inf))
-  }
-
-  if(class(df) == "DFrame") df <- as.data.frame(df)
-  df$`Sign.` <- ifelse(df$FDR >= sig, "not",ifelse(df$logFC > 0,"up","down"))
-  df$`Sign.` <- factor(df$`Sign.`, levels = c("up", "down", "not"))
-  if(is.null(df$names)) df$names <- row.names(df)
-  df$dir <- ifelse(df$logFC < 0, "downr","upr")
-
-  # add little FDR value
-  df$FDR <- ifelse(df$FDR < 1e-300,df$FDR + 1e-300,df$FDR)
-  anno <- df[unlist(lapply(anno, FUN=function(x) which(df$names==x))),]
-
-  p <- ggplot(df, aes(logFC, FDR)) +
-    geom_point(aes(alpha = 0.7, color=`Sign.`)) +
-    scale_color_manual(values = c("up" = colors[1],"down" = colors[2],
-                                  "not" = colors[3])) +
-    scale_y_continuous(trans = reverselog_trans()) +
-    new_scale_color() +
-    geom_label_repel(data=anno, segment.colour = "black",
-                    aes(label=names),
-                    show.legend = FALSE,
-                    max.overlaps = 100,
-                    force_pull = 1,
-                    ...) +
-    scale_color_manual(values = c("upr" = text_color[1],"downr"  = text_color[2])) +
-    scale_fill_manual(values = c("up" = colors[1],"down" = colors[2],
-                                 "not" = colors[3])) +
-    xlab("log2-Fold Change") + ylab("FDR") +
-    xlim(xlim_min,xlim_max) +
-    theme_classic(base_size = text.size) +
-    labs(alpha = NULL) +
-    theme(legend.title=element_text(size=text.size-1),
-          legend.text=element_text(size=text.size-3),
-          axis.title =element_text(size=text.size)) +
-    guides(alpha = "none")
-
-
-
-
-
-  p
-}
-```
-
+## Volcano
 
 # Plot Volcano DEA
 ```{r}
-# df prep
-res.cpm2.mir <- res.cpm2[grepl("hsa-miR",row.names(res.cpm2)),]
-
 # mirs to annotate
 anno2 <- grep("-1229-3p|-4745-5|-941|-3141",row.names(res.cpm2.mir),value = TRUE)
 
 p <- plotVolcano(df = res.cpm2.mir, text.size = 12, sig = 0.05,
-                 log.base = 10,anno = anno2, 
+                 ybreaks = c(0, 3, 6, 9,12),yaxis_mode = "FDR",anno = anno2, 
                  xlim_min = -10,  xlim_max = 10, 
                  colors = c(yellow,red,grey),
-                 text_color = c("black","white"),nudge_y = 0,  point.padding = 0,
+                 text_color = c("black","black"),nudge_y = 0,  point.padding = 0,
                  box.padding = 0.5, min.segment.length = 0, force = 4)
 p <- p + xlab("Similarity to morphology") +
   theme(text = element_text(size = 16), 
@@ -214,9 +258,15 @@ p <- p + xlab("Similarity to morphology") +
 
 
 ggsave(p,filename = "Figure_Output/SynCoDea_Shift/smallRNA_volcano.png",height = 4,width = 5)
+ggsave(p,filename = "Figure_Output/SynCoDea_Shift/smallRNA_volcano.pdf",height = 4,width = 5)
 ```
 
 
+```{r}
+#Source data Fig. 2d
+sd <- res.cpm2.mir
+write.csv(sd,file = "../../../12_SourceData/Fig2/Fig_2d.csv")
+```
 
 
 

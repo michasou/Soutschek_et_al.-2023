@@ -59,7 +59,16 @@ p1 <- ggplot(data = res, aes(x = Day, y  = log(Peak.Intensity.df.F.))) +
 
 
 ggsave("../Figures/CaImaging_Timecourse_Amplitude_log.png",p1,width = 8,height = 5)
+ggsave("../Figures/CaImaging_Timecourse_Amplitude_log.pdf",p1,width = 8,height = 5)
 ```
+
+```{r}
+#Source data Fig. 1d
+write.csv(res,file = "../../../12_SourceData/Fig1/Fig_1d.csv")
+```
+
+
+
 
 #Overview Amplitude Plot black
 ```{r}

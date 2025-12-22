@@ -20,7 +20,19 @@ suppressPackageStartupMessages({
   library(viridis)
   library(sechm)
 })
-source("../../../functions/clustering.R")
+source("../../../00_functions/clustering.R")
+```
+
+#As of igraph version 1.6.0. the knn.graph function has to be corrected:
+```{r}
+knn.graph <- function(d, k=5){
+    d <- as.matrix(d)
+    diag(d) <- 0
+    for(i in seq_len(nrow(d))){
+        d[i,-order(d[i,])[seq_len(k)]] <- 0
+    }
+    igraph::graph_from_adjacency_matrix(d, "max", weighted=TRUE)
+}
 ```
 
 
@@ -33,57 +45,57 @@ mouse.se <- readRDS("../../smallRNA/data/Small_RNA_Mouse/Whipple_2020_SmallRNA_S
 #get rid of 379-410 cluster ko values
 m.se <- mouse.se[,mouse.se$genotype != "Mirg(Delta/+)"]
 
-h.se <- readRDS("../../RNA_GRCh38.p10_Ens91/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+h.se <- readRDS("../../smallRNA/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
 ```
 
 
 
 # Some exploratory figures
 ```{r}
-g0 <- "mmu-miR-125b-5p"
-g1 <- "mmu-miR-181a-5p"
-g2 <- "mmu-miR-134-5p"
-g3 <- "mmu-miR-212-3p"
-g4 <- "mmu-miR-302c-5p"
-
-
-p1 <- ggplot(meltSE(m.se, g0, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(4,12) + theme(axis.title.x=element_blank())
-
-p3 <- ggplot(meltSE(m.se, g1, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(2,12.5) + theme(axis.title.x=element_blank())
-
-p5 <- ggplot(meltSE(m.se, g2, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,10) + theme(axis.title.x=element_blank())
-
-p7 <- ggplot(meltSE(m.se, g3, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,8) + theme(axis.title.x=element_blank())
-
-p9 <- ggplot(meltSE(m.se, g4, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,8) + theme(axis.title.x=element_blank())
+# g0 <- "mmu-miR-125b-5p"
+# g1 <- "mmu-miR-181a-5p"
+# g2 <- "mmu-miR-134-5p"
+# g3 <- "mmu-miR-212-3p"
+# g4 <- "mmu-miR-302c-5p"
+# 
+# 
+# p1 <- ggplot(meltSE(m.se, g0, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(4,12) + theme(axis.title.x=element_blank())
+# 
+# p3 <- ggplot(meltSE(m.se, g1, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(2,12.5) + theme(axis.title.x=element_blank())
+# 
+# p5 <- ggplot(meltSE(m.se, g2, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,10) + theme(axis.title.x=element_blank())
+# 
+# p7 <- ggplot(meltSE(m.se, g3, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,8) + theme(axis.title.x=element_blank())
+# 
+# p9 <- ggplot(meltSE(m.se, g4, assayName = "logcpm"), aes(as.factor(sample), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,8) + theme(axis.title.x=element_blank())
 
 ```
 
 ```{r}
-g5 <- "hsa-miR-181a-5p"
-g6 <- "hsa-miR-134-5p"
-g7 <- "hsa-miR-125b-5p"
-g9 <- "hsa-miR-212-3p"
-g10 <- "hsa-miR-302c-5p"
-
-p2 <- ggplot(meltSE(h.se, g7, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(4,12) + theme(axis.title.x=element_blank())
-
-p4 <- ggplot(meltSE(h.se, g5, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(2,12.5) + theme(axis.title.x=element_blank())
-
-p6 <- ggplot(meltSE(h.se, g6, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,10) + theme(axis.title.x=element_blank())
-
-p8 <- ggplot(meltSE(h.se, g9, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,8) + theme(axis.title.x=element_blank())
-
-p10 <- ggplot(meltSE(h.se, g10, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,8) + theme(axis.title.x=element_blank())
+# g5 <- "hsa-miR-181a-5p"
+# g6 <- "hsa-miR-134-5p"
+# g7 <- "hsa-miR-125b-5p"
+# g9 <- "hsa-miR-212-3p"
+# g10 <- "hsa-miR-302c-5p"
+# 
+# p2 <- ggplot(meltSE(h.se, g7, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(4,12) + theme(axis.title.x=element_blank())
+# 
+# p4 <- ggplot(meltSE(h.se, g5, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(2,12.5) + theme(axis.title.x=element_blank())
+# 
+# p6 <- ggplot(meltSE(h.se, g6, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,10) + theme(axis.title.x=element_blank())
+# 
+# p8 <- ggplot(meltSE(h.se, g9, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,8) + theme(axis.title.x=element_blank())
+# 
+# p10 <- ggplot(meltSE(h.se, g10, assayName = "logcpm"), aes(as.factor(day), logcpm)) + geom_violin() + facet_wrap(~feature, scale="free") + ylim(0,8) + theme(axis.title.x=element_blank())
 ```
 
 
 ```{r}
-pp1 <- plot_grid(p1,p2,p9,p10, ncol = 2, rel_widths = c(1, 2))
-pp2 <- plot_grid(p3,p4,p5,p6, ncol = 2, rel_widths = c(1, 2))
-
-ggsave(pp1,filename = "Figure_Output/similar_micros_comp.png", width = 8, height = 8)
-ggsave(pp2,filename = "Figure_Output/diff_micros_comp.png", width = 8, height = 8)
+# pp1 <- plot_grid(p1,p2,p9,p10, ncol = 2, rel_widths = c(1, 2))
+# pp2 <- plot_grid(p3,p4,p5,p6, ncol = 2, rel_widths = c(1, 2))
+# 
+# ggsave(pp1,filename = "Figure_Output/similar_micros_comp.png", width = 8, height = 8)
+# ggsave(pp2,filename = "Figure_Output/diff_micros_comp.png", width = 8, height = 8)
 ```
 
 
@@ -242,12 +254,12 @@ dev.off()
 
 #Day 40
 ```{r}
-#prepare data to plot
-h.se.cl.40 <- h.se.cl[,h.se.cl$day %in% c(0,40)]
-h.se.cl.40$day <- as.factor(h.se.cl.40$day)
-
-#plot heatmap
-crossHm(list(Mouse=m.se.cl, Human=h.se.cl.40), genes = com.sig.h40, do.scale = TRUE, gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol,anno_columns=c("day"),anno_colors = ancols2)
+# #prepare data to plot
+# h.se.cl.40 <- h.se.cl[,h.se.cl$day %in% c(0,40)]
+# h.se.cl.40$day <- as.factor(h.se.cl.40$day)
+# 
+# #plot heatmap
+# crossHm(list(Mouse=m.se.cl, Human=h.se.cl.40), features = com.sig.h40, do.scale = TRUE, gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol,anno_columns=c("day"),anno_colors = ancols2)
 ```
 
 

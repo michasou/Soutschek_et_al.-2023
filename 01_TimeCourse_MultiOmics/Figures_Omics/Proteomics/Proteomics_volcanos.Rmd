@@ -26,7 +26,7 @@ suppressPackageStartupMessages({
   library(ggrepel)
 })
 
-source("../../../functions/plotVolcano.R")
+source("../../../00_functions/plotVolcano_new.R")
 ```
 
 
@@ -60,9 +60,8 @@ plot.list <- list()
 
 for(i in dea.names){
   df <- rowData(se)[[i]]
-  colnames(df)[colnames(df) == "adj.P.Val"] <- "FDR"
-  p <- plotVolcano(df = df, text.size = 12, sig = 0.05,log.base = 10,anno = NULL, 
-                        xlim_min = -10,  xlim_max = 10, padding = 0.5,
+  p <- plotVolcano_new(df = df, text.size = 12, sig = 0.05,log.base = 10,anno = NULL, 
+                        xlim_min = -10,  xlim_max = 10, ylim_max = 6, padding = 0.5,
                         colors = c(yellow,red,grey),
                         text_color = c("black","white") )
   p <- p + ggtitle(i) + theme(title=element_text(size=12), legend.position = "none")
@@ -70,10 +69,9 @@ for(i in dea.names){
 }
 
 df1 <- rowData(se)[["DEA.9v0"]]
-colnames(df1)[colnames(df1) == "adj.P.Val"] <- "FDR"
-p1 <- plotVolcano(df = df1, text.size = 12, sig = 0.05,
+p1 <- plotVolcano_new(df = df1, text.size = 12, sig = 0.05,
                    log.base = 10,anno = NULL, 
-                        xlim_min = -10,  xlim_max = 10, padding = 0.5,
+                        xlim_min = -10,  xlim_max = 10, ylim_max = 6, padding = 0.5,
                         colors = c(yellow,red,grey),
                         text_color = c("black","white") )
 ```

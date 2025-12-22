@@ -22,7 +22,7 @@ suppressPackageStartupMessages({
   library(readxl)
   library(enrichMiR)
   library(stringr)
-})})})
+})
 ```
 
 
@@ -34,8 +34,8 @@ ancols <- list(diff=c( "p1"="#3F3F3F",
                        "p4" = "#A1A1A1"
 ) )
 
-heatcol = viridis(255)
-heatcol <- c("#2EBCD1","#252525","#D1432E")
+# heatcol = inferno(255)
+# heatcol <- c("#2EBCD1","#252525","#D1432E")
 heatcol <- c("#4B0C6B","#CF4446","#FFAD33")
 ```
 
@@ -46,6 +46,7 @@ heatcol <- c("#4B0C6B","#CF4446","#FFAD33")
 se <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
 se2 <- se[,se$condition != "pLNA-3943"]
 row.names(se2) <- sapply(strsplit(row.names(se2),"\\."),"[",2)
+se2$diff <- as.factor(se2$diff)
 ```
 
 
@@ -60,29 +61,44 @@ dea1229.sig05 <- dea1229[dea1229$FDR < 0.5,]
 length(dea1229.sig[dea1229.sig$logFC > 0,"names"])
 dea1229.sig <- dea1229.sig[order(dea1229.sig$FDR),]
 row.names(dea1229.sig) <- sapply(strsplit(row.names(dea1229.sig),"\\."),"[",2)
-
-
 ```
+
+
 ```{r}
 deaTop30 <- row.names(dea1229.sig[1:30,])
 
-png("../Figure_Output/Heatmaps/Expl_1229_sig_Top30.png", width=8.5, height=6, units="in", res=300)
-sechm::sechm(se2, deaTop30 , assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE, show_rownames = TRUE, anno_colors = ancols, hmcols = heatcol, annocol_title_side=NA, do.scale = TRUE,sortRowsOn=NULL, cluster_rows=FALSE)
+pdf("../Figure_Output/Heatmaps/Expl_1229_sig_Top30.pdf", width=8.5, height=6)
+sechm::sechm(se2, deaTop30 , assayName ="corrected", top_annotation="diff", gaps_at="condition" ,breaks=TRUE, show_rownames = TRUE, anno_colors = ancols, 
+             hmcols = heatcol, annocol_title_side=NA, do.scale = TRUE, sortRowsOn=NULL, cluster_rows=FALSE, 
+             name = "scaled\nexpression", row_title = "pLNA-1229: Top 30 sig. genes")
 dev.off()
+```
+
+```{r}
+#Source data Fig. 4b
+ll_RNA_4b <- as.data.frame(assays(se2)$corrected)
+ll_RNA_4b <- ll_RNA_4b[deaTop30,]
+write.csv(ll_RNA_4b,file = "../../../../12_SourceData/Fig4/Fig_4b.csv")
+```
+
+```{r}
+#Source data, additional info
+ll_info <- colData(se2)
+write.csv(ll_info,file = "../../../../12_SourceData/Fig4/Fig_4_info.csv")
 ```
 
 
 
 ```{r}
-dea1229.sigup <- dea1229[dea1229$PValue < 0.05 & dea1229$logFC > 0,]
-row.names(dea1229.sigup) <- sapply(strsplit(row.names(dea1229.sigup),"\\."),"[",2)
-
-se3 <- se2[,se2$condition %in% c("pLNA-Ctrl","pLNA-1229")]
-
-png("../Figure_Output/Heatmaps/Expl_1229_sig_up.png", width=9, height=7, units="in", res=300)
-sechm::sechm(se2, row.names(dea1229.sigup) , assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE, show_rownames = FALSE, anno_colors = ancols, hmcols = heatcol, annocol_title_side=NA, do.scale = TRUE,sortRowsOn=NULL, cluster_rows=FALSE, 
-             name = "scaled\nexpression", row_title = "pLNA-1229: p.value < 0.05 & logFC > 0")
-dev.off()
+# dea1229.sigup <- dea1229[dea1229$PValue < 0.05 & dea1229$logFC > 0,]
+# row.names(dea1229.sigup) <- sapply(strsplit(row.names(dea1229.sigup),"\\."),"[",2)
+# 
+# se3 <- se2[,se2$condition %in% c("pLNA-Ctrl","pLNA-1229")]
+# 
+# png("../Figure_Output/Heatmaps/Expl_1229_sig_up.png", width=9, height=7, units="in", res=300)
+# sechm::sechm(se2, row.names(dea1229.sigup) , assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE, show_rownames = FALSE, anno_colors = ancols, hmcols = heatcol, annocol_title_side=NA, do.scale = TRUE,sortRowsOn=NULL, cluster_rows=FALSE, 
+#              name = "scaled\nexpression", row_title = "pLNA-1229: p.value < 0.05 & logFC > 0")
+# dev.off()
 ```
 
 
@@ -92,27 +108,39 @@ dev.off()
 ```{r}
 MT_genes1 <- row.names(se2)[grep(pattern = "MT-",row.names(se2))]
 MT_genes2 <- row.names(se2)[grep(pattern = "NDU",row.names(se2))]
-se2$diff <- as.factor(se2$diff)
 
-png("../Figure_Output/Heatmaps/Mitochondrial_Genes.png", width=9, height=7, units="in", res=300)
-sechm::sechm(se2, MT_genes1, assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition", breaks=FALSE, do.scale = TRUE, show_rownames = TRUE, anno_colors = ancols, hmcols = heatcol, annocol_title_side=NA, name = "scaled\nexpression")
+
+pdf("../Figure_Output/Heatmaps/Mitochondrial_Genes.pdf", width=9, height=7)
+sechm::sechm(se2, MT_genes1, assayName ="corrected", top_annotation="diff", gaps_at="condition", breaks=FALSE, do.scale = TRUE, show_rownames = TRUE, anno_colors = ancols, hmcols = heatcol, annocol_title_side=NA, , name = "scaled\nexpression")
 dev.off()
+```
 
-png("../Figure_Output/Heatmaps/Mitochondrial_Genes_defense.png", width= 8.5, height=6, units="in", res=300)
-sechm::sechm(se2, MT_genes1, assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition", breaks=FALSE, do.scale = TRUE, show_rownames = TRUE, anno_colors = ancols, hmcols = heatcol, annocol_title_side=NA)
-dev.off()
+```{r}
+#Source data Fig. 4d
+ll_RNA_4d <- as.data.frame(assays(se2)$corrected)
+ll_RNA_4d <- ll_RNA_4d[MT_genes1,]
+write.csv(ll_RNA_4d,file = "../../../../12_SourceData/Fig4/Fig_4d.csv")
+```
 
+
+
+
+```{r}
 ls <- list("Mitochondria encoded"= MT_genes1, "Complex I - Nuclear encoded" = MT_genes2)
 
 png("../Figure_Output/Heatmaps/Mitochondrial_Genes_withNuclear.png", width=9, height=16, units="in", res=300)
-sechm::sechm(se2, ls , assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition", breaks=TRUE, show_rownames = TRUE, anno_colors = ancols, name = "logFC",
+sechm::sechm(se2, ls , assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition", breaks=TRUE, show_rownames = TRUE, anno_colors = ancols, 
+             name = "logFC", annocol_title_side=NA,
              hmcols = heatcol, annorow_title_side = "left")
 dev.off()
 ```
 
+
+
+
 #TFAM targets
 ```{r}
-collecTRI.regulons <- readRDS("../../longRNA_R/TF_analysis/collecTRI.regulons.rds")
+collecTRI.regulons <- readRDS("../../data/collecTRI.regulons.rds")
 e <- collecTRI.regulons[collecTRI.regulons$source == "TFAM",]
 
 
@@ -127,11 +155,11 @@ dev.off()
 
 #Autophagy genes
 ```{r}
-AT_genes <- grep(pattern = "ATG",row.names(se))
-
-png("../Figure_Output/Heatmaps/Autophagy_Genes.png", width=9, height=6, units="in", res=300)
-sechm::sechm(se, AT_genes, assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE, show_rownames = TRUE)
-dev.off()
+# AT_genes <- grep(pattern = "ATG",row.names(se))
+# 
+# png("../Figure_Output/Heatmaps/Autophagy_Genes.png", width=9, height=6, units="in", res=300)
+# sechm::sechm(se, AT_genes, assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE, show_rownames = TRUE)
+# dev.off()
 ```
 
 
@@ -145,7 +173,8 @@ dea181c.sig05 <- dea181c[dea181c$FDR < 0.5,]
 row.names(dea181c.sig) <- sapply(strsplit(row.names(dea181c.sig),"\\."),"[",2)
 
 png("../Figure_Output/Heatmaps/Expl_181c_sig.png", width=9, height=8, units="in", res=300)
-sechm::sechm(se2, row.names(dea181c.sig), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE, show_rownames = TRUE, anno_colors = ancols, hmcols = heatcol, annocol_title_side=NA, name = "logFC", 
+sechm::sechm(se2, row.names(dea181c.sig), assayName ="corrected", top_annotation="diff", gaps_at="condition" ,breaks=TRUE, show_rownames = TRUE, 
+             do.scale = TRUE, anno_colors = ancols, hmcols = heatcol, annocol_title_side=NA, name = "scaled\nexpression", 
              row_title = "pLNA-181c: FDR < 0.05") 
 dev.off()
 ```
@@ -155,14 +184,14 @@ dev.off()
 
 #3943 Heatmaps
 ```{r}
-dea3943 <- rowData(se)[["DEA.pLNA-3943"]]
-dea3943$names <- row.names(dea3943)
-dea3943.sig <- dea3943[dea3943$FDR < 0.1,]
-
-png("../Figure_Output/Heatmaps/Expl_3943_sig.png", width=9, height=3, units="in", res=300)
-sechm::sechm(se, row.names(dea3943.sig), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE, show_rownames = TRUE, do.scale = TRUE, anno_colors = ancols,
-             hmcols = heatcol, annocol_title_side=NA) 
-dev.off()
+# dea3943 <- rowData(se)[["DEA.pLNA-3943"]]
+# dea3943$names <- row.names(dea3943)
+# dea3943.sig <- dea3943[dea3943$FDR < 0.1,]
+# 
+# png("../Figure_Output/Heatmaps/Expl_3943_sig.png", width=9, height=3, units="in", res=300)
+# sechm::sechm(se, row.names(dea3943.sig), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE, show_rownames = TRUE, do.scale = TRUE, anno_colors = ancols,
+#              hmcols = heatcol, annocol_title_side=NA) 
+# dev.off()
 ```
 
 
@@ -174,33 +203,34 @@ MC_raw <- read_excel("../../data/230919_Human.MitoCarta3.0.xls",
 MC_genes <- MC_raw$Symbol
 
 
-png("../Figure_Output/Heatmaps/MitoCarta_Genes_all.png", width=9, height=11, units="in", res=300)
-sechm::sechm(se2, MC_genes , assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition", breaks=TRUE, show_rownames = FALSE, anno_colors = ancols,
-             hmcols = heatcol, annorow_title_side = "left", annocol_title_side=NA, row_title = "MitoCarta 3.0 (all)")
-dev.off()
+# png("../Figure_Output/Heatmaps/MitoCarta_Genes_all.png", width=9, height=11, units="in", res=300)
+# sechm::sechm(se2, MC_genes , assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition", breaks=TRUE, show_rownames = FALSE, anno_colors = ancols,
+#              hmcols = heatcol, annorow_title_side = "left", annocol_title_side=NA, row_title = "MitoCarta 3.0 (all)")
+# dev.off()
 
 
 dea1229.sig05$Symbol <- sapply(str_split(dea1229.sig05$names,"\\."),"[",2)
 MC_genes_sig <- MC_genes[MC_genes %in% dea1229.sig05$Symbol]
 MC_raw_sig <- MC_raw[MC_raw$Symbol %in% MC_genes_sig,]
 
-png("../Figure_Output/Heatmaps/MitoCarta_Genes_FDR05.png", width=9, height=8, units="in", res=300)
-sechm::sechm(se2, MC_genes_sig , assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition", breaks=TRUE, show_rownames = TRUE, anno_colors = ancols,
-             hmcols = heatcol, annorow_title_side = "left", annocol_title_side=NA, row_title = "MitoCarta 3.0 (pLNA-1229 FDR < 0.5)")
-dev.off()
+# png("../Figure_Output/Heatmaps/MitoCarta_Genes_FDR05.png", width=9, height=8, units="in", res=300)
+# sechm::sechm(se2, MC_genes_sig , assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition", breaks=TRUE, show_rownames = TRUE, anno_colors = ancols,
+#              hmcols = heatcol, annorow_title_side = "left", annocol_title_side=NA, row_title = "MitoCarta 3.0 (pLNA-1229 FDR < 0.5)")
+# dev.off()
 
 png("../Figure_Output/Heatmaps/MitoCarta_Genes_FDR05_scaled.png", width=9, height=8, units="in", res=300)
-sechm::sechm(se2, MC_genes_sig , assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition", do.scale = TRUE, breaks=TRUE, show_rownames = TRUE, anno_colors = ancols,name = "scaled\nexpression", 
+sechm::sechm(se2, MC_genes_sig , assayName ="corrected", top_annotation="diff", gaps_at="condition", do.scale = TRUE, breaks=TRUE, 
+             show_rownames = TRUE, anno_colors = ancols,name = "scaled\nexpression", 
              hmcols = heatcol, annorow_title_side = "left", annocol_title_side=NA, row_title = "MitoCarta 3.0 (pLNA-1229 FDR < 0.5)")
 dev.off()
 
-dea1229.sig$Symbol <- sapply(str_split(dea1229.sig$names,"\\."),"[",2)
-MC_genes_sig2 <- MC_genes[MC_genes %in% dea1229.sig$Symbol]
-
-png("../Figure_Output/Heatmaps/MitoCarta_Genes_FDR005_scaled.png", width=9, height=8, units="in", res=300)
-sechm::sechm(se2, MC_genes_sig2 , assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition", do.scale = TRUE, breaks=TRUE, show_rownames = TRUE, anno_colors = ancols,
-             hmcols = heatcol, annorow_title_side = "left", annocol_title_side=NA, row_title = "MitoCarta 3.0 (pLNA-1229 FDR < 0.05)")
-dev.off()
+# dea1229.sig$Symbol <- sapply(str_split(dea1229.sig$names,"\\."),"[",2)
+# MC_genes_sig2 <- MC_genes[MC_genes %in% dea1229.sig$Symbol]
+# 
+# png("../Figure_Output/Heatmaps/MitoCarta_Genes_FDR005_scaled.png", width=9, height=8, units="in", res=300)
+# sechm::sechm(se2, MC_genes_sig2 , assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition", do.scale = TRUE, breaks=TRUE, show_rownames = TRUE, anno_colors = ancols,
+#              hmcols = heatcol, annorow_title_side = "left", annocol_title_side=NA, row_title = "MitoCarta 3.0 (pLNA-1229 FDR < 0.05)")
+# dev.off()
 ```
 
 
@@ -214,8 +244,9 @@ dd <- dd$`cGAS/STING signaling pathway`
 
 ```{r}
 png("../Figure_Output/Heatmaps/cGAS.png", width=9, height=7, units="in", res=300)
-sechm::sechm(se2, dd , assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE, show_rownames = TRUE, anno_colors = ancols, hmcols = heatcol, annocol_title_side=NA, do.scale = FALSE,sortRowsOn=NULL, cluster_rows=FALSE, 
-             name = "scaled\nexpression", row_title = "Genes in the GO:0140896 - cGAS/STING signaling pathway")
+sechm::sechm(se2, dd , assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE, show_rownames = TRUE, anno_colors = ancols, 
+             hmcols = heatcol, annocol_title_side=NA, do.scale = FALSE,sortRowsOn=NULL, cluster_rows=FALSE, 
+             name = "logFC", row_title = "Genes in the GO:0140896 - cGAS/STING signaling pathway")
 dev.off()
 ```
 

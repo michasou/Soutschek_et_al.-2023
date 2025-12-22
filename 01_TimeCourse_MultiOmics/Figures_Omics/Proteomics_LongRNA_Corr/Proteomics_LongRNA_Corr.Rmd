@@ -308,7 +308,7 @@ sig.neu.1000 <- rowData(se_RNA_red)[RNA_sig_1000.neu,]$symbol
 
 ##Heatmaps
 
-#Fold change with respect to iPSC stage
+#Fold change with respect to neuronal stage
 ```{r}
 a <- crossHm(list(RNA = se_RNA_agg, PROTEIN = se_PROT_agg), assayName = "log2FC.neur", features = sig.neu.1000, do.scale = TRUE, top_annotation = "Day", hmcols = heatcol,anno_colors = ancols)
 
@@ -328,15 +328,28 @@ dev.off()
 
 
 ```{r}
-pdf("./Figure_Output/RNA_Prot_heat_all_top1000.pdf", width=13, height=6)
+pdf("./Figure_Output/RNA_Prot_heat_all_top1000.pdf", width=11.5, height=6)
 a
 dev.off()
 ```
 
 
+```{r}
+#Source data Fig. 1e
+ll_RNA <- as.data.frame(assays(se_RNA_agg)$log2FC.neur)
+ll_RNA <- ll_RNA[sig.neu.1000,]
+ll_RNA$type <- "RNA"
+
+ll_Protein <- as.data.frame(assays(se_PROT_agg)$log2FC.neur)
+ll_Protein <- ll_Protein[sig.neu.1000,]
+ll_Protein$type <- "Protein"
+
+ll <- rbind(ll_RNA,ll_Protein)
+write.csv(ll,file = "../../../12_SourceData/Fig1/Fig_1e.csv")
+```
 
 
-## Fold change with respect to first neural stage
+## Neuronal days
 ```{r}
 #Filter neuronal days
 se_RNA_agg2 <- se_RNA_agg[,se_RNA_agg$Day != 0]

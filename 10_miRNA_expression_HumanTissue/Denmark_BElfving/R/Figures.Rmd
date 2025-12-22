@@ -68,6 +68,16 @@ saveRDS(hip_long,"./HIP.rds")
 hip_long <- readRDS("./HIP.rds")
 ```
 
+```{r}
+# Determine n
+number_samples_hip <- hip_long %>%
+  group_by(Diagnosis,Sex,miRNA) %>%
+  summarise(
+    number_n = n(),
+  ) %>%
+  ungroup()
+```
+
 
 ```{r}
 p1 <- ggplot(hip_long,aes(x = miRNA, y = value)) +
@@ -146,6 +156,17 @@ saveRDS(pfc_long,"./PFC.rds")
 
 ```{r}
 pfc_long <- readRDS("./PFC.rds")
+```
+
+
+```{r}
+# Determine n
+number_samples_pfc <- pfc_long %>%
+  group_by(Diagnosis,Sex,miRNA) %>%
+  summarise(
+    number_n = n(),
+  ) %>%
+  ungroup()
 ```
 
 

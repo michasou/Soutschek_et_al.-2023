@@ -55,7 +55,6 @@ ag_se33 <- ag_se[ag_se$Day == "Day33",]
 
 
 
-
 #statistic length means
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE, results=FALSE}
 mod_l1 <- MASS::rlm(x ~ Condition + Differentiation,ag_le21,psi = psi.huber)

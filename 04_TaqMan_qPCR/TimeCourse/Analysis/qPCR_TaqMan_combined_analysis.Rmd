@@ -77,6 +77,7 @@ p2 <- ggplot(data.nU6.plotU6.2,aes(x = day,y=normU6.exp)) + geom_boxplot() + geo
   guides(color=guide_legend(title="Differentiation"))
 
 ggsave("./Normlized_miR181_miR1229.png", p2, width = 8, height = 4)
+ggsave("./Normlized_miR181_miR1229.pdf", p2, width = 8, height = 4)
 
 
 
@@ -109,5 +110,9 @@ ggsave("./miR_1229.png", p4, width = 6.5, height = 4.5)
 ```
 
 
+```{r}
+#Source data Fig. 3a)
+write.csv(data.nU6.plotU6.2,file = "../../../12_SourceData/Fig3/Fig_3a.csv")
+```
 
 

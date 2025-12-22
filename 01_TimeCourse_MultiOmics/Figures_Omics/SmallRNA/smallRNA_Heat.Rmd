@@ -90,10 +90,27 @@ png("Figure_Output/Heat/smallRNA_Heat_miRNAs_alldays_normDay9.png", width=7, hei
 a
 dev.off()
 
-png("Figure_Output/Heat/smallRNA_Heat_miRNAs_alldays_normDay9_defense.png", width=6, height=4.5, units="in", res=300)
+pdf("Figure_Output/Heat/smallRNA_Heat_miRNAs_alldays_normDay9.pdf", width=7, height=6)
 a
 dev.off()
 
+png("Figure_Output/Heat/smallRNA_Heat_miRNAs_alldays_normDay9_defense.png", width=6, height=4.5, units="in", res=300)
+a
+dev.off()
+```
+
+
+```{r}
+#Source data Fig. 2a
+ll_RNA <- as.data.frame(assays(se_mi)$log2FC.neur)
+ll_RNA <- ll_RNA[sig_mi,]
+write.csv(ll_RNA,file = "../../../12_SourceData/Fig2/Fig_2a.csv")
+```
+
+
+
+
+```{r}
 # Top 15 candidates miR neuronal
 res.neu.miR <- res.neu[row.names(res.neu) %in% row.names(se_mi),]
 top20.neu.miR <- row.names(head(res.neu.miR[order(res.neu.miR$FDR),],10))
@@ -115,7 +132,6 @@ a <- sechm(se_mi, top20.neu.miR.down,  top_annotation =c("day"), assayName = "lo
 png("Figure_Output/Heat/smallRNA_miRNA_alldays_normDay9_Top35_neur_down.png", width=5.5, height=5, units="in", res=300)
 a
 dev.off()
-
 ```
 
 

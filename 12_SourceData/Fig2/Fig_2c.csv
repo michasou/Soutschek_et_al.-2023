@@ -1,0 +1,169 @@
+"","day","logcpm","conservation","feature","experiment"
+"SC1_0","0",3.84,"Human specific
+miRNA","hsa-miR-4745-5p","s1"
+"SC1_0.1","0",6.15,"Human specific
+miRNA","hsa-miR-941","s1"
+"SC1_0.2","0",1.63,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s1"
+"SC1_0.3","0",0,"Human miRNA
+with seed mt.","hsa-miR-3141","s1"
+"SC2_0","0",4.6,"Human specific
+miRNA","hsa-miR-4745-5p","s2"
+"SC2_0.1","0",6.49,"Human specific
+miRNA","hsa-miR-941","s2"
+"SC2_0.2","0",0,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s2"
+"SC2_0.3","0",0,"Human miRNA
+with seed mt.","hsa-miR-3141","s2"
+"SC3_0","0",4.15,"Human specific
+miRNA","hsa-miR-4745-5p","s3"
+"SC3_0.1","0",7.2,"Human specific
+miRNA","hsa-miR-941","s3"
+"SC3_0.2","0",0,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s3"
+"SC3_0.3","0",0,"Human miRNA
+with seed mt.","hsa-miR-3141","s3"
+"SC1_9","9",0.802,"Human specific
+miRNA","hsa-miR-4745-5p","s1"
+"SC1_9.1","9",6.34,"Human specific
+miRNA","hsa-miR-941","s1"
+"SC1_9.2","9",0.802,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s1"
+"SC1_9.3","9",2.76,"Human miRNA
+with seed mt.","hsa-miR-3141","s1"
+"SC2_9","9",0,"Human specific
+miRNA","hsa-miR-4745-5p","s2"
+"SC2_9.1","9",6.78,"Human specific
+miRNA","hsa-miR-941","s2"
+"SC2_9.2","9",0.958,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s2"
+"SC2_9.3","9",1.44,"Human miRNA
+with seed mt.","hsa-miR-3141","s2"
+"SC3_9","9",0.443,"Human specific
+miRNA","hsa-miR-4745-5p","s3"
+"SC3_9.1","9",6.81,"Human specific
+miRNA","hsa-miR-941","s3"
+"SC3_9.2","9",0.443,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s3"
+"SC3_9.3","9",1.7,"Human miRNA
+with seed mt.","hsa-miR-3141","s3"
+"SC1_15","15",1.91,"Human specific
+miRNA","hsa-miR-4745-5p","s1"
+"SC1_15.1","15",7.03,"Human specific
+miRNA","hsa-miR-941","s1"
+"SC1_15.2","15",1.07,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s1"
+"SC1_15.3","15",1.7,"Human miRNA
+with seed mt.","hsa-miR-3141","s1"
+"SC2_15","15",0,"Human specific
+miRNA","hsa-miR-4745-5p","s2"
+"SC2_15.1","15",6.51,"Human specific
+miRNA","hsa-miR-941","s2"
+"SC2_15.2","15",1.12,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s2"
+"SC2_15.3","15",1.64,"Human miRNA
+with seed mt.","hsa-miR-3141","s2"
+"SC3_15","15",2.33,"Human specific
+miRNA","hsa-miR-4745-5p","s3"
+"SC3_15.1","15",6.85,"Human specific
+miRNA","hsa-miR-941","s3"
+"SC3_15.2","15",1.05,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s3"
+"SC3_15.3","15",2.13,"Human miRNA
+with seed mt.","hsa-miR-3141","s3"
+"SC1_21","21",0.574,"Human specific
+miRNA","hsa-miR-4745-5p","s1"
+"SC1_21.1","21",6.62,"Human specific
+miRNA","hsa-miR-941","s1"
+"SC1_21.2","21",1.58,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s1"
+"SC1_21.3","21",2.33,"Human miRNA
+with seed mt.","hsa-miR-3141","s1"
+"SC2_21","21",0,"Human specific
+miRNA","hsa-miR-4745-5p","s2"
+"SC2_21.1","21",6.54,"Human specific
+miRNA","hsa-miR-941","s2"
+"SC2_21.2","21",2.79,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s2"
+"SC2_21.3","21",1.4,"Human miRNA
+with seed mt.","hsa-miR-3141","s2"
+"SC3_21","21",0.705,"Human specific
+miRNA","hsa-miR-4745-5p","s3"
+"SC3_21.1","21",6.68,"Human specific
+miRNA","hsa-miR-941","s3"
+"SC3_21.2","21",1.4,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s3"
+"SC3_21.3","21",1.63,"Human miRNA
+with seed mt.","hsa-miR-3141","s3"
+"SC1_27","27",0,"Human specific
+miRNA","hsa-miR-4745-5p","s1"
+"SC1_27.1","27",6.8,"Human specific
+miRNA","hsa-miR-941","s1"
+"SC1_27.2","27",1.7,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s1"
+"SC1_27.3","27",2.41,"Human miRNA
+with seed mt.","hsa-miR-3141","s1"
+"SC2_27","27",0.449,"Human specific
+miRNA","hsa-miR-4745-5p","s2"
+"SC2_27.1","27",6.29,"Human specific
+miRNA","hsa-miR-941","s2"
+"SC2_27.2","27",1.98,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s2"
+"SC2_27.3","27",1.71,"Human miRNA
+with seed mt.","hsa-miR-3141","s2"
+"SC3_27","27",0.481,"Human specific
+miRNA","hsa-miR-4745-5p","s3"
+"SC3_27.1","27",6.53,"Human specific
+miRNA","hsa-miR-941","s3"
+"SC3_27.2","27",2.13,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s3"
+"SC3_27.3","27",0.481,"Human miRNA
+with seed mt.","hsa-miR-3141","s3"
+"SC1_33","33",0,"Human specific
+miRNA","hsa-miR-4745-5p","s1"
+"SC1_33.1","33",7.22,"Human specific
+miRNA","hsa-miR-941","s1"
+"SC1_33.2","33",2.57,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s1"
+"SC1_33.3","33",1.1,"Human miRNA
+with seed mt.","hsa-miR-3141","s1"
+"SC2_33","33",0.786,"Human specific
+miRNA","hsa-miR-4745-5p","s2"
+"SC2_33.1","33",6.55,"Human specific
+miRNA","hsa-miR-941","s2"
+"SC2_33.2","33",2.02,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s2"
+"SC2_33.3","33",1.85,"Human miRNA
+with seed mt.","hsa-miR-3141","s2"
+"SC3_33","33",1.33,"Human specific
+miRNA","hsa-miR-4745-5p","s3"
+"SC3_33.1","33",6.73,"Human specific
+miRNA","hsa-miR-941","s3"
+"SC3_33.2","33",1.99,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s3"
+"SC3_33.3","33",1.77,"Human miRNA
+with seed mt.","hsa-miR-3141","s3"
+"SC1_40","40",1.08,"Human specific
+miRNA","hsa-miR-4745-5p","s1"
+"SC1_40.1","40",6.49,"Human specific
+miRNA","hsa-miR-941","s1"
+"SC1_40.2","40",1.82,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s1"
+"SC1_40.3","40",2.95,"Human miRNA
+with seed mt.","hsa-miR-3141","s1"
+"SC2_40","40",0,"Human specific
+miRNA","hsa-miR-4745-5p","s2"
+"SC2_40.1","40",6.48,"Human specific
+miRNA","hsa-miR-941","s2"
+"SC2_40.2","40",2.62,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s2"
+"SC2_40.3","40",1.96,"Human miRNA
+with seed mt.","hsa-miR-3141","s2"
+"SC3_40","40",0,"Human specific
+miRNA","hsa-miR-4745-5p","s3"
+"SC3_40.1","40",6.86,"Human specific
+miRNA","hsa-miR-941","s3"
+"SC3_40.2","40",1.65,"Human miRNA
+with seed mt.","hsa-miR-1229-3p","s3"
+"SC3_40.3","40",2.44,"Human miRNA
+with seed mt.","hsa-miR-3141","s3"

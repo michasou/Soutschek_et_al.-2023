@@ -7,14 +7,16 @@ output: html_document
 
 
 ```{r}
-library(readxl)
-library(scales)
-library(ggsci)
-library(ggplot2)
-library(MASS)
-library(emmeans)
-library(cowplot)
-library(rstatix)
+suppressPackageStartupMessages({
+  library(readxl)
+  library(scales)
+  library(ggsci)
+  library(ggplot2)
+  library(MASS)
+  library(emmeans)
+  library(cowplot)
+  library(rstatix)
+})
 ```
 
 
@@ -158,10 +160,14 @@ p1 <- ggplot(res_plot, aes(x = Cond, y = Val)) +
   guides(color = guide_legend(title = "Diff.")) +
   scale_x_discrete(labels=c("pLNA-\nCtrl","pLNA-\n1229"))
 
-ggsave2("./Lactate.png",p1, width = 6,height = 5, bg = "white")
+ggsave2("./Lactate.pdf",p1, width = 6,height = 5, bg = "white")
 ```
 
 
+```{r}
+#Source data Fig. 5h)
+write.csv(res_plot,"../../12_SourceData/Fig5/Fig_5h.csv")
+```
 
 
 

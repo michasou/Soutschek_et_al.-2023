@@ -64,13 +64,13 @@ ag_s_mean <- aggregate(ag_s$x,ag_s[,c("Diff","sample")], FUN=mean)
 ag_s_mean_ctrl <- ag_s_mean[ag_s_mean$sample == "pLNA-Ctrl",]
 colnames(ag_s_mean_ctrl)[3] <- "Ctrl"
 ag_s <- merge(ag_s,ag_s_mean_ctrl[,c("Diff","Ctrl")],by = c("Diff"), all.x = TRUE)
-ag_s$norm <- ag_s$x / ag_s$C
+ag_s$norm <- ag_s$x / ag_s$Ctrl
 ```
 
 
 #statistics
 ```{r}
-mod_s1 <- lm(x ~ sample + Diff,ag_s)
+mod_s1 <- rlm(x ~ sample + Diff,ag_s_mean)
 summary(mod_s1)
 s1 <- emmeans(mod_s1, trt.vs.ctrl ~ sample , ref="pLNA-Ctrl")
 s1
@@ -138,31 +138,31 @@ ag_p_mean <- aggregate(ag_p$x,ag_p[,c("Diff","sample")], FUN=mean)
 ag_p_mean_ctrl <- ag_p_mean[ag_p_mean$sample == "pLNA-Ctrl",]
 colnames(ag_p_mean_ctrl)[3] <- "Ctrl"
 ag_p <- merge(ag_p,ag_p_mean_ctrl[,c("Diff","Ctrl")],by = c("Diff"), all.x = TRUE)
-ag_p$norm <- ag_p$x / ag_p$C
+ag_p$norm <- ag_p$x / ag_p$Ctrl
 ```
 
 
 #statistics
 ```{r}
-mod_s1 <- lm(x ~ sample + Diff,ag_p)
-summary(mod_s1)
-s1 <- emmeans(mod_s1, trt.vs.ctrl ~ sample , ref="pLNA-Ctrl")
-s1
+mod_s2 <- rlm(x ~ sample + Diff,ag_p_mean)
+summary(mod_s2)
+s2 <- emmeans(mod_s2, trt.vs.ctrl ~ sample , ref="pLNA-Ctrl")
+s2
 
 
-s1_df <- as.data.frame(s1$contrasts)
-s1_df$group1 <- "pLNA-Ctrl"
-s1_df$group2 <- s1_df$contrast
-s1_df$group2 <- gsub("\\ - \\(pLNA-Ctrl\\)","",s1_df$group2)
-s1_df$group2 <- gsub("\\(", "",s1_df$group2)
-s1_df$group2 <- gsub("\\)", "",s1_df$group2)
-s1_df <- add_significance(s1_df,p.col = "p.value")
-s1_df$p.value.signif <- round(s1_df$p.value,2)
+s2_df <- as.data.frame(s2$contrasts)
+s2_df$group1 <- "pLNA-Ctrl"
+s2_df$group2 <- s2_df$contrast
+s2_df$group2 <- gsub("\\ - \\(pLNA-Ctrl\\)","",s2_df$group2)
+s2_df$group2 <- gsub("\\(", "",s2_df$group2)
+s2_df$group2 <- gsub("\\)", "",s2_df$group2)
+s2_df <- add_significance(s2_df,p.col = "p.value")
+s2_df$p.value.signif <- round(s2_df$p.value,2)
 
 #add y_position
 y_pos <- max(ag_p[,"norm"])
 
-s1_df$y_pos <- y_pos*1.1
+s2_df$y_pos <- y_pos*1.1
 ```
 
 
@@ -183,7 +183,7 @@ p2 <- ggplot(ag_p,aes(x = sample, y = norm)) +
   ) +
   coord_cartesian(ylim = c(0,1.5)) +
   ggsignif::geom_signif(
-    data = s1_df,
+    data = s2_df,
     aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
     textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
   ) +

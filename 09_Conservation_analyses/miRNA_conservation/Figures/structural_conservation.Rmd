@@ -75,7 +75,7 @@ df_rnaz_pairwise_filtered <- df_rnaz_pairwise %>%
 
 ```{r}
 ## load expression data
-se_smallRNA <- readRDS("../../../TimeCourse_GRCh38.p10_Ens91/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+se_smallRNA <- readRDS("../../../01_TimeCourse_MultiOmics/smallRNA/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
 
 ## associate expression of miRNAs with precursors
 grl <- rtracklayer::import("../data/mirnas/hsa.gff3")
@@ -146,7 +146,8 @@ p_primates <- ggplot(df_plot_primates, aes(x = Mean.pairwise.identity,
   geom_smooth(method = "lm", se = FALSE, linetype = "dashed", color = "darkgrey") +
   geom_abline(slope = 0.01,intercept = 0, linetype = "dashed", color = "black") +
   geom_point() +
-  geom_point(data = df_plot_primates[df_plot_primates$seed_mismatch == "TRUE",], shape = 1, size = 4) +
+  geom_point(data = df_plot_primates[df_plot_primates$seed_mismatch == "TRUE",], shape = 1, size = 4,
+             show.legend = FALSE) +
   scale_color_manual(values = colors) +
   ggrepel::geom_text_repel(aes(label = ifelse(Structure.conservation.index < 0.9 | seed_mismatch == "TRUE", miRNA, "")), size = 3, show.legend = F, max.overlaps = Inf) +
   ggtitle("Structural conservation among all Primates") +
@@ -161,7 +162,8 @@ p_pairwise <- ggplot(df_plot_pairwise, aes(x = Mean.pairwise.identity,
   geom_smooth(method = "lm", se = FALSE, linetype = "dashed", color = "darkgrey") +
   geom_abline(slope = 0.01,intercept = 0, linetype = "dashed", color = "black") +
   geom_point(aes(color = seed_mismatch)) +
-  geom_point(data = df_plot_pairwise[df_plot_pairwise$seed_mismatch == "TRUE",], aes(color = seed_mismatch), shape = 1, size = 4) +
+  geom_point(data = df_plot_pairwise[df_plot_pairwise$seed_mismatch == "TRUE",], aes(color = seed_mismatch), shape = 1, size = 4,
+             show.legend = FALSE) +
   scale_color_manual(values = colors) +
   ggrepel::geom_text_repel(aes(label = ifelse(Structure.conservation.index < 0.975 | seed_mismatch == "TRUE", miRNA, "")), size = 3, show.legend = F, max.overlaps = 10, point.padding = 0.5) +
   ggtitle("Structural conservation pairwise versus human") +
@@ -183,7 +185,8 @@ p_pairwise2 <- ggplot(df_plot_pairwise, aes(x = Mean.pairwise.identity,
   geom_smooth(method = "lm", se = FALSE, linetype = "dashed", color = "darkgrey") +
   geom_abline(slope = 0.01,intercept = 0, linetype = "dashed", color = "black") +
   geom_point(aes(color = seed_mismatch)) +
-  geom_point(data = df_plot_pairwise[df_plot_pairwise$seed_mismatch == "TRUE",], aes(color = seed_mismatch), shape = 1, size = 4) +
+  geom_point(data = df_plot_pairwise[df_plot_pairwise$seed_mismatch == "TRUE",], aes(color = seed_mismatch), shape = 1, size = 4,
+             show.legend = FALSE) +
   scale_color_manual(values = colors) +
   ggrepel::geom_text_repel(aes(label = ifelse(Structure.conservation.index < 0.975 | seed_mismatch == "TRUE", miRNA, "")), size = 3, show.legend = F, max.overlaps = 10, point.padding = 0.5) +
   ggtitle("Structural conservation pairwise versus human") +
@@ -199,10 +202,15 @@ p_pairwise2 <- ggplot(df_plot_pairwise, aes(x = Mean.pairwise.identity,
 
 
 ggsave("./Figure_Output/structural_conservation_pairwise.png",p_pairwise2, width = 7, height = 4.5)
+ggsave("./Figure_Output/structural_conservation_pairwise.pdf",p_pairwise2, width = 7, height = 4.5)
 ```
 
 
 
+```{r}
+#Source data Fig. 2f
+write.csv(df_plot_pairwise,file = "../../../12_SourceData/Fig2/Fig_2f.csv")
+```
 
 
 

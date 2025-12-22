@@ -47,9 +47,6 @@ levels(res2$Condition) <- gsub("\\.", "\n", levels(res2$Condition))
 
 #stat
 
-
-
-
 ```{r}
 mod <- lm(value ~ Condition + Replicate,res2)
 s1 <- emmeans(mod, trt.vs.ctrl ~ Condition , ref="Human miR-1229\nCtrl PBS")
@@ -107,10 +104,15 @@ p1 <- ggplot(res2, aes(x = Condition, y = value)) +
   scale_x_discrete(labels=c("Ctrl.\nPBS","Human\nPBS","Chimp\nPBS",
                             "Ctrl.\nPBS","Human\nPBS","Chimp\nPBS"))
 
-ggsave2("./miRtron.png",p1, width = 6.5,height = 4, bg = "white")
+ggsave2("./miRtron.png",p1, width = 7,height = 4, bg = "white")
+ggsave2("./miRtron.pdf",p1, width = 7,height = 4, bg = "white")
 ```
 
 
+```{r}
+#Source data Fig. 2i)
+write.csv(res2,"../../../12_SourceData/Fig2/Fig_2i.csv")
+```
 
 
 

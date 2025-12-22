@@ -1,0 +1,37 @@
+"","Condition","Replicate","value","Precursor"
+"1","Human miR-1229
+human PBS","N1",0.101998142,"Human miR-1229"
+"2","Human miR-1229
+chimp PBS","N1",0.121427266,"Human miR-1229"
+"3","Chimp miR-1229
+human PBS","N1",0.12112443,"Chimp miR-1229"
+"4","Chimp miR-1229
+chimp PBS","N1",0.119091098,"Chimp miR-1229"
+"5","Human miR-1229
+Ctrl PBS","N1",0.116555708,"Human miR-1229"
+"6","Chimp miR-1229
+Ctrl PBS","N1",0.123864675,"Chimp miR-1229"
+"7","Human miR-1229
+human PBS","N2",0.101585401,"Human miR-1229"
+"8","Human miR-1229
+chimp PBS","N2",0.13203778,"Human miR-1229"
+"9","Chimp miR-1229
+human PBS","N2",0.126723418,"Chimp miR-1229"
+"10","Chimp miR-1229
+chimp PBS","N2",0.138998107,"Chimp miR-1229"
+"11","Human miR-1229
+Ctrl PBS","N2",0.148409001,"Human miR-1229"
+"12","Chimp miR-1229
+Ctrl PBS","N2",0.138998107,"Chimp miR-1229"
+"13","Human miR-1229
+human PBS","N3",0.10258267,"Human miR-1229"
+"14","Human miR-1229
+chimp PBS","N3",0.127053232,"Human miR-1229"
+"15","Chimp miR-1229
+human PBS","N3",0.13295463,"Chimp miR-1229"
+"16","Chimp miR-1229
+chimp PBS","N3",0.137294897,"Chimp miR-1229"
+"17","Human miR-1229
+Ctrl PBS","N3",0.15102016,"Human miR-1229"
+"18","Chimp miR-1229
+Ctrl PBS","N3",0.137294897,"Chimp miR-1229"

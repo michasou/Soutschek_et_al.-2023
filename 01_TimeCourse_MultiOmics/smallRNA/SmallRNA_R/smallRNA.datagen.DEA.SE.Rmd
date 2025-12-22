@@ -27,6 +27,9 @@ suppressPackageStartupMessages({
   library(SummarizedExperiment)
   library(SEtools)
 })
+
+source("../../../00_functions/dea.R")
+source("../../../00_functions/roundSE.R")
 ```
 
 
@@ -37,9 +40,9 @@ suppressPackageStartupMessages({
 # allocation
 
 ## input/output files
-input <- "../data/Small_RNA/raw/smallRNA_oasis.raw.SE.rds"
-output <- "../data/Small_RNA/smallRNA_oasis.DEA.SE.rds"
-output.no_round <- "../data/Small_RNA/smallRNA_oasis_noRound.DEA.SE.rds"
+input <- "../data/raw/smallRNA_oasis.raw.SE.rds"
+output <- "../data/smallRNA_oasis.DEA.SE.rds"
+output.no_round <- "../data/smallRNA_oasis_noRound.DEA.SE.rds"
 ```
 
 
@@ -54,7 +57,7 @@ se <- se[-c(1:5)]
 
 # filter: AT LEAST how many counts in AT LEAST how many samples? e.g. counts >= 20, samples >= 1
 ## Could potentially be redone with counts >= 10, samples >= 3
-se <- se[rowSums(assay(se)>=10)>3,]
+se <- se[rowSums(assay(se)>=20)>=1,]
 ```
 
 
@@ -77,10 +80,7 @@ se <- logAssays(se, 9, output = "log2FC.neur")
 ## DEA over all stages
 
 ```{r dea all, message=FALSE, warning=FALSE, eval=TRUE}
-
 # run DEA
-source("../../functions/dea.R")
-
 se <- DEA(se, name = "all", model = ~stage)
 ```
 
@@ -88,10 +88,7 @@ se <- DEA(se, name = "all", model = ~stage)
 ## DEA over neuronal stages
 
 ```{r dea neuronal, message=FALSE, warning=FALSE, eval=TRUE}
-
 # run DEA
-source("../../functions/dea.R")
-
 se <- DEA(se, use = which(se$day > 0), name = "neuronal", model = ~stage)
 ```
 
@@ -172,7 +169,6 @@ saveRDS(se, output.no_round)
 ```{r export se round, message=FALSE, warning=FALSE, eval=TRUE}
 
 # round
-source("../functions/roundSE.R")
 se <- roundSE(se)
 
 # export rounded

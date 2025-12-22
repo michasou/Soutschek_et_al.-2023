@@ -9,9 +9,10 @@ output: html_document
 library(topGO)
 library(org.Hs.eg.db)
 library(openxlsx)
+library(SummarizedExperiment)
 ```
 
-#script executed with org.Hs.eg.db (version 3.16)
+#script executed with org.Hs.eg.db (version 3.21)
 
 #load experiment
 ```{r}

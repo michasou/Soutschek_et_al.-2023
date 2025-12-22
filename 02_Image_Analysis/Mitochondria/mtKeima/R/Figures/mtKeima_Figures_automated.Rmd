@@ -48,8 +48,14 @@ colnames(ag)[which(colnames(ag) == "x")] <- "Ratio"
 ```
 
 #statistics
+
 ```{r}
-mod_s1 <- lm(Ratio ~ sample + Diff,ag)
+ag2 <- aggregate(ag$Ratio,ag[,c("Diff","sample")], FUN=mean)
+```
+
+
+```{r}
+mod_s1 <- rlm(x ~ sample + Diff,ag2,psi = psi.huber)
 summary(mod_s1)
 s1 <- emmeans(mod_s1, trt.vs.ctrl ~ sample , ref="pLNA-Ctrl")
 s1
@@ -62,7 +68,7 @@ s1_df$group2 <- gsub("\\ - \\(pLNA-Ctrl\\)","",s1_df$group2)
 s1_df$group2 <- gsub("\\(", "",s1_df$group2)
 s1_df$group2 <- gsub("\\)", "",s1_df$group2)
 s1_df <- add_significance(s1_df,p.col = "p.value")
-s1_df$p.value.signif <- round(s1_df$p.value,3)
+# s1_df$p.value.signif <- round(s1_df$p.value,3)
 
 #add y_position
 y_pos <- c()

@@ -23,8 +23,8 @@ suppressPackageStartupMessages({
   library(stringr)
   library(msigdbr)
 })
-source("../../../functions/clustering.R")
-source("../../../functions/clusterEnrichment.R")
+source("../../../00_functions/clustering.R")
+source("../../../00_functions/clusterEnrichment.R")
 ```
 
 
@@ -59,6 +59,9 @@ heatcol = inferno(256)
 ```
 
 
+```{r}
+set.seed(1229)
+```
 
 
 ## Import datasets
@@ -74,8 +77,8 @@ result data.frames
 res.all <- rowData(se)$DEA.all
 res.neu <- rowData(se)$DEA.neuronal
 
-sig.all <- row.names(res.all)[which(res.all$adj.P.Val <0.05)]
-sig.neu <- row.names(res.neu)[which(res.neu$adj.P.Val <0.05)]
+sig.all <- row.names(res.all)[which(res.all$FDR <0.05)]
+sig.neu <- row.names(res.neu)[which(res.neu$FDR <0.05)]
 
 res.all$maxlfc <- rowMax(abs(as.matrix(res.all[,1:6]))) 
 res.neu$maxlfc <- rowMax(abs(as.matrix(res.neu[,1:5]))) 
@@ -122,26 +125,26 @@ dev.off()
 
 # Cluster Enrichment Analysis
 ```{r}
-all.clus <- split(rowData(se)$GeneName,rowData(se)$cluster)
-all.clus.un <- lapply(all.clus, unique)
-
-m <- msigdbr(db_species = "HS",species = "Homo sapiens")
-m <- m[which(m$gs_collection %in% "C5"), ]
-m$name2 <- paste0(m$gs_collection, ":", m$gs_subcollection, ":", m$gs_name)
-gsets <- split(m$gene_symbol, m$name2)
-
-gsets_cl <- gsets[!grepl("C5:HPO",names(gsets))]
-names(gsets_cl) <- gsub("C5:GO:BP:","",names(gsets_cl))
-names(gsets_cl) <- gsub("C5:GO:CC:","",names(gsets_cl))
-names(gsets_cl) <- gsub("C5:GO:MF:","",names(gsets_cl))
-dgo.all <- clusterEnrichment(all.clus.un, gsets_cl)
+# all.clus <- split(rowData(se)$GeneName,rowData(se)$cluster)
+# all.clus.un <- lapply(all.clus, unique)
+# 
+# m <- msigdbr(db_species = "HS",species = "Homo sapiens")
+# m <- m[which(m$gs_collection %in% "C5"), ]
+# m$name2 <- paste0(m$gs_collection, ":", m$gs_subcollection, ":", m$gs_name)
+# gsets <- split(m$gene_symbol, m$name2)
+# 
+# gsets_cl <- gsets[!grepl("C5:HPO",names(gsets))]
+# names(gsets_cl) <- gsub("C5:GO:BP:","",names(gsets_cl))
+# names(gsets_cl) <- gsub("C5:GO:CC:","",names(gsets_cl))
+# names(gsets_cl) <- gsub("C5:GO:MF:","",names(gsets_cl))
+# dgo.all <- clusterEnrichment(all.clus.un, gsets_cl)
 ```
 
 ```{r}
-a <- plotClusterEnrichment(dgo.all,color = heatcol)
-png("../../Figures_Omics/Proteomics/Figure_Output/Clustering/DEG_kmeans_ClusterEnrichment_all-days.png", width=12, height=10, units="in", res=300)
-draw(a,heatmap_legend_side="left")
-dev.off()
+# a <- plotClusterEnrichment(dgo.all,color = heatcol)
+# png("../../Figures_Omics/Proteomics/Figure_Output/Clustering/DEG_kmeans_ClusterEnrichment_all-days.png", width=12, height=10, units="in", res=300)
+# draw(a,heatmap_legend_side="left")
+# dev.off()
 ```
 
 

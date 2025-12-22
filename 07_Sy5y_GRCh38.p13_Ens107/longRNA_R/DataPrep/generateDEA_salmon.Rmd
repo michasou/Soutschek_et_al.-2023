@@ -174,5 +174,20 @@ sechm::sechm(se2, head(row.names(deas3[[3]]), 35), assayName ="log2FC.Ctrl", top
 saveRDS(se2,"./SE.dea.Gene.salmon.raw.rds")
 ```
 
+#write csv files for GEO submission
+```{r}
+se2 <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
+
+#raw
+write.csv(as.data.frame(assays(se2)$counts),"V:/Michael/Bioinformatics/Internal_Data/2023_soutschek_SY5YmiR1229mimic_Human_polyARNA/GEO/SY5Y_counts.csv")
+write.csv(as.data.frame(assays(se2)$corrected),"V:/Michael/Bioinformatics/Internal_Data/2023_soutschek_SY5YmiR1229mimic_Human_polyARNA/GEO/SY5Y_logcpm_SVAcorrected.csv")
+
+#dea
+write.csv(as.data.frame(rowData(se2)[["DEA"]]),"V:/Michael/Bioinformatics/Internal_Data/2023_soutschek_SY5YmiR1229mimic_Human_polyARNA/GEO/SY5Y_DEA_combined.csv")
+
+write.csv(as.data.frame(rowData(se2)[["DEA.ind.Ctrl-MiR"]]),"V:/Michael/Bioinformatics/Internal_Data/2023_soutschek_SY5YmiR1229mimic_Human_polyARNA/GEO/SY5Y_DEA_10nM.csv")
+
+write.csv(as.data.frame(rowData(se2)[["DEA.ind.MiR"]]),"V:/Michael/Bioinformatics/Internal_Data/2023_soutschek_SY5YmiR1229mimic_Human_polyARNA/GEO/SY5Y_DEA_20nM.csv")
+```
 
 

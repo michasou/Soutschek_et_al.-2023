@@ -1,0 +1,70 @@
+---
+title: "Whipple_DEA"
+author: "Michael Soutschek"
+date: "7/11/2023"
+output: html_document
+---
+
+
+
+
+```{r}
+library(SummarizedExperiment)
+library(edgeR)
+```
+
+
+
+# DEA analysis
+```{r create raw se}
+se <- readRDS("./SE.Gene.salmon.raw.rds")
+
+# Model Matrix and Fitting, and logcPMs
+mm <- model.matrix(~Day*condition, data=as.data.frame(colData(se)))
+se <- se[filterByExpr(assay(se), mm),]
+
+# data preparation
+dds <- DGEList(assays(se)$counts)
+dds <- calcNormFactors(dds)
+
+
+dds <- estimateDisp(dds,mm)
+fit <- glmFit(dds, mm)
+assays(se)$logcpm <- log1p(cpm(dds))
+```
+
+
+# Statistical comparison Day0 vs Day10
+```{r}
+lrt <- glmLRT(fit, coef= "DayDay 10")
+res <- as.data.frame(topTags(lrt, Inf))
+rowData(se)[["DEA.d0_vs_d10"]] <- DataFrame(res)
+
+
+res1 <- as.data.frame(topTags(glmLRT(fit, coef = "conditionclustKO"), Inf))
+rowData(se)[["DEA.wt_vs_ko_day0"]] <- DataFrame(res1)
+
+res2 <- as.data.frame(topTags(glmLRT(fit, contrast = c(0,0,1,1)), Inf))
+rowData(se)[["DEA.wt_vs_ko_day10"]] <- DataFrame(res2)
+```
+
+```{r}
+saveRDS(se,"./SE.Gene.salmon.DEA.rds")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

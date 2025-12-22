@@ -21,7 +21,7 @@ suppressPackageStartupMessages({
   library(sechm)
   library(biomaRt)
 })
-source("../../../functions/clustering.R")
+source("../../../00_functions/clustering.R")
 ```
 
 
@@ -46,18 +46,15 @@ heatcol = inferno(255, begin = 0, end = 1)
 ```
 
 
->> For the initial analysis, see: 
-
-#/mnt/schratt/externData/2020_whipple_GSE140838_RiboZero_ClusterKOMouseCulture
 
 
 #load Data
 ```{r}
-mouse.se <- readRDS("../../data/Long_RNA_Mouse/SE.Gene.salmon.DEA.rds")
+mouse.se <- readRDS("../../RNA_GRCm38.p6_Genc/Long_RNA_Mouse/data/SE.Gene.salmon.DEA.rds")
 #get rid of 379-410 cluster ko values
 m.se <- mouse.se[,mouse.se$condition == "WT"]
 
-h.se <- readRDS("../../data/Long_RNA/longRNA.DEA.SE.rds")
+h.se <- readRDS("../../RNA_GRCh38.p10_Ens91/data/Long_RNA/longRNA.DEA.SE.rds")
 ```
 
 

@@ -16,18 +16,20 @@ suppressPackageStartupMessages({
   library(rstatix)
   library(cowplot)
   library(lme4)
+  library(ggplot2)
 })
 ```
 
 
 #read files into R
 ```{r}
-snps <- vcfR::read.vcfR("/mnt/schratt/internData/2022_soutschek_Ngn2pLNAs_polyARNA/11_2022/star_indexed/Results_SNPs.bcf", convertNA  = TRUE)
+# snps <- vcfR::read.vcfR("/mnt/schratt/internData/2022_soutschek_Ngn2pLNAs_polyARNA/11_2022/star_indexed/Results_SNPs.bcf", convertNA  = TRUE)
+snps <- vcfR::read.vcfR("../../data/Results_SNPs.bcf.gz", convertNA  = TRUE)
 ```
 
 #From the snps dataset, extract element “GT” using extract.gt and save it to an object called snps_num.
 ```{r}
-snps_num <- vcfR::extract.gt(snps, 
+snps_num <- vcfR::extract.gt(snps,
            element = "PL",
            IDtoRowNames  = F,
            as.numeric = F,
@@ -38,8 +40,8 @@ snps_num <- vcfR::extract.gt(snps,
 
 #Transpose and save as data.frame
 ```{r}
-snps_num_t <- t(snps_num) 
-snps_num_df <- data.frame(snps_num_t) 
+snps_num_t <- t(snps_num)
+snps_num_df <- data.frame(snps_num_t)
 
 saveRDS(snps_num_df,"./MT_SNPS_df.rds")
 ```
@@ -48,44 +50,44 @@ saveRDS(snps_num_df,"./MT_SNPS_df.rds")
 #Find NAs in a dataset & Exclude columns with >50% NAs.
 ##MS: It seems there are no NAs present
 ```{r}
-snps_num_df <- readRDS("./MT_SNPS_df.rds")
-
-find_NAs <- function(x){
-  NAs_TF <- is.na(x)
-  i_NA <- which(NAs_TF == TRUE)
-  N_NA <- length(i_NA)
-  
-  cat("Results:",N_NA, "NAs present\n.")
-  return(i_NA)
-}
-
-# N_rows
-# number of rows (individuals)
-N_rows <- nrow(snps_num_t)
-
-# N_NA
-# vector to hold output (number of NAs)
-N_NA   <- rep(x = 0, times = N_rows)
-
-# N_SNPs
-# total number of columns (SNPs)
-N_SNPs <- ncol(snps_num_t)
-
-# the for() loop
-for(i in 1:N_rows){
-  
-  # for each row, find the location of
-  ## NAs with snps_num_t()
-  i_NA <- find_NAs(snps_num_t[i,]) 
-  
-  # then determine how many NAs
-  ## with length()
-  N_NA_i <- length(i_NA)
-  
-  # then save the output to 
-  ## our storage vector
-  N_NA[i] <- N_NA_i
-}
+# snps_num_df <- readRDS("./MT_SNPS_df.rds")
+# 
+# find_NAs <- function(x){
+#   NAs_TF <- is.na(x)
+#   i_NA <- which(NAs_TF == TRUE)
+#   N_NA <- length(i_NA)
+#   
+#   cat("Results:",N_NA, "NAs present\n.")
+#   return(i_NA)
+# }
+# 
+# # N_rows
+# # number of rows (individuals)
+# N_rows <- nrow(snps_num_t)
+# 
+# # N_NA
+# # vector to hold output (number of NAs)
+# N_NA   <- rep(x = 0, times = N_rows)
+# 
+# # N_SNPs
+# # total number of columns (SNPs)
+# N_SNPs <- ncol(snps_num_t)
+# 
+# # the for() loop
+# for(i in 1:N_rows){
+#   
+#   # for each row, find the location of
+#   ## NAs with snps_num_t()
+#   i_NA <- find_NAs(snps_num_t[i,]) 
+#   
+#   # then determine how many NAs
+#   ## with length()
+#   N_NA_i <- length(i_NA)
+#   
+#   # then save the output to 
+#   ## our storage vector
+#   N_NA[i] <- N_NA_i
+# }
 ```
 
 #MS, here I continue myself
@@ -166,7 +168,7 @@ colnames(dft) <- c(ll,"genotype")
 
 
 ```{r}
-col_info <- read.csv("/mnt/schratt/internData/2022_soutschek_Ngn2pLNAs_polyARNA/11_2022/Sequencing_RNA_Samples_DNase_Randomization_summary.csv")
+col_info <- read.csv("V:/Michael/Bioinformatics/Internal_Data/2022_soutschek_Ngn2pLNAs_Human_polyARNA/11_2022/Sequencing_RNA_Samples_DNase_Randomization_summary.csv")
 col_info$diff <- sapply(strsplit(col_info$Sample.Name,"_"),"[",1)
 col_info$condition <- sapply(strsplit(col_info$Sample.Name,"_"),"[",2)
 row.names(col_info) <- col_info$Novogene
@@ -180,20 +182,20 @@ dft <- dft[,!colnames(dft) %in% "B_8"]
 
 #plot PCAs of each genotype??
 ```{r}
-plgINS::plPCA(dft[dft$genotype == 1,!colnames(dft) %in% "genotype"], samples_data = col_info, colorBy = "condition", shapeBy = "diff",add.labels = FALSE, annotation_columns = colnames(col_info))%>%
-        layout(title = 'Probability Reference Genotype')
+# plgINS::plPCA(dft[dft$genotype == 1,!colnames(dft) %in% "genotype"], samples_data = col_info, colorBy = "condition", shapeBy = "diff",add.labels = FALSE, annotation_columns = colnames(col_info))%>%
+#         layout(title = 'Probability Reference Genotype')
 ```
 
 
 ```{r}
-plgINS::plPCA(dft[dft$genotype == 2,!colnames(dft) %in% "genotype"], samples_data = col_info, colorBy = "condition", shapeBy = "diff",add.labels = FALSE, annotation_columns = colnames(col_info))%>%
-        layout(title = 'Probability heterozygous alternative genotype')
+# plgINS::plPCA(dft[dft$genotype == 2,!colnames(dft) %in% "genotype"], samples_data = col_info, colorBy = "condition", shapeBy = "diff",add.labels = FALSE, annotation_columns = colnames(col_info))%>%
+#         layout(title = 'Probability heterozygous alternative genotype')
 ```
 
 
 ```{r}
-plgINS::plPCA(dft[dft$genotype == 3,!colnames(dft) %in% "genotype"], samples_data = col_info, colorBy = "condition", shapeBy = "diff",add.labels = FALSE, annotation_columns = colnames(col_info), )%>%
-        layout(title = 'Probability homozygous alternative genotype')
+# plgINS::plPCA(dft[dft$genotype == 3,!colnames(dft) %in% "genotype"], samples_data = col_info, colorBy = "condition", shapeBy = "diff",add.labels = FALSE, annotation_columns = colnames(col_info), )%>%
+#         layout(title = 'Probability homozygous alternative genotype')
 ```
 
 
@@ -248,7 +250,6 @@ s1_df$y_pos2 <- c(11,9,13)
 ```{r}
 #show_col(pal_uchicago("default")(9))
 col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
-
 ```
 
 
@@ -272,11 +273,16 @@ p1 <- ggplot(dfl, aes(condition,SNP_prob)) +
     aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
     textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE,tip_length = 0.0025,
   ) +
-  ggtitle("Inv. Probability\nReference Genotype") + ylab("Inv. Probability for SNP") +
+  ylab("Inv. probability of\nreference genotype") +
   scale_color_manual(values = col_vec) +
   guides(color=guide_legend(title="Diff.")) +
   xlab("") +
-  coord_cartesian(ylim = c(NA,15)) +  theme_classic() + theme(strip.background = element_blank())
+  coord_cartesian(ylim = c(NA,15)) +  theme_classic() + 
+  theme(strip.text.x = element_text(size = rel(1.1)),
+        strip.placement = "inside",
+        text = element_text(size = 14), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)))
 
 
 ggsave2("../Figure_Output/SNPs/Mito_SNP_Probability.png",p1, width = 6,height = 4.5, bg = "white")
@@ -290,7 +296,8 @@ ggsave2("../Figure_Output/SNPs/Mito_SNP_Probability.png",p1, width = 6,height = 
 
 #read files into R
 ```{r}
-snps <- vcfR::read.vcfR("/mnt/schratt/internData/2022_soutschek_Ngn2pLNAs_polyARNA/11_2022/star_indexed/Results_SNPs.bcf", convertNA  = TRUE)
+# snps <- vcfR::read.vcfR("/mnt/schratt/internData/2022_soutschek_Ngn2pLNAs_polyARNA/11_2022/star_indexed/Results_SNPs.bcf", convertNA  = TRUE)
+snps <- vcfR::read.vcfR("../../data/Results_SNPs.bcf.gz", convertNA  = TRUE)
 ```
 
 #From the snps dataset, extract element “GT” using extract.gt and save it to an object called snps_num.
@@ -319,7 +326,7 @@ ref2 <- as.data.frame(ref[w,])
 colnames(ref2) <- gsub("\\./MT_|\\.sorted\\.bam","",colnames(snps_num))
 ref2 <- ref2[,!(colnames(ref2) %in% "B_8")]
 
-col_info <- read.csv("/mnt/schratt/internData/2022_soutschek_Ngn2pLNAs_polyARNA/11_2022/Sequencing_RNA_Samples_DNase_Randomization_summary.csv")
+col_info <- read.csv("V:/Michael/Bioinformatics/Internal_Data/2022_soutschek_Ngn2pLNAs_Human_polyARNA/11_2022/Sequencing_RNA_Samples_DNase_Randomization_summary.csv")
 col_info$diff <- sapply(strsplit(col_info$Sample.Name,"_"),"[",1)
 col_info$condition <- sapply(strsplit(col_info$Sample.Name,"_"),"[",2)
 row.names(col_info) <- col_info$Novogene

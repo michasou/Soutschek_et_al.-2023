@@ -29,6 +29,17 @@ suppressPackageStartupMessages({
 ```
 
 
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c("darkgrey","black","lightgrey","darkgrey")
+col_vec2 <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
+```
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec3 <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],"darkgrey","black","lightgrey","darkgrey")
+```
+
 
 
 ```{r}
@@ -47,6 +58,14 @@ norm_to <- function(df,norm_to){
 #Load Data
 ```{r}
 e <- readRDS("./DataPrep/Neurite_Result_pLNA_SingleSoma.rds")
+e <- e[e$Day != "Day27",]
+e$Day <- droplevels(e$Day)
+e <- e[e$Condition != "pLNA-3943",]
+e$Condition <- droplevels(e$Condition)
+```
+
+
+```{r}
 e$isEmpty <- ifelse(e$Condition == "Empty","p5","p6")
 e$isEmpty2 <- ifelse(e$Condition == "Empty","p7","p8")
 
@@ -55,7 +74,7 @@ e21 <- e[e$Day == "Day21",]
 e33 <- e[e$Day == "Day33",]
 ```
 
-#Aggregate Medians / Means
+#Aggregate Means
 ```{r}
 ag_le <- aggregate(log1p(e$TotalLength_um),e[,c("Day","Differentiation","Condition")], FUN=mean)
 ag_le$isEmpty <- ifelse(ag_le$Condition == "Empty","p5","p6")
@@ -78,44 +97,34 @@ ag_se33 <- ag_se[ag_se$Day == "Day33",]
 
 
 
-```{r}
-#show_col(pal_uchicago("default")(9))
-col_vec <- c("darkgrey","black","lightgrey","darkgrey")
-col_vec2 <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
-```
-
-```{r}
-#show_col(pal_uchicago("default")(9))
-col_vec3 <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],"darkgrey","black","lightgrey","darkgrey")
-```
-
 
 ##################
 ##################
 #Length
 
-
 ## Means
 
 #get statistics
 ```{r}
-##Medians, One Model
-st_df_med <- readRDS("./stats/ST_DF_Length_means.rds")
+st_df_mea_le <- readRDS("./stats/ST_DF_Length_means.rds")
+st_df_mea_le <- st_df_mea_le[st_df_mea_le$group2 != "pLNA-3943",]
+```
 
 
+```{r}
 #add y_position
 y_pos <- c()
-for(i in st_df_med$Day) {
+for(i in st_df_mea_le$Day) {
   ll <- max(ag_le[ag_le$Day == i,"x"])
   y_pos <- c(y_pos,ll)
 }
 
-st_df_med$y_pos <- y_pos*1.025
-st_df_med$y_adj <- rep(c(0,0,3.25,0))
-st_df_med$y_pos2 <- st_df_med$y_pos + st_df_med$y_adj
+st_df_mea_le$y_pos <- y_pos*1.025
+st_df_mea_le$y_adj <- rep(c(0,0,3.25,0))
+st_df_mea_le$y_pos2 <- st_df_mea_le$y_pos + st_df_mea_le$y_adj
 
-st_df_med$p.value.signif[st_df_med$p.value.signif == "ns"] <- NA
-st_df_med$p.value.signif[st_df_med$p.value < 0.25] <- round(st_df_med$p.value[st_df_med$p.value < 0.25],2)
+st_df_mea_le$p.value.signif[st_df_mea_le$p.value.signif == "ns"] <- NA
+st_df_mea_le$p.value.signif[st_df_mea_le$p.value < 0.25] <- round(st_df_mea_le$p.value[st_df_mea_le$p.value < 0.25],2)
 ```
 
 
@@ -123,9 +132,7 @@ st_df_med$p.value.signif[st_df_med$p.value < 0.25] <- round(st_df_med$p.value[st
 #Length all points with statistics from means
 
 ```{r}
-#On all datapoints with mean statistics 
-
-p1b <- ggplot(e,aes(x = Condition, y = log1p(TotalLength_um))) + 
+p1 <- ggplot(e,aes(x = Condition, y = log1p(TotalLength_um))) + 
   geom_violin(aes(colour = isEmpty2),show.legend = FALSE) +
   stat_summary(
     aes(color = isEmpty),
@@ -145,7 +152,7 @@ p1b <- ggplot(e,aes(x = Condition, y = log1p(TotalLength_um))) +
   scale_alpha_discrete(range = c(0.3, 0.6), guide = "none") +
   scale_color_manual(values = col_vec2) +
   ggsignif::geom_signif(
-    data = st_df_med,
+    data = st_df_mea_le,
     aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
     textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
   ) +
@@ -164,7 +171,7 @@ p1b <- ggplot(e,aes(x = Condition, y = log1p(TotalLength_um))) +
   scale_x_discrete(labels=c("Empty","pLNA-\nCtrl","pLNA-\n1229","pLNA-\n181c"))
 
 
-gt1 <- ggplotGrob(p1b)
+gt1 <- ggplotGrob(p1)
 
 
 panels = subset(gt1$layout, grepl("panel", gt1$layout$name), t:r)
@@ -177,21 +184,20 @@ Bmax = max(panels$t)
 cols = unique(panels$r)[-length(unique(panels$r))] + 2
 
 # The grob
-g <- linesGrob(x = unit(c(.5, .5), "npc"),
+g1 <- linesGrob(x = unit(c(.5, .5), "npc"),
               y = unit(c(0.01,0.94), "npc"),
               gp = gpar(col = "black", lty = "dotted", lwd = 1.5) )
 
 
 ## Add lines into the vertical gaps
 gt1 <- gtable_add_grob(gt1, 
-      rep(list(g), length(cols)),
+      rep(list(g1), length(cols)),
       t=Bmin, l = cols, b=Bmax)
 
 ## Draw it
 grid.newpage()
 grid.draw(gt1)
 
-#p1
 
 ggsave2("../Figures/pLNA_Length.png",gt1, width = 8,height = 6, bg = "white")
 ```
@@ -202,35 +208,34 @@ ggsave2("../Figures/pLNA_Length.png",gt1, width = 8,height = 6, bg = "white")
 ##################
 #BranchEnds
 
-
 ## Means
 
 #get statistics
 ```{r}
-##Medians, One Model
-st_df_med <- readRDS("./stats/ST_DF_BranchEnds_means.rds")
-
-
-#add y_position
-y_pos <- c()
-for(i in st_df_med$Day) {
-  ll <- mean(sqrt(e[e$Day == i,"NumberNonTrunkBranches"]))
-  y_pos <- c(y_pos,ll)
-}
-
-st_df_med$y_pos <- y_pos 
-st_df_med$y_adj <- rep(c(0,0,1.25,0))
-st_df_med$y_pos2 <- st_df_med$y_pos + st_df_med$y_adj
-
-st_df_med$p.value.signif[st_df_med$p.value.signif == "ns"] <- NA
+st_df_mea_br <- readRDS("./stats/ST_DF_BranchEnds_means.rds")
+st_df_mea_br <- st_df_mea_br[st_df_mea_br$group2 != "pLNA-3943",]
 ```
 
 
-
 ```{r}
-#On all datapoints with mean statistics
+#add y_position
+y_pos <- c()
+for(i in st_df_mea_br$Day) {
+  ll <- mean(sqrt(e[e$Day == i,"NumberBranchEnds"]))
+  y_pos <- c(y_pos,ll)
+}
 
-p10 <- ggplot(e,aes(x = Condition, y= sqrt(NumberBranchEnds))) + 
+st_df_mea_br$y_pos <- y_pos 
+st_df_mea_br$y_adj <- rep(c(0,0,1.25,0))
+st_df_mea_br$y_pos2 <- st_df_mea_br$y_pos + st_df_mea_br$y_adj
+
+st_df_mea_br$p.value.signif[st_df_mea_br$p.value.signif == "ns"] <- NA
+```
+
+
+#On all datapoints with mean statistics
+```{r}
+p2 <- ggplot(e,aes(x = Condition, y= sqrt(NumberBranchEnds))) + 
   stat_summary(
     aes(color = isEmpty),
     fun = mean,
@@ -249,7 +254,7 @@ p10 <- ggplot(e,aes(x = Condition, y= sqrt(NumberBranchEnds))) +
   scale_alpha_discrete(range = c(0.3, 0.6), guide = "none") +
   scale_color_manual(values = col_vec2) +
   ggsignif::geom_signif(
-    data = st_df_med,
+    data = st_df_mea_br,
     aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
     textsize = 4, vjust = -0.1, size = 0.75,tip_length = 0.005, manual = TRUE
   ) +
@@ -269,10 +274,10 @@ theme(strip.text.x = element_text(size = rel(1)),
   scale_x_discrete(labels=c("Empty","pLNA-\nCtrl","pLNA-\n1229","pLNA-\n181c"))
 
 
-gt10 <- ggplotGrob(p10)
+gt2 <- ggplotGrob(p2)
 
 
-panels = subset(gt10$layout, grepl("panel", gt10$layout$name), t:r)
+panels = subset(gt2$layout, grepl("panel", gt2$layout$name), t:r)
 
 # The span of the vertical gap
 Bmin = min(panels$t) - 1
@@ -282,22 +287,21 @@ Bmax = max(panels$t)
 cols = unique(panels$r)[-length(unique(panels$r))] + 2
 
 # The grob
-g <- linesGrob(x = unit(c(.5, .5), "npc"),
+g2 <- linesGrob(x = unit(c(.5, .5), "npc"),
               y = unit(c(0.01,0.94), "npc"),
               gp = gpar(col = "black", lty = "dotted", lwd = 1.5) )
 
 
 ## Add lines into the vertical gaps
-gt10 <- gtable_add_grob(gt10, 
-      rep(list(g), length(cols)),
+gt2 <- gtable_add_grob(gt2, 
+      rep(list(g2), length(cols)),
       t=Bmin, l = cols, b=Bmax)
 
 ## Draw it
 grid.newpage()
-grid.draw(gt10)
-#p7
+grid.draw(gt2)
 
-ggsave2("../Figures/pLNA_BranchEnds.png",gt10, width = 8,height = 6, bg = "white")
+ggsave2("../Figures/pLNA_BranchEnds.png",gt2, width = 8,height = 6, bg = "white")
 ```
 
 
@@ -311,34 +315,34 @@ ggsave2("../Figures/pLNA_BranchEnds.png",gt10, width = 8,height = 6, bg = "white
 ##################
 #Number Secondary Branches
 
-##All Points
+## Means
+
 #get statistics
 ```{r}
-##All Points, One Model
-st_df_mea <- readRDS("./stats/ST_DF_SecondaryBranches_means.rds")
+st_df_mea_se <- readRDS("./stats/ST_DF_SecondaryBranches_means.rds")
+st_df_mea_se <- st_df_mea_se[st_df_mea_se$group2 != "pLNA-3943",]
+```
 
 
+```{r}
 #add y_position
 y_pos <- c()
-for(i in st_df_mea$Day) {
+for(i in st_df_mea_se$Day) {
   ll <- mean(sqrt(e[e$Day == i,"NumberNonTrunkBranches"]))
   y_pos <- c(y_pos,ll)
 }
 
-st_df_mea$y_pos <- y_pos*1.05
-st_df_mea$y_adj <- rep(c(0,0,2,0))
-st_df_mea$y_pos2 <- st_df_mea$y_pos + st_df_mea$y_adj
-st_df_mea$p.value.signif[st_df_mea$p.value < 0.1 & st_df_mea$p.value > 0.05] <- round(st_df_mea$p.value[st_df_mea$p.value < 0.15 & st_df_mea$p.value > 0.05],2)
-st_df_mea$p.value.signif[st_df_mea$p.value.signif == "ns"] <- NA
+st_df_mea_se$y_pos <- y_pos*1.05
+st_df_mea_se$y_adj <- rep(c(0,0,2,0))
+st_df_mea_se$y_pos2 <- st_df_mea_se$y_pos + st_df_mea_se$y_adj
+st_df_mea_se$p.value.signif[st_df_mea_se$p.value < 0.1 & st_df_mea_se$p.value > 0.05] <- round(st_df_mea_se$p.value[st_df_mea_se$p.value < 0.15 & st_df_mea_se$p.value > 0.05],2)
+st_df_mea_se$p.value.signif[st_df_mea_se$p.value.signif == "ns"] <- NA
 ```
 
 
-
-#Plot Secondary Branches
-```{r}
 #On all datapoints with mean statistics
-
-p10 <- ggplot(e,aes(x = Condition, y= sqrt(NumberNonTrunkBranches))) + 
+```{r}
+p3 <- ggplot(e,aes(x = Condition, y= sqrt(NumberNonTrunkBranches))) + 
   stat_summary(
     aes(color = isEmpty),
     fun = mean,
@@ -357,7 +361,7 @@ p10 <- ggplot(e,aes(x = Condition, y= sqrt(NumberNonTrunkBranches))) +
   scale_alpha_discrete(range = c(0.3, 0.6), guide = "none") +
   scale_color_manual(values = col_vec2) +
   ggsignif::geom_signif(
-    data = st_df_mea,
+    data = st_df_mea_se,
     aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
     textsize = 4, vjust = -0.1, size = 0.75,tip_length = 0.005, manual = TRUE
   ) +
@@ -377,10 +381,10 @@ p10 <- ggplot(e,aes(x = Condition, y= sqrt(NumberNonTrunkBranches))) +
   scale_x_discrete(labels=c("Empty","pLNA-\nCtrl","pLNA-\n1229","pLNA-\n181c"))
 
 
-gt10 <- ggplotGrob(p10)
+gt3 <- ggplotGrob(p3)
 
 
-panels = subset(gt10$layout, grepl("panel", gt10$layout$name), t:r)
+panels = subset(gt3$layout, grepl("panel", gt3$layout$name), t:r)
 
 # The span of the vertical gap
 Bmin = min(panels$t) - 1
@@ -390,24 +394,28 @@ Bmax = max(panels$t)
 cols = unique(panels$r)[-length(unique(panels$r))] + 2
 
 # The grob
-g <- linesGrob(x = unit(c(.5, .5), "npc"),
+g3 <- linesGrob(x = unit(c(.5, .5), "npc"),
               y = unit(c(0.01,0.94), "npc"),
               gp = gpar(col = "black", lty = "dotted", lwd = 1.5) )
 
 
 ## Add lines into the vertical gaps
-gt10 <- gtable_add_grob(gt10, 
-      rep(list(g), length(cols)),
+gt3 <- gtable_add_grob(gt3, 
+      rep(list(g3), length(cols)),
       t=Bmin, l = cols, b=Bmax)
 
 ## Draw it
 grid.newpage()
-grid.draw(gt10)
-#p7
+grid.draw(gt3)
 
-ggsave2("../Figures/pLNA_SecBranches.png",gt10, width = 8,height = 5, bg = "white")
+ggsave2("../Figures/pLNA_SecBranches.png",gt3, width = 8,height = 5, bg = "white")
+ggsave2("../Figures/pLNA_SecBranches.pdf",gt3, width = 8,height = 5, bg = "white")
 ```
 
+```{r}
+#Source data Fig. 3f)
+write.csv(e,file = "../../../../../12_SourceData/Fig3/Fig_3f.csv")
+```
 
 
 
@@ -415,7 +423,7 @@ ggsave2("../Figures/pLNA_SecBranches.png",gt10, width = 8,height = 5, bg = "whit
 ```{r}
 ag_se_norm <- norm_to(ag_se,"pLNA-Ctrl")
 
-p11 <- ggplot(ag_se_norm, aes(x = Condition, y = Normalized)) +
+p4 <- ggplot(ag_se_norm, aes(x = Condition, y = Normalized)) +
   geom_bar(stat = "summary", fun = "mean", aes(colour = isEmpty2.x),
            fill = "white", linewidth = 1, show.legend = FALSE) +
   scale_color_manual(values = col_vec,guide = "none") +
@@ -437,13 +445,13 @@ p11 <- ggplot(ag_se_norm, aes(x = Condition, y = Normalized)) +
         legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
         legend.text = element_text(size = 16),
         legend.position = "bottom") +
-  scale_x_discrete(labels=c("Empty","pLNA-\nCtrl","pLNA-\n1229","pLNA-\n181c"))
+  scale_x_discrete(labels=c("Empty","pLNA-\n1229","pLNA-\n181c"))
 
 
-gt11 <- ggplotGrob(p11)
+gt4 <- ggplotGrob(p4)
 
 
-panels = subset(gt11$layout, grepl("panel", gt11$layout$name), t:r)
+panels = subset(gt4$layout, grepl("panel", gt4$layout$name), t:r)
 
 # The span of the vertical gap
 Bmin = min(panels$t) - 1
@@ -453,25 +461,22 @@ Bmax = max(panels$t)
 cols = unique(panels$r)[-length(unique(panels$r))] + 2
 
 # The grob
-g <- linesGrob(x = unit(c(.5, .5), "npc"),
+g4 <- linesGrob(x = unit(c(.5, .5), "npc"),
               y = unit(c(0.01,0.94), "npc"),
               gp = gpar(col = "darkgrey", lty = "dotted", lwd = 1.5) )
 
 
 ## Add lines into the vertical gaps
-gt11 <- gtable_add_grob(gt11, 
-      rep(list(g), length(cols)),
+gt4 <- gtable_add_grob(gt4, 
+      rep(list(g4), length(cols)),
       t=Bmin, l = cols, b=Bmax)
 
 ## Draw it
 grid.newpage()
-grid.draw(gt11)
-
-#p1b
-
-ggsave("../Figures/pLNA_SecBranches_normtoCtrl.png",gt11, width = 8,height = 6, bg = "white")
+grid.draw(gt4)
 
 
+ggsave("../Figures/pLNA_SecBranches_normtoCtrl.png",gt4, width = 8,height = 6, bg = "white")
 ```
 
 

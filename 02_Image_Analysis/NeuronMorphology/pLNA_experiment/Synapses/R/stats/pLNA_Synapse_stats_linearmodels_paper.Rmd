@@ -52,15 +52,15 @@ e$Condition <- gsub("pLNA-181","pLNA-181c",e$Condition)
 
 #Aggregate Means
 ```{r}
-#Synapses per DendArea per Nuclei (sqrt)
-ag_s <- aggregate(sqrt(e$Synapses_per_DendArea_um2_per_Nuclei),e[,c("Day","Differentiation","Condition")], FUN=mean)
+#Synapses per DendArea(sqrt)
+ag_s <- aggregate(sqrt(e$Synapses_perArea_um2),e[,c("Day","Differentiation","Condition")], FUN=mean)
 ag_s21 <- ag_s[ag_s$Day == "Day21",]
 ag_s33 <- ag_s[ag_s$Day == "Day33",]
 ```
 
 ```{r}
 #Synapses per DendArea per Nuclei (sqrt)
-ag_sf <- aggregate(sqrt(f$Synapses_per_DendArea_um2_per_Nuclei),f[,c("Day","Differentiation","Condition")], FUN=mean)
+ag_sf <- aggregate(sqrt(f$Synapses_perArea_um2),f[,c("Day","Differentiation","Condition")], FUN=mean)
 ag_s21f <- ag_sf[ag_sf$Day == "Day21",]
 ag_s33f <- ag_sf[ag_sf$Day == "Day33",]
 ```
@@ -69,12 +69,12 @@ ag_s33f <- ag_sf[ag_sf$Day == "Day33",]
 
 ```{r}
 #Syn per DendArea per Nuclei (sqrt)
-ag_syn <- aggregate(sqrt(e$Syn_per_area_um2_per_Nuclei),e[,c("Day","Differentiation","Condition")], FUN=mean)
+ag_syn <- aggregate(sqrt(e$Syn_per_area_um2),e[,c("Day","Differentiation","Condition")], FUN=mean)
 ag_syn21 <- ag_syn[ag_syn$Day == "Day21",]
 ag_syn33 <- ag_syn[ag_syn$Day == "Day33",]
 
 #PSD per DendArea per Nuclei (sqrt)
-ag_psd <- aggregate(sqrt(e$PSD_per_area_um2_per_Nuclei),e[,c("Day","Differentiation","Condition")], FUN=mean)
+ag_psd <- aggregate(sqrt(e$PSD_per_area_um2),e[,c("Day","Differentiation","Condition")], FUN=mean)
 ag_psd21 <- ag_psd[ag_psd$Day == "Day21",]
 ag_psd33 <- ag_psd[ag_psd$Day == "Day33",]
 ```

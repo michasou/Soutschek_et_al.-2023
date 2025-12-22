@@ -47,7 +47,7 @@ df_seqid <- readRDS("../res/seq_identity.rds")
 
 # expressed MiRs
 ```{r}
-se <- readRDS("../../../TimeCourse_GRCh38.p10_Ens91/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
+se <- readRDS("../../../01_TimeCourse_MultiOmics/smallRNA/data/Small_RNA/smallRNA_oasis.DEA.SE.rds")
 se$day <- as.factor(se$day)
 ```
 
@@ -72,7 +72,7 @@ smallRNA_counts <- se  %>%
   inner_join(mcols(grl)[c("Name", "Derives_from")], by = c("ID" = "Name"), copy=TRUE) %>%
   left_join(mcols(grl)[c("Name", "ID")], by = c("Derives_from" = "ID"), copy=TRUE) %>%
   dplyr::select(-Derives_from) %>%
-  rename(precursor = Name)
+  dplyr::rename(precursor = Name)
 
 length(unique(smallRNA_counts$precursor))
 ```
@@ -134,8 +134,23 @@ draw(
         labels = c("","not conserved", "60%", "80%","100%")
     )))
 dev.off()
+
+
+pdf("./Figure_Output/sequence_identity_expMiRs_transpose_ComplexHeatmap.pdf", width=7, height=5)
+draw(
+  Heatmap(t(e), col = colors, column_title  = "Homology to Human microRNA precursors",name = "% homology", show_column_dend = FALSE, heatmap_legend_param = list(
+        at = c(0,30,60,80,100), 
+        labels = c("","not conserved", "60%", "80%","100%")
+    )))
+dev.off()
 ```
 
+
+```{r}
+#Source data Fig. 2b
+ll_plot <- as.data.frame(t(e))
+write.csv(ll_plot,file = "../../../12_SourceData/Fig2/Fig_2b.csv")
+```
 
 
 

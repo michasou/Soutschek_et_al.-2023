@@ -24,7 +24,13 @@ suppressPackageStartupMessages({
   library(viridis)
   library(grid)
   library(gtable)
+  library(performance)
 })
+```
+
+```{r}
+#show_col(pal_uchicago("default")(9))
+col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],"darkgrey","black","lightgrey","darkgrey")
 ```
 
 
@@ -49,19 +55,14 @@ info <- distinct(info)
 
 #test for normality
 ```{r}
-ggplot(e,aes(file_name,sqrt(-Peak.Amp..pA.))) + 
-  geom_violin()
-
-ggplot(e,aes(file_name,log(-e$Area..pA...ms.))) + 
-  geom_violin()
+# ggplot(e,aes(file_name,sqrt(-Peak.Amp..pA.))) + 
+#   geom_violin()
+# 
+# ggplot(e,aes(file_name,log(-e$Area..pA...ms.))) + 
+#   geom_violin()
 ```
 
 
-
-```{r}
-#show_col(pal_uchicago("default")(9))
-col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5],"darkgrey","black","lightgrey","darkgrey")
-```
 
 
 
@@ -69,14 +70,45 @@ col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uch
 ##################
 #Amplitude
 
+
 ```{r}
 agg_amp <- aggregate(log(-e$`Peak.Amp..pA.`),e[,c("file_name"), drop = FALSE], FUN=mean)
 agg_amp <- merge(agg_amp,info,by = "file_name", all.x = TRUE)
+```
 
-mod_s1 <- lm(x ~ condition + Differentiation,data = agg_amp)
+```{r}
+# Several CVS were recorded per date, just account for Differentiation and Condition in the DishID
+
+## Dish = Differentiation × condition
+agg_amp$DishID <- interaction(agg_amp$Differentiation, agg_amp$condition, drop = TRUE)
+```
+
+
+```{r}
+# Test for Intraclass Correlation Coefficient (ICC)
+icc_amp <- lmer(x ~ condition + Differentiation +  (1 | DishID), data = agg_amp)
+vc <- VarCorr(icc_amp)
+var_dish <- as.numeric(vc$DishID)
+var_res  <- attr(vc, "sc")^2
+ICC <- var_dish / (var_dish + var_res)
+ICC
+
+#with package performance
+icc(icc_amp)
+```
+# ICC of about ~20%, perform statistic on cellular level
+
+
+#####################
+
+```{r}
+mod_s1 <- lm(x ~ condition + Differentiation , data = agg_amp)
 s1 <- emmeans(mod_s1, trt.vs.ctrl ~ condition , ref="pLNA-Ctrl")
+```
 
 
+
+```{r}
 s1_df <- as.data.frame(s1$contrasts)
 s1_df$group1 <- "pLNA-Ctrl"
 s1_df$group2 <- s1_df$contrast
@@ -91,7 +123,7 @@ s1_df$y_pos <- y_pos*1.05
 
 
 p1 <- ggplot(agg_amp,aes(x = condition, y = x)) + 
-  geom_boxplot(outlier.shape = NA) +
+  geom_violin() +
   stat_summary(aes(color = Differentiation),
     show.legend = TRUE,
     fun = mean,
@@ -99,6 +131,8 @@ p1 <- ggplot(agg_amp,aes(x = condition, y = x)) +
     fun.min = function(x) {mean(x) - sd(x)},
     geom="pointrange", position=position_dodge(width=0.5), size = 0.75
   ) +
+  geom_point(aes(color = Differentiation), alpha = 0.25,position=position_dodge(width=0.5)) +
+  stat_summary(geom = "crossbar",fun = mean) +
   ggsignif::geom_signif(
     data = s1_df,
     aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
@@ -112,8 +146,22 @@ p1 <- ggplot(agg_amp,aes(x = condition, y = x)) +
         axis.title.x=element_blank(),
         axis.text.x = element_text(size = rel(1)))
 
-ggsave2("../Figures/sEPSC_Amplitude.png",p1, width = 4.5,height = 4, bg = "white")
+# ggsave2("../Figures/sEPSC_Amplitude.png",p1, width = 4.5,height = 4, bg = "white")
+# ggsave2("../Figures/sEPSC_Amplitude.pdf",p1, width = 4.5,height = 4, bg = "white")
 ```
+
+
+
+```{r}
+#Source data Fig. 3i - middle)
+write.csv(agg_amp,file = "../../../12_SourceData/Fig3/Fig_3i_middle.csv")
+```
+
+
+
+
+##################
+##################
 
 #Frequency
 
@@ -121,11 +169,42 @@ ggsave2("../Figures/sEPSC_Amplitude.png",p1, width = 4.5,height = 4, bg = "white
 agg_freq <- aggregate(e$file_name,e[,c("file_name"), drop = FALSE], FUN=length)
 agg_freq <- merge(agg_freq,info,by = "file_name", all.x = TRUE)
 agg_freq$x <- log(agg_freq$x / 60)
+```
 
+```{r}
+# Several CVS were recorded per date, just account for Differentiation and Condition in the DishID
+
+## Dish = Differentiation × condition
+agg_freq$DishID <- interaction(agg_freq$Differentiation, agg_freq$condition, drop = TRUE)
+```
+
+
+```{r}
+# Test for Intraclass Correlation Coefficient (ICC)
+icc_freq <- lmer(x ~ condition + Differentiation +  (1 | DishID), data = agg_freq)
+vc <- VarCorr(icc_freq)
+var_dish <- as.numeric(vc$DishID)
+var_res  <- attr(vc, "sc")^2
+ICC <- var_dish / (var_dish + var_res)
+ICC
+
+#with package performance
+icc(icc_freq)
+```
+
+# ICC of about ~35%, perform statistic on cellular level
+
+
+
+#####################
+
+```{r}
 mod_s2 <- lm(x ~ condition + Differentiation,data = agg_freq)
-#mod_s2 <- lm(x ~ condition,data = agg_freq)
 s2 <- emmeans(mod_s2, trt.vs.ctrl ~ condition , ref="pLNA-Ctrl")
+```
 
+
+```{r}
 s2_df <- as.data.frame(s2$contrasts)
 s2_df$group1 <- "pLNA-Ctrl"
 s2_df$group2 <- s2_df$contrast
@@ -139,7 +218,7 @@ s2_df$y_pos <- y_pos*1.05
 
 
 p2 <- ggplot(agg_freq,aes(x = condition, y = x)) + 
-  geom_boxplot(outlier.shape = NA) +
+  geom_violin() +
   stat_summary(aes(color = Differentiation),
     show.legend = TRUE,
     fun = mean,
@@ -147,6 +226,8 @@ p2 <- ggplot(agg_freq,aes(x = condition, y = x)) +
     fun.min = function(x) {mean(x) - sd(x)},
     geom="pointrange", position=position_dodge(width=0.5), size = 0.75
   ) +
+  geom_point(aes(color = Differentiation), alpha = 0.25,position=position_dodge(width=0.5)) +
+  stat_summary(geom = "crossbar",fun = mean) +
   ggsignif::geom_signif(
     data = s2_df,
     aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
@@ -162,67 +243,61 @@ p2 <- ggplot(agg_freq,aes(x = condition, y = x)) +
 
 
 
-ggsave2("../Figures/sEPSC_Frequency.png",p2, width = 4.5,height = 4, bg = "white")
+# ggsave2("../Figures/sEPSC_Frequency.png",p2, width = 4.5,height = 4, bg = "white")
+# ggsave2("../Figures/sEPSC_Frequency.pdf",p2, width = 4.5,height = 4, bg = "white")
 ```
+
 
 ```{r}
-# #log10
-# agg_freq10 <- aggregate(e$file_name,e[,c("file_name"), drop = FALSE], FUN=length)
-# agg_freq10 <- merge(agg_freq10,info,by = "file_name", all.x = TRUE)
-# agg_freq10$x <- log10(agg_freq10$x / 60)
-# 
-# mod_s2b <- lm(x ~ condition + Differentiation,data = agg_freq10)
-# s2b <- emmeans(mod_s2b, trt.vs.ctrl ~ condition , ref="pLNA-Ctrl")
-# 
-# s2b_df <- as.data.frame(s2b$contrasts)
-# s2b_df$group1 <- "pLNA-Ctrl"
-# s2b_df$group2 <- s2b_df$contrast
-# s2b_df$group2 <- gsub("\\) - \\(pLNA-Ctrl\\)","",s2b_df$group2)
-# s2b_df$group2 <- gsub("\\(", "",s2b_df$group2)
-# s2b_df <- add_significance(s2b_df,p.col = "p.value")
-# 
-# #add y_position
-# y_pos <-max(agg_freq10[,"x"])
-# s2b_df$y_pos <- y_pos*1.05
-# 
-# 
-# p2b <- ggplot(agg_freq10,aes(x = condition, y = x)) + 
-#   geom_boxplot(outlier.shape = NA) +
-#   stat_summary(aes(color = Differentiation),
-#     show.legend = TRUE,
-#     fun = mean,
-#     fun.max = function(x) {mean(x) + sd(x)},
-#     fun.min = function(x) {mean(x) - sd(x)},
-#     geom="pointrange", position=position_dodge(width=0.5), size = 0.75
-#   ) +
-#   ggsignif::geom_signif(
-#     data = s2b_df,
-#     aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
-#     textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
-#   ) +
-#   ylab("sEPSC: Frequency [hz] (log)") +
-#   theme_classic(base_size = 12)+
-#   scale_color_manual(values = col_vec) +
-#   #coord_cartesian(ylim = c(0,7)) +
-#   theme(strip.text.x = element_text(size = rel(1.1)),
-#         strip.placement = "inside",
-#         text = element_text(size = 14), 
-#         axis.title.x=element_blank(),
-#         axis.text.x = element_text(size = rel(1)))
-# 
-# 
-# 
-# ggsave2("../Figures/sEPSC_Frequency_log10.png",p2b, width = 4.5,height = 4, bg = "white")
+#Source data Fig. 3i - left)
+write.csv(agg_freq,file = "../../../12_SourceData/Fig3/Fig_3i_left.csv")
 ```
 
+
+
+##################
+##################
 #Charge Transfer
+
 ```{r}
 agg_area <- aggregate(log(-e$Area..pA...ms.),e[,c("file_name"), drop = FALSE], FUN=mean)
 agg_area <- merge(agg_area,info,by = "file_name", all.x = TRUE)
+```
 
+
+```{r}
+# Several CVS were recorded per date, just account for Differentiation and Condition in the DishID
+
+## Dish = Differentiation × condition
+agg_area$DishID <- interaction(agg_area$Differentiation, agg_area$condition, drop = TRUE)
+```
+
+
+```{r}
+# Test for Intraclass Correlation Coefficient (ICC)
+icc_area <- lmer(x ~ condition + Differentiation +  (1 | DishID), data = agg_area)
+vc <- VarCorr(icc_area)
+var_dish <- as.numeric(vc$DishID)
+var_res  <- attr(vc, "sc")^2
+ICC <- var_dish / (var_dish + var_res)
+ICC
+
+#with package performance
+icc(icc_area)
+```
+
+# ICC of about ~17%, perform statistic on cellular level
+
+
+#####################
+
+```{r}
 mod_s3 <- lm(x ~ condition + Differentiation,data = agg_area)
 s3 <- emmeans(mod_s3, trt.vs.ctrl ~ condition , ref="pLNA-Ctrl")
+```
 
+
+```{r}
 s3_df <- as.data.frame(s3$contrasts)
 s3_df$group1 <- "pLNA-Ctrl"
 s3_df$group2 <- s3_df$contrast
@@ -236,7 +311,7 @@ s3_df$y_pos <- y_pos*1.05
 
 
 p3 <- ggplot(agg_area,aes(x = condition, y = x)) + 
-  geom_boxplot(outlier.shape = NA) +
+  geom_violin() +
   stat_summary(aes(color = Differentiation),
     show.legend = TRUE,
     fun = mean,
@@ -244,6 +319,8 @@ p3 <- ggplot(agg_area,aes(x = condition, y = x)) +
     fun.min = function(x) {mean(x) - sd(x)},
     geom="pointrange", position=position_dodge(width=0.5), size = 0.75
   ) +
+  geom_point(aes(color = Differentiation), alpha = 0.25,position=position_dodge(width=0.5)) +
+  stat_summary(geom = "crossbar",fun = mean) +
   ggsignif::geom_signif(
     data = s3_df,
     aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
@@ -259,37 +336,71 @@ p3 <- ggplot(agg_area,aes(x = condition, y = x)) +
 
 
 
-ggsave2("../Figures/sEPSC_Charge Transfer.png",p3, width = 4.5,height = 4, bg = "white")
+# ggsave2("../Figures/sEPSC_Charge Transfer.png",p3, width = 4.5,height = 4, bg = "white")
+# ggsave2("../Figures/sEPSC_Charge Transfer.pdf",p3, width = 4.5,height = 4, bg = "white")
+```
+
+```{r}
+#Source data Fig. 3i - right)
+write.csv(agg_area,file = "../../../12_SourceData/Fig3/Fig_3i_right.csv")
 ```
 
 
+
+## Combined Figure
 
 ```{r}
 legend <- get_legend(p1)
 
 pp <- plot_grid(p2 + theme(legend.position="none"),
                 NULL,
-                p3 + theme(legend.position="none"),
-                NULL,
                 p1 + theme(legend.position="none"),
+                NULL,
+                p3 + theme(legend.position="none"),
                 legend, rel_widths = c(1,0.1,1,0.1,1,0.55),nrow = 1)
 
 ggsave2("../Figures/sEPSC_summary.png",pp, width = 11,height = 4.25, bg = "white")
+ggsave2("../Figures/sEPSC_summary.pdf",pp, width = 11,height = 4.25, bg = "white")
 ```
 
 
 
-
+##################
+##################
 #rise time
-
 ```{r}
 e2 <- e[!is.na(e$Rise.Time.10..to.90...ms.),]
 agg_time <- aggregate(e2$Rise.Time.10..to.90...ms.,e2[,c("file_name"), drop = FALSE], FUN=mean)
 agg_time <- merge(agg_time,info,by = "file_name", all.x = TRUE)
+```
 
+
+```{r}
+# Several CVS were recorded per date, just account for Differentiation and Condition in the DishID
+
+## Dish = Differentiation × condition
+agg_time$DishID <- interaction(agg_time$Differentiation, agg_time$condition, drop = TRUE)
+```
+
+
+```{r}
+# Test for Intraclass Correlation Coefficient (ICC)
+icc_time <- lmer(x ~ condition + Differentiation +  (1 | DishID), data = agg_time)
+vc <- VarCorr(icc_time)
+var_dish <- as.numeric(vc$DishID)
+var_res  <- attr(vc, "sc")^2
+ICC <- var_dish / (var_dish + var_res)
+ICC
+```
+
+# ICC of 0%, perform statistic on cellular level
+
+```{r}
 mod_s4 <- lm(x ~ condition + Differentiation,data = agg_time)
 s4 <- emmeans(mod_s4, trt.vs.ctrl ~ condition , ref="pLNA-Ctrl")
+```
 
+```{r}
 s4_df <- as.data.frame(s4$contrasts)
 s4_df$group1 <- "pLNA-Ctrl"
 s4_df$group2 <- s4_df$contrast
@@ -303,7 +414,7 @@ s4_df$y_pos <- y_pos*1.1
 
 
 p4 <- ggplot(agg_time,aes(x = condition, y = x)) + 
-  geom_boxplot(outlier.shape = NA) +
+  geom_violin() +
   stat_summary(aes(color = Differentiation),
     show.legend = TRUE,
     fun = mean,
@@ -311,6 +422,8 @@ p4 <- ggplot(agg_time,aes(x = condition, y = x)) +
     fun.min = function(x) {mean(x) - sd(x)},
     geom="pointrange", position=position_dodge(width=0.5), size = 0.75
   ) +
+  geom_point(aes(color = Differentiation), alpha = 0.25,position=position_dodge(width=0.5)) +
+  stat_summary(geom = "crossbar",fun = mean) +
   ggsignif::geom_signif(
     data = s4_df,
     aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),
@@ -331,13 +444,42 @@ p4 <- ggplot(agg_time,aes(x = condition, y = x)) +
 ggsave2("../Figures/sEPSC_RiseTime.png",p4, width = 4.5,height = 4, bg = "white")
 ```
 
+
+
+
+##################
+##################
 #decay time
 
 ```{r}
 e3 <- e[!is.na(e$Decay.Time.90..to.10...ms.),]
 agg_decay <- aggregate(e3$Decay.Time.90..to.10...ms.,e3[,c("file_name"), drop = FALSE], FUN=mean)
 agg_decay <- merge(agg_decay,info,by = "file_name", all.x = TRUE)
+```
 
+
+```{r}
+# Several CVS were recorded per date, just account for Differentiation and Condition in the DishID
+
+## Dish = Differentiation × condition
+agg_decay$DishID <- interaction(agg_decay$Differentiation, agg_decay$condition, drop = TRUE)
+```
+
+
+```{r}
+# Test for Intraclass Correlation Coefficient (ICC)
+icc_decay <- lmer(x ~ condition + Differentiation +  (1 | DishID), data = agg_decay)
+vc <- VarCorr(icc_decay)
+var_dish <- as.numeric(vc$DishID)
+var_res  <- attr(vc, "sc")^2
+ICC <- var_dish / (var_dish + var_res)
+ICC
+```
+
+
+# ICC of 0%, perform statistic on cellular level
+
+```{r}
 mod_s5 <- lm(x ~ condition + Differentiation,data = agg_decay)
 s5 <- emmeans(mod_s5, trt.vs.ctrl ~ condition , ref="pLNA-Ctrl")
 
@@ -354,7 +496,7 @@ s5_df$y_pos <- y_pos*1.1
 
 
 p5 <- ggplot(agg_decay,aes(x = condition, y = x)) + 
-  geom_boxplot(outlier.shape = NA) +
+  geom_violin() +
   stat_summary(aes(color = Differentiation),
     show.legend = TRUE,
     fun = mean,
@@ -362,6 +504,8 @@ p5 <- ggplot(agg_decay,aes(x = condition, y = x)) +
     fun.min = function(x) {mean(x) - sd(x)},
     geom="pointrange", position=position_dodge(width=0.5), size = 0.75
   ) +
+  geom_point(aes(color = Differentiation), alpha = 0.25,position=position_dodge(width=0.5)) +
+  stat_summary(geom = "crossbar",fun = mean) +
   ggsignif::geom_signif(
     data = s5_df,
     aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos),

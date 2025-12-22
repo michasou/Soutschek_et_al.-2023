@@ -26,7 +26,7 @@ suppressPackageStartupMessages({
   library(ggnewscale)
   library(ggbreak) 
 })
-source("../../../../functions/plotVolcano.R")
+# source("../../../../00_functions/plotVolcano.R")
 ```
 
 
@@ -49,59 +49,126 @@ se <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
 
 
 
+
 ```{r}
-# Plot volcano function
+plotVolcano <- function(
+    df,
+    sig = 0.05,
+    text.size = 20,
+    anno = NULL,
+    xlim_min = -5, xlim_max = 5,
+    colors = c("blue", "red", "grey"),
+    text_color = c("black", "white"),
+    ybreaks = c(0, 2, 5, 10, 25, 269),
+    yaxis_mode = c("FDR", "neglog10"),
+    ...
+){
+  library(ggplot2)
+  library(ggrepel)
+  library(ggnewscale)
+  library(scales)
 
-plotVolcano <- function(df,sig = 0.05, text.size = 20, log.base = exp(1), anno,
-                        colors = c("blue","red","grey"),
-                        text_color = c("black","white"),
-                        ...){
+  yaxis_mode <- match.arg(yaxis_mode)
 
-  # trans function
-  reverselog_trans <- function(base = log.base) {
-    trans <- function(x) -log(x, base)
-    inv <- function(x) base^(-x)
-    trans_new(paste0("reverselog-", format(base)), trans, inv,
-              log_breaks(base = base),
-              domain = c(-Inf, Inf))
+  # Convert DFrame if needed
+  if (inherits(df, "DFrame")) df <- as.data.frame(df)
+
+  # Significance flag
+  df$`Sign.` <- ifelse(df$FDR >= sig, "not",
+                       ifelse(df$logFC > 0, "up", "down"))
+  df$`Sign.` <- factor(df$`Sign.`, levels = c("up", "down", "not"))
+
+  if (is.null(df$names)) df$names <- row.names(df)
+  df$dir <- ifelse(df$logFC < 0, "downr", "upr")
+
+  # Avoid log issues
+  df$FDR[df$FDR < 1e-300] <- 1e-300
+  df$neglog10FDR <- -log10(df$FDR)
+
+  # Annotation subset
+  if (!is.null(anno)) {
+    anno <- df[df$names %in% anno, ]
   }
 
-  if(class(df) == "DFrame") df <- as.data.frame(df)
-  df$`FDR < 0.5` <- ifelse(df$FDR >= sig, "not",ifelse(df$logFC > 0,"up","down"))
-  df$`FDR < 0.5` <- factor(df$`FDR < 0.5`, levels = c("up", "down", "not"))
-  if(is.null(df$names)) df$names <- row.names(df)
-  df$dir <- ifelse(df$logFC < 0, "downr","upr")
+  # Optional reverse-log transform
+  reverselog_trans <- function(base = 10) {
+    trans <- function(x) -log(x, base)
+    inv   <- function(x) base^(-x)
+    trans_new(
+      paste0("reverselog-", base),
+      trans, inv,
+      domain = c(1e-300, 1)
+    )
+  }
 
-  # add little FDR value
-  df$FDR <- ifelse(df$FDR < 1e-300,df$FDR + 1e-300,df$FDR)
+  # Core plot
+  p <- ggplot(
+    df,
+    aes(
+      x = logFC,
+      y = if (yaxis_mode == "neglog10") neglog10FDR else FDR
+    )
+  ) +
+    geom_point(aes(alpha = 0.7, color = `Sign.`)) +
+    scale_color_manual(values = c(
+      "up"   = colors[1],
+      "down" = colors[2],
+      "not"  = colors[3]
+    )) +
+    labs(alpha = NULL)
 
-  p <- ggplot(df, aes(logFC, FDR)) +
-    geom_point(aes(alpha = 0.7, color=`FDR < 0.5`)) +
-    scale_color_manual(values = c("up" = colors[1],"down" = colors[2],
-                                  "not" = colors[3])) +
-    scale_y_continuous(trans = reverselog_trans()) +
-    new_scale_color() +
-    geom_label_repel(segment.colour = "black",
-                    aes(label=ifelse(names %in% anno, names, "")),
-                    show.legend = FALSE,
-                    max.overlaps = 100,
-                    force_pull = 1,
-                    ...) +
-    scale_color_manual(values = c("upr" = text_color[1],"downr"  = text_color[2])) +
-    scale_fill_manual(values = c("up" = colors[1],"down" = colors[2],
-                                 "not" = colors[3])) +
-    xlab("log2-Fold Change") + ylab("FDR") +
+  # ----- Y-AXIS OPTIONS -----
+  if (yaxis_mode == "neglog10") {
+
+    p <- p + scale_y_continuous(
+      name = expression(-log[10](FDR)),
+      breaks = ybreaks,
+      labels = function(x) format(10^(-x), scientific = TRUE),
+      expand = expansion(mult = c(0.02, 0.05))
+    )
+
+  } else if (yaxis_mode == "FDR") {
+
+    p <- p + scale_y_continuous(
+      name = "FDR",
+      trans = reverselog_trans(base = 10),
+      breaks = 10^(-ybreaks),                 # <-- transforms back to FDR values
+      labels = scales::scientific,
+      expand = expansion(mult = c(0.02, 0.05))
+    )
+  }
+
+  # Annotation layer
+  if (!is.null(anno) && nrow(anno) > 0) {
+  p <- p +
+    ggnewscale::new_scale_color() +
+    ggrepel::geom_label_repel(
+      data = anno,
+      aes(label = names, color = dir),
+      segment.colour = "black",
+      show.legend = FALSE,
+      max.overlaps = 100,
+      force_pull = 1,
+      ...
+    ) +
+    scale_color_manual(values = c("upr" = text_color[1], "downr" = text_color[2]))
+  }
+    
+    
+  #more infos
+  p <- p +  xlab("log2-Fold Change") +
     theme_classic(base_size = text.size) +
-    labs(alpha = NULL) +
-    theme(legend.title=element_text(size=text.size-1),
-          legend.text=element_text(size=text.size-3),
-          axis.title =element_text(size=text.size)) +
+    theme(
+      legend.title = element_text(size = text.size - 1),
+      legend.text  = element_text(size = text.size - 3),
+      axis.title   = element_text(size = text.size)
+    ) +
     guides(alpha = "none")
 
-
-
-
-
+  if (!all(is.na(c(xlim_min, xlim_max)))) {
+    p <- p + coord_cartesian(xlim = c(xlim_min, xlim_max))
+  }
+  
   p
 }
 ```
@@ -118,33 +185,49 @@ dea1229$symbol <- sapply(strsplit(row.names(dea1229),"\\."),"[",2)
 
 
 # plot Volcano
-p <- plotVolcano(df = dea1229 , text.size = 12, sig = 0.5,log.base = 10, xlim_min = NA, xlim_max = NA, anno = NULL, colors = c(yellow,blue,grey)) + ggtitle("pLNA-1229")
-p <- p + scale_y_break(c(10^(-30),10^(-260)))
-p <- p+ theme(axis.text.y.right = element_blank(), axis.ticks.y.right = element_blank(), axis.title.y.right = element_blank(), axis.line.y.right = element_blank()) +
+p1 <- plotVolcano(df = dea1229, text.size = 12, sig = 0.5,yaxis_mode = "FDR", xlim_min = NA, xlim_max = NA, anno = NULL, colors = c(yellow,blue,grey), 
+                  ybreaks = c(0, 5, 10, 25, 269)) + ggtitle("pLNA-1229")
+p1 <- p1 + scale_y_break(c(10^(-30),10^(-260)))
+p1 <- p1 + theme(axis.text.y.right = element_blank(), axis.ticks.y.right = element_blank(), axis.title.y.right = element_blank(), 
+                 axis.line.y.right = element_blank()) +
   theme(text = element_text(size = 16), 
         axis.text.x = element_text(size = rel(1)),
         axis.text.y = element_text(size = rel(1)),
-        plot.title = element_text(size = 16))
+        plot.title = element_text(size = 14)) +
+  guides(color = guide_legend(title = "FDR < 0.5"))
 
-ggsave(p,filename = "../Figure_Output/Volcanos/dea1229_all.png", width = 5, height = 4)
+# ggsave(filename = "../Figure_Output/Volcanos/dea1229_all.png",plot = p1, width = 5, height = 4)
+
+#to save a pdf (the problem is ggbreak when saving a pdf)
+pp1 <- aplot::plot_list(p1)
+ggsave(filename = "../Figure_Output/Volcanos/dea1229_all.pdf",plot = pp1, width = 5, height = 4)
+```
+
+```{r}
+#Source Data Fig. 4a
+write.csv(dea1229,file = "../../../../12_SourceData/Fig4/Fig_4a.csv")
 ```
 
 
-```{r}
-#Pink1
-p <- plotVolcano(df = dea1229 , text.size = 12, sig = 0.05,log.base = 10, anno = NULL, colors = c(yellow,blue,grey)) + ggtitle("pLNA-1229")
-p <- p+ theme(axis.text.y.right = element_blank(), axis.ticks.y.right = element_blank(), axis.title.y.right = element_blank(), axis.line.y.right = element_blank())
-p <- p + geom_label_repel(segment.colour = "black",
-                    aes(label=ifelse(dea1229$symbol %in% "PINK1", paste0(dea1229$symbol," FDR:",round(dea1229[dea1229$symbol == "PINK1","FDR"],2)), "")),
-                    show.legend = FALSE,
-                    box.padding = 0,
-                    label.padding = 0.25,
-                    point.padding = 0,
-                    max.overlaps = 15000,
-                    force_pull = 2) +
-  coord_cartesian(ylim = c(NA,10^(-3)))
 
-ggsave(p,filename = "../Figure_Output/Volcanos/dea1229_Pink1.png", width = 6, height = 4.5)
+
+
+
+```{r}
+# #Pink1
+# p <- plotVolcano(df = dea1229 , text.size = 12, sig = 0.05,log.base = 10, anno = NULL, colors = c(yellow,blue,grey)) + ggtitle("pLNA-1229")
+# p <- p+ theme(axis.text.y.right = element_blank(), axis.ticks.y.right = element_blank(), axis.title.y.right = element_blank(), axis.line.y.right = element_blank())
+# p <- p + geom_label_repel(segment.colour = "black",
+#                     aes(label=ifelse(dea1229$symbol %in% "PINK1", paste0(dea1229$symbol," FDR:",round(dea1229[dea1229$symbol == "PINK1","FDR"],2)), "")),
+#                     show.legend = FALSE,
+#                     box.padding = 0,
+#                     label.padding = 0.25,
+#                     point.padding = 0,
+#                     max.overlaps = 15000,
+#                     force_pull = 2) +
+#   coord_cartesian(ylim = c(NA,10^(-3)))
+# 
+# ggsave(p,filename = "../Figure_Output/Volcanos/dea1229_Pink1.png", width = 6, height = 4.5)
 ```
 
 
@@ -157,58 +240,61 @@ dea181$dir <- ifelse(dea181$logFC < 0, "downr","upr")
 dea181$symbol <- sapply(strsplit(row.names(dea181),"\\."),"[",2)
 
 
-#load targets
-mir181targets <- read.csv("../../Target_Analysis/mir181/dea181c_targets_genebased.csv")
-mir181targets <- mir181targets[mir181targets$FDR < 0.05,]
-mir181targetsfil <- mir181targets[which(mir181targets$X7mer > 0 | mir181targets$X8mer > 0), ]
-anno <- mir181targetsfil$symbol
-
-# plot Volcano
-p <- plotVolcano(df = dea181 , text.size = 12, sig = 0.05,log.base = 10, anno = mir181targetsfil$symbol, colors = c(yellow,blue,grey)) + ggtitle("pLNA-181c")
-p <- p + geom_label_repel(segment.colour = "black", 
-                    aes(label=ifelse(dea181$symbol %in% anno, dea181$symbol, "")),
-                    show.legend = FALSE,
-                    max.overlaps = 2000,
-                    force_pull = 1,
-                    ylim = c(0,15))
-p <- p + scale_y_break(c(10^(-6.5),10^(-15)))
-p <- p+ theme(axis.text.y.right = element_blank(), axis.ticks.y.right = element_blank(), axis.title.y.right = element_blank(), axis.line.y.right = element_blank())
-ggsave(p,filename = "../Figure_Output/Volcanos/dea181_all_targets.png", width = 6, height = 4.5)
+# #load targets
+# mir181targets <- read.csv("../../Target_Analysis/mir181/dea181c_targets_genebased.csv")
+# mir181targets <- mir181targets[mir181targets$FDR < 0.05,]
+# mir181targetsfil <- mir181targets[which(mir181targets$X7mer > 0 | mir181targets$X8mer > 0), ]
+# anno <- mir181targetsfil$symbol
+# 
+# # plot Volcano
+# p <- plotVolcano(df = dea181 , text.size = 12, sig = 0.05, anno = mir181targetsfil$symbol, colors = c(yellow,blue,grey)) + ggtitle("pLNA-181c")
+# p <- p + geom_label_repel(segment.colour = "black", 
+#                     aes(label=ifelse(dea181$symbol %in% anno, dea181$symbol, "")),
+#                     show.legend = FALSE,
+#                     max.overlaps = 2000,
+#                     force_pull = 1,
+#                     ylim = c(0,15))
+# p <- p + scale_y_break(c(10^(-6.5),10^(-15)))
+# p <- p+ theme(axis.text.y.right = element_blank(), axis.ticks.y.right = element_blank(), axis.title.y.right = element_blank(), axis.line.y.right = element_blank())
+# ggsave(p,filename = "../Figure_Output/Volcanos/dea181_all_targets.png", width = 6, height = 4.5)
 
 
 #no label
-p <- plotVolcano(df = dea181 , text.size = 12, sig = 0.5,log.base = 10, xlim_min = NA, xlim_max = NA, anno = NULL, colors = c(yellow,blue,grey)) + ggtitle("pLNA-181c")
-p <- p + scale_y_break(c(10^(-6.5),10^(-15)))
-p <- p+ theme(axis.text.y.right = element_blank(), axis.ticks.y.right = element_blank(), axis.title.y.right = element_blank(), axis.line.y.right = element_blank())
-ggsave(p,filename = "../Figure_Output/Volcanos/dea181_all.png", width = 6, height = 4.5)
+p2 <- plotVolcano(df = dea181 , text.size = 12, sig = 0.5, xlim_min = NA, xlim_max = NA, anno = NULL, colors = c(yellow,blue,grey),
+                 ybreaks = c(0, 2, 5, 10, 16)) + ggtitle("pLNA-181c")
+p2 <- p2 + scale_y_break(c(10^(-6.5),10^(-15)))
+p2 <- p2 + 
+  theme(axis.text.y.right = element_blank(), axis.ticks.y.right = element_blank(), axis.title.y.right = element_blank(), axis.line.y.right = element_blank()) +
+  guides(color = guide_legend(title = "FDR < 0.5"))
+ggsave(filename = "../Figure_Output/Volcanos/dea181_all.png", plot = p2, width = 6, height = 4.5)
 ```
 
 
 
 # dea 3943
 ```{r}
-dea3943 <- rowData(se)[["DEA.pLNA-3943"]]
-dea3943$names <- row.names(dea3943)
-dea3943$dir <- ifelse(dea3943$logFC < 0, "downr","upr")
-dea3943$symbol <- sapply(strsplit(row.names(dea3943),"\\."),"[",2)
-
-#load targets
-mir3943targets <- read.csv("../../Target_Analysis/mir3943/dea3943_targets_genebased.csv")
-mir3943targets <- mir3943targets[mir3943targets$FDR < 0.25,]
-mir3943targetsfil <- mir3943targets[which(mir3943targets$X7mer > 0 | mir3943targets$X8mer > 0), ]
-anno3943 <- mir3943targetsfil$symbol
-
-# plot Volcano
-p <- plotVolcano(df = dea3943 , text.size = 12, sig = 0.05,log.base = 10, anno = NULL, colors = c(yellow,blue,grey)) + ggtitle("pLNA-3943")
-p <- p + geom_label_repel(segment.colour = "black", 
-                    aes(label=ifelse(dea3943$symbol %in% anno3943, dea3943$symbol, "")),
-                    show.legend = FALSE,
-                    max.overlaps = 10000,
-                    force_pull = 1,                  
-                    ylim = c(0,5))
-# p <- p + scale_y_break(c(10^(-4.5),10^(-7.5)))
-# p <- p+ theme(axis.text.y.right = element_blank(), axis.ticks.y.right = element_blank(), axis.title.y.right = element_blank(), axis.line.y.right = element_blank())
-ggsave(p,filename = "../Figure_Output/Volcanos/dea3943_all.png", width = 6, height = 4.5)
+# dea3943 <- rowData(se)[["DEA.pLNA-3943"]]
+# dea3943$names <- row.names(dea3943)
+# dea3943$dir <- ifelse(dea3943$logFC < 0, "downr","upr")
+# dea3943$symbol <- sapply(strsplit(row.names(dea3943),"\\."),"[",2)
+# 
+# #load targets
+# mir3943targets <- read.csv("../../Target_Analysis/mir3943/dea3943_targets_genebased.csv")
+# mir3943targets <- mir3943targets[mir3943targets$FDR < 0.25,]
+# mir3943targetsfil <- mir3943targets[which(mir3943targets$X7mer > 0 | mir3943targets$X8mer > 0), ]
+# anno3943 <- mir3943targetsfil$symbol
+# 
+# # plot Volcano
+# p <- plotVolcano(df = dea3943 , text.size = 12, sig = 0.05, anno = NULL, colors = c(yellow,blue,grey)) + ggtitle("pLNA-3943")
+# p <- p + geom_label_repel(segment.colour = "black", 
+#                     aes(label=ifelse(dea3943$symbol %in% anno3943, dea3943$symbol, "")),
+#                     show.legend = FALSE,
+#                     max.overlaps = 10000,
+#                     force_pull = 1,                  
+#                     ylim = c(0,5))
+# # p <- p + scale_y_break(c(10^(-4.5),10^(-7.5)))
+# # p <- p+ theme(axis.text.y.right = element_blank(), axis.ticks.y.right = element_blank(), axis.title.y.right = element_blank(), axis.line.y.right = element_blank())
+# ggsave(p,filename = "../Figure_Output/Volcanos/dea3943_all.png", width = 6, height = 4.5)
 ```
 
 

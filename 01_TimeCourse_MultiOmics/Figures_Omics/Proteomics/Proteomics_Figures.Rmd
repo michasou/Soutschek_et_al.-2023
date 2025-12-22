@@ -70,9 +70,12 @@ resp2 <- rowData(se_prot)$DEA.neuronal
 
 # Significants
 ```{r}
-sigp_all <- row.names(resp)[which(resp$adj.P.Val < 0.05)]
-sigp <- row.names(resp)[which(resp$adj.P.Val < 0.01)]
-sigp2 <- row.names(resp2)[which(resp2$adj.P.Val < 0.01)]
+resp$maxlfc <- rowMax(abs(as.matrix(resp[,1:6]))) 
+resp2$maxlfc <- rowMax(abs(as.matrix(resp2[,1:5]))) 
+
+sigp_all <- row.names(resp)[which(resp$FDR < 0.05)]
+sigp <- row.names(resp)[resp$FDR < 0.01 & resp$maxlfc > 2]
+sigp2 <- row.names(resp2)[which(resp2$FDR < 0.01)]
 ```
 
 
@@ -90,8 +93,8 @@ sigp2 <- row.names(resp2)[which(resp2$adj.P.Val < 0.01)]
 
 # Heatmap all days, normalized Day9
 ```{r}
-png("Figure_Output/Exploratory/Proteomics_sig_alldays_normDay9.png", width=7, height=5, units="in", res=300)
-sechm(se_prot, sigp, top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol3, anno_colors = ancols, column_title = "Proteins", annocol_title_side=NA, name = "logFC", cluster_rows = TRUE)
+png("Figure_Output/Heat/Proteomics_sig_alldays_normDay9.png", width=7, height=5, units="in", res=300)
+sechm(se_prot, sigp, top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol3, anno_colors = ancols, column_title = "Proteins", annocol_title_side=NA, name = "logFC", cluster_rows = TRUE, show_row_dend = FALSE)
 dev.off()
 ```
 
@@ -119,10 +122,10 @@ mRibo_genes <- unique(rowData(se_ribo)[grep("^MRPL|^MRPS",rowData(se_ribo)$GeneN
 
 heatcol <- c("#4B0C6B","#CF4446","#FFAD33")
 
-png("./Figure_Output/RiboProteins_Protein.png", width=6, height=7, units="in", res=300)
+png("./Figure_Output/Heat/RiboProteins_Protein.png", width=6, height=7, units="in", res=300)
 draw(
-  sechm(se_ribo, assayName = "log2FC.neur", features = Ribo_genes, do.scale = TRUE, top_annotation = "day", hmcols = heatcol,anno_colors = ancols, row_title="nuclear",heatmap_legend_param = list(title = "scaled\nexpression"), annocol_title_side=NA) %v% 
-  sechm(se_ribo, assayName = "log2FC.neur", features = mRibo_genes, do.scale = TRUE, top_annotation = "day", hmcols = heatcol,anno_colors = ancols, row_title="mitochondrial", show_rownames = FALSE,heatmap_legend_param = list(title = "scaled logFC"),annocol_title_side=NA),
+  sechm(se_ribo, assayName = "imputed", features = Ribo_genes, do.scale = TRUE, top_annotation = "day", hmcols = heatcol,anno_colors = ancols, row_title="nuclear",heatmap_legend_param = list(title = "scaled\nexpression"), annocol_title_side=NA) %v% 
+  sechm(se_ribo, assayName = "imputed", features = mRibo_genes, do.scale = TRUE, top_annotation = "day", hmcols = heatcol,anno_colors = ancols, row_title="mitochondrial", show_rownames = FALSE,heatmap_legend_param = list(title = "scaled\nexpression"),annocol_title_side=NA),
 merge_legends=TRUE,column_title = "Ribosomal Proteins")
 dev.off()
 ```

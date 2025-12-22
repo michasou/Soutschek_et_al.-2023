@@ -38,8 +38,8 @@ suppressPackageStartupMessages({
 # allocation
 
 ## input/output files
-folder <- "../data/Small_RNA/Small_RNA_Counts_Oasis/"
-output <- "../data/Small_RNA/raw/smallRNA_oasis.raw.SE.rds"
+folder <- "../data/Small_RNA_Counts_Oasis/"
+output <- "../data/raw/smallRNA_oasis.raw.SE.rds"
 ```
 
 

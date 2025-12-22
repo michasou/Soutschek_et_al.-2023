@@ -35,7 +35,7 @@ col_vec <- c(pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[1],pal_uch
 
 #import table S6
 ```{r}
-df <- read_excel("../aan3456-tabless1-s11.xlsx", 
+df <- read_excel("../data/aan3456-tabless1-s11.xlsx", 
     sheet = "Table S6", skip = 2)
 ```
 
@@ -141,17 +141,24 @@ p2 <- ggplot(dfl_filt,aes(x = miRNA,y = Expression)) +
     x = "miRNA",
     y = "Expression"
   ) +
-  theme_classic(base_size = 12) +
+  theme_classic(base_size = 14) +
   theme(strip.text.x = element_text(size = rel(1.1)),
         strip.placement = "inside",
         text = element_text(size = 14),
         axis.title.x=element_blank(),
-        axis.text.x = element_text(size = rel(1)))
+        axis.title.y = element_text(size = rel(1.2)),
+        axis.text.y = element_text(size = rel(1.1)),
+        axis.text.x = element_text(size = rel(1.1)))
 
-ggsave("../FigureOutput/FilteredRegions.png",p2, width = 8,height = 6, bg = "white")
+ggsave("../FigureOutput/FilteredRegions.png",p2, width = 9,height = 6, bg = "white")
+ggsave("../FigureOutput/FilteredRegions.pdf",p2, width = 9,height = 6, bg = "white")
 ```
 
 
+```{r}
+#Source data Fig. 2e
+write.csv(dfl_filt,file = "../../../12_SourceData/Fig2/Fig_2e.csv")
+```
 
 
 

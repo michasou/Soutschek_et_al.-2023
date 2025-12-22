@@ -29,9 +29,10 @@ se <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
 
 ```{r}
 se$cond_name2 <- se$cond_name
-se$cond_name2 <- gsub("20pmol","10nM",se$cond_name2)
-se$cond_name2 <- gsub("40pmol","20nM",se$cond_name2)
-se$cond_name2 <- factor(se$cond_name2,levels = c("NegCtrl","miR_10nM","miR_20nM"))
+se$cond_name2 <- gsub("_20pmol"," 10nM",se$cond_name2)
+se$cond_name2 <- gsub("_40pmol"," 20nM",se$cond_name2)
+se$cond_name2 <- gsub("NegCtrl","Neg. Ctrl",se$cond_name2)
+se$cond_name2 <- factor(se$cond_name2,levels = c("Neg. Ctrl","miR 10nM","miR 20nM"))
 ```
 
 

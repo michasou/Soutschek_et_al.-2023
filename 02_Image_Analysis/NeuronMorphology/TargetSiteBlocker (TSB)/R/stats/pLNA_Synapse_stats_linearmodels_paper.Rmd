@@ -36,20 +36,27 @@ e <- e[e$Condition != c("empty"),]
 e$Condition <- droplevels(e$Condition)
 ```
 
+```{r}
+#take out r2 as outlier, see TSB_Synapse_Figures.rmd
+e <- e[e$Differentiation != "r2",]
+e$Differentiation <- droplevels(e$Differentiation)
+```
+
+
 
 #Aggregate Means
 ```{r}
-#Synapses per DendArea per Nuclei (sqrt)
-ag_s <- aggregate(sqrt(e$Synapses_per_DendArea_um2_per_Nuclei),e[,c("Differentiation","Condition")], FUN=mean)
+#Synapses per DendArea(sqrt)
+ag_s <- aggregate(sqrt(e$Synapses_perArea_um2),e[,c("Differentiation","Condition")], FUN=mean)
 ```
 
 
 ```{r}
-#Syn per DendArea per Nuclei (sqrt)
-ag_syn <- aggregate(sqrt(e$Syn_per_area_um2_per_Nuclei),e[,c("Differentiation","Condition")], FUN=mean)
+#Syn per DendArea (sqrt)
+ag_syn <- aggregate(sqrt(e$Syn_per_area_um2),e[,c("Differentiation","Condition")], FUN=mean)
 
-#PSD per DendArea per Nuclei (sqrt)
-ag_psd <- aggregate(sqrt(e$PSD_per_area_um2_per_Nuclei),e[,c("Differentiation","Condition")], FUN=mean)
+#PSD per DendArea (sqrt)
+ag_psd <- aggregate(sqrt(e$PSD_per_area_um2),e[,c("Differentiation","Condition")], FUN=mean)
 ```
 
 
@@ -62,7 +69,6 @@ mod_s1 <- MASS::rlm(x ~ Condition + Differentiation,ag_s,psi = psi.huber)
 summary(mod_s1)
 s1 <- emmeans(mod_s1, trt.vs.ctrl ~ Condition , ref="pLNA-Ctrl")
 ```
-
 
 
 ```{r}

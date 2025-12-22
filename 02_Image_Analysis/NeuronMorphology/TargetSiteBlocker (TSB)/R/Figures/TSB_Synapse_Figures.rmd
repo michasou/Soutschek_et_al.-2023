@@ -34,6 +34,17 @@ col_vec <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uch
 col_vec2 <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uchicago("default")(9)[3],pal_uchicago("default")(9)[5])
 ```
 
+```{r}
+norm_to <- function(df,norm_to){
+  nn <- df[df$Condition == norm_to,]
+  nn$Condition <- NULL
+  name <- paste0("Norm_",norm_to)
+  colnames(nn)[colnames(nn) == "x"] <- name
+  df <- merge(df,nn, by = c("Differentiation"))
+  df$Normalized <- df$x / df[[name]]
+  df <- df[df$Condition != norm_to,]
+}
+```
 
 
 
@@ -42,6 +53,93 @@ col_vec2 <- c(pal_uchicago("default")(9)[1],pal_uchicago("default")(9)[2],pal_uc
 e <- readRDS("../Data/Synapsecluster_Result_TSB.rds")
 e <- e[e$Condition != c("empty"),]
 e$Condition <- droplevels(e$Condition)
+```
+
+
+##################
+##################
+#Test
+```{r}
+ag_s <- aggregate(sqrt(e$Synapses_perArea_um2),e[,c("Differentiation","Condition")], FUN=mean)
+ag_s_norm <- norm_to(ag_s,"pLNA-Ctrl")
+
+p1_0 <- ggplot(ag_s_norm[ag_s_norm$Condition != "empty",], aes(x = Condition, y = Normalized)) +
+  geom_bar(stat = "summary", fun = "mean",
+           fill = "white", color = "darkgrey", linewidth = 1) +
+  geom_point(aes(colour = Differentiation), 
+             size = 2, show.legend = TRUE) +
+  scale_color_manual(values = col_vec) +
+  ylab("Synapses per µm2 area per cell\n(Normalized to Ctrl.)") +
+  geom_hline(yintercept = 1,linetype = "dashed") +
+  theme_classic(base_size = 12) +
+  #coord_cartesian(ylim = c(NA,10)) +
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        legend.position = "bottom",
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
+        legend.text = element_text(size = 16))
+```
+
+
+```{r}
+detect_outliers <- function(x) {
+  Q1 <- quantile(x, 0.25)
+  Q3 <- quantile(x, 0.75)
+  IQR <- Q3 - Q1
+  x < (Q1 - 1.5*IQR) | x > (Q3 + 1.5*IQR)
+}
+
+out1 <- ag_s_norm %>%
+  group_by(Condition) %>%
+  mutate(is_outlier = detect_outliers(Normalized))
+
+robust_z <- function(x) {
+  med <- median(x)
+  mad_val <- mad(x, constant = 1)  
+  z <- (x - med) / (mad_val * 1.4826)
+  return(z)
+}
+
+out2 <- ag_s_norm  %>%
+  group_by(Condition) %>%
+  mutate(robust_z = robust_z(Normalized),
+         is_outlier = abs(robust_z) > 3.5)
+```
+
+
+```{r}
+p1_1 <- ggplot(e,aes(x = Condition, y = DendriteArea_um2)) + 
+  geom_violin(show.legend = FALSE) +
+  stat_summary(
+    fun = mean,
+    geom="crossbar",
+    show.legend = FALSE
+  ) +
+  stat_summary(aes(color = Differentiation),
+    show.legend = TRUE,
+    fun = mean,
+    fun.max = function(x) {mean(x) + sd(x)},
+    fun.min = function(x) {mean(x) - sd(x)},
+    geom="pointrange", position=position_dodge(width=0.5), size = 0.75
+  ) +
+  coord_cartesian(ylim = c(0,NA)) +
+  scale_color_manual(values = col_vec) +
+  ylim(0,NA) +
+  scale_y_continuous(labels = comma) +
+  theme_classic() 
+```
+##################
+# It seems Differentiation r2 was an outlier with regards to the pLNA-1229 treatment. 
+# Also, the neurons of this differentiation are smaller, we will therefore take it out
+##################
+
+
+```{r}
+e2 <- e[e$Differentiation != "r2",]
+e2$Differentiation <- droplevels(e2$Differentiation)
 ```
 
 
@@ -59,7 +157,7 @@ st_df_mea <- readRDS("../stats/ST_DF_Synapses_means.rds")
 
 
 #add y_position
-y_pos <- sqrt(max(e[,"Synapses_per_DendArea_um2_per_Nuclei"]))
+y_pos <- sqrt(max(e2[,"Synapses_perArea_um2"]))
 
 
 st_df_mea$y_pos <- y_pos*1.075
@@ -70,7 +168,7 @@ st_df_mea$p.value.signif[st_df_mea$p.value.signif == "ns"] <- NA
 
 
 ```{r}
-p1 <- ggplot(e,aes(x = Condition, y = sqrt(Synapses_per_DendArea_um2_per_Nuclei))) + 
+p1a <- ggplot(e2,aes(x = Condition, y = sqrt(Synapses_perArea_um2))) + 
   geom_violin() +
   stat_summary(
     fun = mean,
@@ -90,7 +188,7 @@ p1 <- ggplot(e,aes(x = Condition, y = sqrt(Synapses_per_DendArea_um2_per_Nuclei)
     aes(xmin = group1, xmax = group2, annotations = p.value.signif, y_position = y_pos2),
     textsize = 4, vjust = -0.1, size = 0.75, manual = TRUE
   ) +
-  ylab("Synapses per µm2 area per cell (sqrt)") +
+  ylab("Synapses per µm2 area (sqrt)") +
   theme_classic()+
   #coord_cartesian(ylim = c(NA,10)) +
   theme(strip.text.x = element_text(size = rel(1)),
@@ -102,10 +200,34 @@ p1 <- ggplot(e,aes(x = Condition, y = sqrt(Synapses_per_DendArea_um2_per_Nuclei)
         legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
         legend.text = element_text(size = 16))
 
-ggsave("../FigureOutput/TSB_Synapses.png",p1, width = 8,height = 5, bg = "white")
+ggsave("../FigureOutput/TSB_Synapses.png",p1a, width = 8,height = 5, bg = "white")
 ```
 
+```{r}
+ag_s1 <- aggregate(sqrt(e2$Synapses_perArea_um2),e2[,c("Differentiation","Condition")], FUN=mean)
+ag_s1_norm <- norm_to(ag_s1,"pLNA-Ctrl")
 
+p1b <- ggplot(ag_s1_norm[ag_s1_norm$Condition != "empty",], aes(x = Condition, y = Normalized)) +
+  geom_bar(stat = "summary", fun = "mean",
+           fill = "white", color = "darkgrey", linewidth = 1) +
+  geom_point(aes(colour = Differentiation), 
+             size = 2, show.legend = TRUE) +
+  scale_color_manual(values = col_vec) +
+  ylab("Synapses per µm2 area\n(Normalized to Ctrl.)") +
+  geom_hline(yintercept = 1,linetype = "dashed") +
+  theme_classic(base_size = 12) +
+  #coord_cartesian(ylim = c(NA,10)) +
+  theme(strip.text.x = element_text(size = rel(1)),
+        strip.placement = "inside",
+        text = element_text(size = 16), 
+        axis.title.x=element_blank(),
+        axis.text.x = element_text(size = rel(1)),
+        legend.position = "bottom",
+        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
+        legend.text = element_text(size = 16))
+
+ggsave("../FigureOutput/TSB_Synapses_norm.png",p1b, width = 4,height = 5, bg = "white")
+```
 
 
 
@@ -122,7 +244,7 @@ st_df_mea <- readRDS("../stats/ST_DF_SynDensity_means.rds")
 
 
 #add y_position
-y_pos <- sqrt(max(e[,"Syn_per_area_um2_per_Nuclei"]))
+y_pos <- sqrt(max(e2[,"Syn_per_area_um2"]))
 
 
 st_df_mea$y_pos <- y_pos*1.075
@@ -132,7 +254,7 @@ st_df_mea$p.value.signif[st_df_mea$p.value.signif == "ns"] <- NA
 ```
 
 ```{r}
-p2 <- ggplot(e,aes(x = Condition, y = sqrt(Syn_per_area_um2_per_Nuclei))) + 
+p2 <- ggplot(e2,aes(x = Condition, y = sqrt(Syn_per_area_um2))) + 
   geom_violin() +
   stat_summary(
     fun = mean,
@@ -147,7 +269,7 @@ p2 <- ggplot(e,aes(x = Condition, y = sqrt(Syn_per_area_um2_per_Nuclei))) +
     fun.min = function(x) {mean(x) - sd(x)},
     geom="pointrange", position=position_dodge(width=0.5), size = 0.75
   ) +
-  ylab("Syn1 per µm2 area per cell (sqrt)") +
+  ylab("Syn1 per µm2 area (sqrt)") +
   theme_classic()+
   #coord_cartesian(ylim = c(NA,10)) +
   theme(strip.text.x = element_text(size = rel(1)),
@@ -180,7 +302,7 @@ st_df_mea <- readRDS("../stats/ST_DF_PSDDensity_means.rds")
 
 
 #add y_position
-y_pos <- sqrt(max(e[,"PSD_per_area_um2_per_Nuclei"]))
+y_pos <- sqrt(max(e2[,"PSD_per_area_um2"]))
 
 
 st_df_mea$y_pos <- y_pos*1.075
@@ -190,7 +312,7 @@ st_df_mea$p.value.signif[st_df_mea$p.value.signif == "ns"] <- NA
 ```
 
 ```{r}
-p3 <- ggplot(e,aes(x = Condition, y = sqrt(PSD_per_area_um2_per_Nuclei))) + 
+p3 <- ggplot(e2,aes(x = Condition, y = sqrt(PSD_per_area_um2))) + 
    geom_violin() +
   stat_summary(
     fun = mean,
@@ -224,44 +346,6 @@ ggsave("../FigureOutput/TSB_PSDDensity.png",p3, width = 8,height = 6, bg = "whit
 
 
 
-```{r}
-norm_to <- function(df,norm_to){
-  nn <- df[df$Condition == norm_to,]
-  nn$Condition <- NULL
-  name <- paste0("Norm_",norm_to)
-  colnames(nn)[colnames(nn) == "x"] <- name
-  df <- merge(df,nn, by = c("Differentiation"))
-  df$Normalized <- df$x / df[[name]]
-  df <- df[df$Condition != norm_to,]
-}
-```
-
-
-```{r}
-ag_s <- aggregate(sqrt(e$Synapses_per_DendArea_um2_per_Nuclei),e[,c("Differentiation","Condition")], FUN=mean)
-ag_s_norm <- norm_to(ag_s,"pLNA-Ctrl")
-
-p1c <- ggplot(ag_s_norm[ag_s_norm$Condition != "empty",], aes(x = Condition, y = Normalized)) +
-  geom_bar(stat = "summary", fun = "mean",
-           fill = "white", color = "darkgrey", linewidth = 1) +
-  geom_point(aes(colour = Differentiation), 
-             size = 2, show.legend = TRUE) +
-  scale_color_manual(values = col_vec) +
-  ylab("Synapses per µm2 area per cell\n(Normalized to Ctrl.)") +
-  geom_hline(yintercept = 1,linetype = "dashed") +
-  theme_classic(base_size = 12) +
-  #coord_cartesian(ylim = c(NA,10)) +
-  theme(strip.text.x = element_text(size = rel(1)),
-        strip.placement = "inside",
-        text = element_text(size = 16), 
-        axis.title.x=element_blank(),
-        axis.text.x = element_text(size = rel(1)),
-        legend.position = "bottom",
-        legend.title = element_text(size = 16,margin = margin(0,20,0,0)),
-        legend.text = element_text(size = 16))
-
-ggsave("../FigureOutput//TSB_Synapses_Norm.png",p1c, width = 6,height = 8, bg = "white")
-```
 
 
 
