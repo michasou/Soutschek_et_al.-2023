@@ -1,0 +1,11 @@
+"","GO.ID","Term","Annotated","Significant","Expected","Fold_Enrichment","Rank in Fisher.classic","Fisher.elim","Fisher.classic","Classic_Fishe_BH_Corr","Sig_Genes","up","down","label1","label2","rank"
+"1","GO:0097542","ciliary tip",40,3,0.25,12,1,0.0019,"0.0019",0.27,"c(""CDKL5"", ""CILK1"", ""CYLD"")",0,3,1.1e-05,1.11,1
+"2","GO:0098978","glutamatergic synapse",478,9,2.97,3.03030303030303,2,0.0027,"0.0027",0.27,"c(""CBLB"", ""CDKL5"", ""DGKI"", ""DLGAP4"", ""ELAVL1"", ""NUMB"", ""PAK3"", ""PTPN1"", ""SLC4A8"")",0,9,1.1e-05,1.11,2
+"3","GO:0098794","postsynapse",625,10,3.88,2.57731958762887,3,0.0051,"0.0051",0.324,"c(""ADD2"", ""CBLB"", ""CDKL5"", ""DGKI"", ""DLGAP4"", ""ELAVL1"", ""PAK3"", ""PTPN1"", ""RTN1"", ""SENP5"")",0,10,1.1e-05,1.11,3
+"4","GO:0032279","asymmetric synapse",317,6,1.97,3.04568527918782,5,0.0138,"0.0138",0.324,"c(""ADD2"", ""CDKL5"", ""DGKI"", ""PAK3"", ""RTN1"", ""SLC4A8"")",0,6,1.1e-05,1.11,4
+"5","GO:0099572","postsynaptic specialization",323,6,2.01,2.98507462686567,6,0.015,"0.0150",0.324,"c(""ADD2"", ""CDKL5"", ""DGKI"", ""DLGAP4"", ""PAK3"", ""RTN1"")",0,6,1.1e-05,1.11,5
+"6","GO:0098984","neuron to neuron synapse",346,6,2.15,2.7906976744186,7,0.0204,"0.0204",0.324,"c(""ADD2"", ""CDKL5"", ""DGKI"", ""PAK3"", ""RTN1"", ""SLC4A8"")",0,6,1.1e-05,1.11,6
+"7","GO:0045177","apical part of cell",262,5,1.63,3.06748466257669,8,0.0233,"0.0233",0.324,"c(""ATP6V1A"", ""CLCN5"", ""NUMB"", ""SLC4A8"", ""VASH1"")",0,5,1.1e-05,1.11,7
+"8","GO:0008021","synaptic vesicle",180,4,1.12,3.57142857142857,10,0.0256,"0.0256",0.324,"c(""ATP6V1A"", ""CLCN5"", ""DGKI"", ""SLC4A8"")",0,4,1.1e-05,1.11,8
+"9","GO:0005637","nuclear inner membrane",43,2,0.27,7.40740740740741,11,0.0292,"0.0292",0.324,"c(""LBR"", ""TMPO"")",0,2,1.1e-05,1.11,9
+"14","GO:0030672","synaptic vesicle membrane",110,3,0.68,4.41176470588235,16,0.0309,"0.0309",0.324,"c(""ATP6V1A"", ""DGKI"", ""SLC4A8"")",0,3,1.1e-05,1.11,10

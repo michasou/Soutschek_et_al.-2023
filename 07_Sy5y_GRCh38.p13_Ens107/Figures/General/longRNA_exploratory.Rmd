@@ -118,7 +118,7 @@ ggsave("../Figure_Output/Exploratory/PCA_man.png",p1, width = 6.5,height = 4.5, 
 
 ## Heatmaps
 ```{r}
-sechm::sechm(se, head(row.names(rowData(se)$DEA.any), 50), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE)
+# sechm::sechm(se, head(row.names(rowData(se)$DEA.any), 50), assayName ="log2FC.Ctrl", top_annotation="diff", gaps_at="condition" ,breaks=TRUE)
 ```
 
 

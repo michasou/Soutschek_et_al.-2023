@@ -154,7 +154,7 @@ p1 <- ggplot(agg_amp,aes(x = condition, y = x)) +
 
 ```{r}
 #Source data Fig. 3i - middle)
-write.csv(agg_amp,file = "../../../12_SourceData/Fig3/Fig_3i_middle.csv")
+write.csv(agg_amp,file = "../../../12_SourceData/Fig3/Fig_3i_right.csv")
 ```
 
 
@@ -342,7 +342,7 @@ p3 <- ggplot(agg_area,aes(x = condition, y = x)) +
 
 ```{r}
 #Source data Fig. 3i - right)
-write.csv(agg_area,file = "../../../12_SourceData/Fig3/Fig_3i_right.csv")
+write.csv(agg_area,file = "../../../12_SourceData/Fig3/Fig_3i_middle.csv")
 ```
 
 
@@ -354,9 +354,9 @@ legend <- get_legend(p1)
 
 pp <- plot_grid(p2 + theme(legend.position="none"),
                 NULL,
-                p1 + theme(legend.position="none"),
-                NULL,
                 p3 + theme(legend.position="none"),
+                NULL,
+                p1 + theme(legend.position="none"),
                 legend, rel_widths = c(1,0.1,1,0.1,1,0.55),nrow = 1)
 
 ggsave2("../Figures/sEPSC_summary.png",pp, width = 11,height = 4.25, bg = "white")

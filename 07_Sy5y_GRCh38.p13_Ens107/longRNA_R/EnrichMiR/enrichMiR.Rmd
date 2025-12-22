@@ -157,7 +157,12 @@ p4a <- p4a + scale_y_continuous(
 
 p4a <- p4a + scale_color_viridis_c(direction = 1) + theme_classic() + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) + ggtitle("EnrichMiR - siteoverlap") + labs(color="Expression")
 
-ggsave2("../../Figures/Figure_Output/EnrichMiR/miR1229_Enrichplot_SO_10nM.png",p4a, width = 7,height = 5, bg = "white")
+ggsave2("../../Figures/Figure_Output/EnrichMiR/miR1229_Enrichplot_SO_10nM.pdf",p4a, width = 7,height = 5, bg = "white")
+```
+
+```{r}
+#Source data Fig. 6b)
+write.csv(res_SC_ind10_so,"../../../12_SourceData/Fig6/Fig_6b.csv")
 ```
 
 
@@ -210,8 +215,17 @@ set_1229 <- "hsa-miR-1229-3p"
 
 p10 <- CDplotWrapper(dea = dea2, sets = sets_SC, setName = set_1229, by = "best_stype") + coord_cartesian(xlim = c(-0.3,0.3)) + theme_classic() + ggtitle("miR-1229-3p (10nM)") + guides(color=guide_legend(title="scanMiR\nbest site type")) + theme(plot.title = element_text(size=15), axis.text=element_text(size=12), axis.title=element_text(size=14),legend.title=element_text(size=13), legend.text=element_text(size=12)) 
 
-ggsave2("../../Figures/Figure_Output/EnrichMiR/miR1229_10nM_CDPlot_SC.png",p10, width = 6,height = 4.5, bg = "white")
+ggsave2("../../Figures/Figure_Output/EnrichMiR/miR1229_10nM_CDPlot_SC.pdf",p10, width = 6,height = 4.5, bg = "white")
 ```
+
+```{r}
+#Source data Fig. 6c)
+write.csv(dea2,"../../../12_SourceData/Fig6/Fig_6c.csv")
+```
+
+
+
+
 
 #CD Plot ScanMiR miR-1229 (20nM)
 ```{r}

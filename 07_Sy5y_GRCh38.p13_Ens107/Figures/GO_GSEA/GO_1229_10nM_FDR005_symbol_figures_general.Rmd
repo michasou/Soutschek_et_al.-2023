@@ -189,7 +189,15 @@ p2 <- ggplot(data = CC_Top, aes(x = as.factor(CC_Top$GO.ID))) +
 
 p2
 
-ggsave("../Figure_Output/GO-Terms/GO_10nmDEA_symbol_005_CC.png",p2, width=12, height=7, units="in", dpi=300)
+ggsave("../Figure_Output/GO-Terms/GO_10nmDEA_symbol_005_CC.pdf",p2, width=12, height=7, units="in", dpi=300)
+```
+
+
+```{r}
+#Source data Fig. 6d)
+sd_df <- CC_Top
+sd_df$Sig_Genes <- as.character(sd_df$Sig_Genes)
+write.csv(sd_df,"../../../12_SourceData/Fig6/Fig_6d.csv")
 ```
 
 

@@ -112,40 +112,40 @@ ggsave("../Figure_Output/Targets/Top10TargetsDosage.png", plot = p1, width = 20,
 
 
 ```{r}
-df2 <- meltSE(se_sy, row.names(se_sy), assayName = "logcpm")
-df2$gene_name <- factor(df2$gene_name,levels = Targets$gene_name)
-
-#Mitochondrial Targets black
-p1b <- ggplot(df2[df2$gene_name %in% c("SYNJ2BP","ARL6IP1","MTX3","RTN1"),], aes(cond_name, logcpm)) + 
-  geom_violin(fill = "black",color = "white") + 
-  geom_point(aes(color = experiment)) +  
-  ggtitle("Top10 expr. Targets") + theme_classic() + xlab("") +
-  theme_classic(base_size = 12)+
-  scale_color_manual(values = col_vec) +
-  facet_wrap(~gene_name, scale = "free") +
-  #coord_cartesian(ylim = c(0,7)) +
-  theme(strip.text.x = element_text(size = rel(1.1),color = "white"),
-        strip.text.y = element_text(size = rel(1.1),color = "white"),
-        strip.placement = "inside",
-        text = element_text(size = 14),
-        panel.background = element_rect(fill = "black", color = NA),
-        plot.background = element_rect(fill = "black", color = NA),
-        axis.title = element_text(color = "white"),
-        axis.text = element_text(color = "white"),
-        axis.line = element_line(color = "white"),
-        axis.ticks = element_line(color = "white"),
-        strip.background.x = element_rect(fill = "transparent", color = "white"),
-        strip.background.y = element_rect(fill = "transparent", color = "white"),
-        strip.text = element_text(color = "white"),
-        legend.text = element_text(color = "white"),
-        legend.title = element_text(color = "white"),
-        legend.background = element_rect(fill = "black", color = "black"),
-        legend.position = "bottom"
-        )
-
-
-ggsave("../Figure_Output/Targets/MitochondrialTargets_black.png", plot = p1b, width = 10,height = 6, bg = "transparent")
-ggsave("../Figure_Output/Targets/MitochondrialTargets_black.pdf", plot = p1b, width = 10,height = 6, bg = "transparent")
+# df2 <- meltSE(se_sy, row.names(se_sy), assayName = "logcpm")
+# df2$gene_name <- factor(df2$gene_name,levels = Targets$gene_name)
+# 
+# #Mitochondrial Targets black
+# p1b <- ggplot(df2[df2$gene_name %in% c("SYNJ2BP","ARL6IP1","MTX3","RTN1"),], aes(cond_name, logcpm)) + 
+#   geom_violin(fill = "black",color = "white") + 
+#   geom_point(aes(color = experiment)) +  
+#   ggtitle("Top10 expr. Targets") + theme_classic() + xlab("") +
+#   theme_classic(base_size = 12)+
+#   scale_color_manual(values = col_vec) +
+#   facet_wrap(~gene_name, scale = "free") +
+#   #coord_cartesian(ylim = c(0,7)) +
+#   theme(strip.text.x = element_text(size = rel(1.1),color = "white"),
+#         strip.text.y = element_text(size = rel(1.1),color = "white"),
+#         strip.placement = "inside",
+#         text = element_text(size = 14),
+#         panel.background = element_rect(fill = "black", color = NA),
+#         plot.background = element_rect(fill = "black", color = NA),
+#         axis.title = element_text(color = "white"),
+#         axis.text = element_text(color = "white"),
+#         axis.line = element_line(color = "white"),
+#         axis.ticks = element_line(color = "white"),
+#         strip.background.x = element_rect(fill = "transparent", color = "white"),
+#         strip.background.y = element_rect(fill = "transparent", color = "white"),
+#         strip.text = element_text(color = "white"),
+#         legend.text = element_text(color = "white"),
+#         legend.title = element_text(color = "white"),
+#         legend.background = element_rect(fill = "black", color = "black"),
+#         legend.position = "bottom"
+#         )
+# 
+# 
+# ggsave("../Figure_Output/Targets/MitochondrialTargets_black.png", plot = p1b, width = 10,height = 6, bg = "transparent")
+# ggsave("../Figure_Output/Targets/MitochondrialTargets_black.pdf", plot = p1b, width = 10,height = 6, bg = "transparent")
 ```
 
 
@@ -302,7 +302,20 @@ ppl <- plot_grid(NULL,l1,NULL,l2,NULL,nrow = 1,rel_heights = c(0.25,1,0.25,1,0.2
 
 pp <- plot_grid(pp,ppl,ncol = 1,rel_heights = c(1,0.1))
 
-ggsave2("../Figure_Output/Targets/Targets_with_BS.png",pp, width = 12,height = 13, bg = "white")
+ggsave2("../Figure_Output/Targets/Targets_with_BS.pdf",pp, width = 12,height = 13, bg = "white")
+```
+
+
+```{r}
+#Source data Fig. 6f)
+
+#dosage
+dd_sd <- df[df$gene_name %in% gg,]
+write.csv(dd_sd,"../../../12_SourceData/Fig6/Fig_6f_left.csv")
+
+#binding sites
+mb_sd <- m2[m2$seqnames %in% gg,]
+write.csv(mb_sd,"../../../12_SourceData/Fig6/Fig_6f_right.csv")
 ```
 
 
