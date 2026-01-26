@@ -85,7 +85,7 @@ p2 <- ggplot(ge_plot, aes(x = population, y = variant)) +
         axis.text.x = element_text(size = rel(1)),
         axis.title.y = element_text(size = rel(1.25))) +
   coord_cartesian(ylim = c(0,0.075)) +
-  ggtitle("1000Genomes frequencies - rs2291418")
+  ggtitle("1000 Genomes frequencies - rs2291418")
 
 ggsave("./FigureOutput/1000Genomes.png",p2, width = 8,height = 5, bg = "white")
 ```

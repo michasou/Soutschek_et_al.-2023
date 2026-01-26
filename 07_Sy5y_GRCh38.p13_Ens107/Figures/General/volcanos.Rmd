@@ -60,7 +60,7 @@ dea1229$symbol <- sapply(strsplit(row.names(dea1229),"\\."),"[",2)
 
 ```{r}
 # plot Volcano
-p <- plotVolcano_new(df = dea1229 , text.size = 12, sig = 0.05,log.base = 10, anno = NULL, colors = c(yellow,blue,grey),
+p <- plotVolcano_new(df = dea1229 , text.size = 12, sig = 0.05, anno = NULL, colors = c(yellow,blue,grey),
                  xlim_min = -3, xlim_max = 3,ybreaks = c(0, 5, 15, 25, 35),yaxis_mode = c("FDR")) + ggtitle("miR-1229-3p (10nM)")
 
 ggsave(p,filename = "../Figure_Output/Volcanos/dea1229_10nM.pdf", width = 5, height = 4)

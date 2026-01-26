@@ -148,7 +148,7 @@ p1 <- ggplot(agg_ch,aes(x = condition, y = x)) +
 
 
 ```{r}
-#Source data Fig. 3j - right)
+#Source data Fig. 3j - left)
 write.csv(agg_ch,file = "../../../12_SourceData/Fig3/Fig_3j_left.csv")
 ```
 
@@ -234,7 +234,7 @@ p2 <- ggplot(agg_amp,aes(x = condition, y = x)) +
 ```
 
 ```{r}
-#Source data Fig. 3j - left)
+#Source data Fig. 3j - right)
 write.csv(agg_amp,file = "../../../12_SourceData/Fig3/Fig_3j_right.csv")
 ```
 

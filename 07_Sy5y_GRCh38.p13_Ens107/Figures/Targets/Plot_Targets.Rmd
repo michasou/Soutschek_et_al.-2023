@@ -50,7 +50,7 @@ colvec_sc["8mer"] <- pal_uchicago("default")(9)[3]
 #load data
 ```{r}
 dea1229g <- read.csv("../../longRNA_R/Target_Analysis/target_data/dea1229_targets_genebased_10nm.csv")
-Targets <- dea1229g [!is.na(dea1229g $X8mer),]
+Targets <- dea1229g[!is.na(dea1229g$X8mer),]
 Targets <- Targets[Targets$X8mer > 0 | Targets$X7mer > 0,]
 
 Targets <- Targets[Targets$logFC < 0,]
@@ -87,6 +87,7 @@ rowData(se_sy)$`DEA.ind.Ctrl-MiR` <- NULL
 g1 <- row.names(se_sy)[rowData(se_sy)$gene_name %in% Targets$gene_name]
 df <- meltSE(se_sy, g1, assayName = "logcpm")
 df$gene_name <- factor(df$gene_name,levels = Targets$gene_name)
+df$cond_name <- factor(df$cond_name,levels = c("Ctrl.","miR-1229 (10nM)","miR-1229 (20nM)"))
 ```
 
 
@@ -189,6 +190,7 @@ for(i in as.character(transcript_targets$gene_name)){
 }
 
 sf <- data.frame(start=1, end=lengths(seqs), seqnames=names(seqs), y=0)
+sf$seqnames <- factor(sf$seqnames,levels = sf$seqnames)
 ```
 
 ```{r}
@@ -197,8 +199,6 @@ m <- findSeedMatches(seqs, mod, onlyCanonical= TRUE, shadow = 15,maxLogKd = c(-0
 m2 <- as.data.frame(m)
 m2$position <- m2$start
 m2$miRNA <- "miR-1229-3p"
-m2$seqnames <- as.factor(m2$seqnames)
-sf$seqnames <- as.factor(sf$seqnames)
 ```
 
 
@@ -315,7 +315,11 @@ write.csv(dd_sd,"../../../12_SourceData/Fig6/Fig_6f_left.csv")
 
 #binding sites
 mb_sd <- m2[m2$seqnames %in% gg,]
-write.csv(mb_sd,"../../../12_SourceData/Fig6/Fig_6f_right.csv")
+write.csv(mb_sd,"../../../12_SourceData/Fig6/Fig_6f_right_bindingsites.csv")
+
+#transcript lengths
+sf_sd <- sf[sf$seqnames %in% gg,]
+write.csv(sf_sd,"../../../12_SourceData/Fig6/Fig_6f_right_txlength.csv")
 ```
 
 

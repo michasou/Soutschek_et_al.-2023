@@ -6,12 +6,15 @@ output: html_document
 ---
 
 ```{r}
-library(topGO)
-library(org.Hs.eg.db)
-library(openxlsx)
+suppressPackageStartupMessages({
+  library(topGO)
+  library(org.Hs.eg.db)
+  library(openxlsx)
+  library(SummarizedExperiment)
+})
 ```
 
-#script executed with org.Hs.eg.db (version 3.12)
+#script executed with org.Hs.eg.db (version 3.21)
 
 #load experiment
 ```{r}
@@ -26,7 +29,6 @@ dea1229$Symbol <- sapply(strsplit(row.names(dea1229),split = "\\."),"[",2)
 
 #Create the Vectors
 
-Dend: All significants vs the genes from the specific background
 ```{r}
 GeneUniverse <- as.character(dea1229$Symbol)
 GenesOfInterest <- as.character(dea1229[dea1229$FDR < 0.05 & dea1229$logFC < 0,"Symbol"])

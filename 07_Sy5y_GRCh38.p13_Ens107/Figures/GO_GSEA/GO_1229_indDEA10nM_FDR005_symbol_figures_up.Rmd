@@ -75,13 +75,12 @@ BP_Top$Fisher.elim <- as.numeric(BP_Top$Fisher.elim)
 
 combine
 ```{r}
-GO <- rbind(CC_Top,BP_Top,MF_Top)#
+GO <- rbind(CC_Top,BP_Top,MF_Top)
 GO <- GO[order(GO$Fisher.elim),]
 ```
 
 
 ```{r}
-GO$Fisher.elim <- as.numeric(GO$Fisher.elim)
 GO$rank <- frank(GO$Fisher.elim, ties.method = "first")
 ```
 
@@ -138,8 +137,7 @@ p <- ggplot(data = GO, aes(x = as.factor(GO$GO.ID))) +
         plot.margin = unit(c(3,1,3,1),"lines"),
         plot.title = element_text(vjust = 5))
         
-p
 
-ggsave("../Figure_Output/GO-Terms/GO_indDEA_symbol_up_005.png", width=12, height=5, units="in", dpi=300)
+ggsave("../Figure_Output/GO-Terms/GO_indDEA_symbol_up_005.png",plot = p, width=12, height=5, units="in", dpi=300)
 ```
 

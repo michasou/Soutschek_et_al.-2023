@@ -8,18 +8,20 @@ output: html_document
 
 
 ```{r}
-library(scanMiR)
-library(SummarizedExperiment)
-library(dplyr)
+suppressPackageStartupMessages({
+  library(scanMiR)
+  library(SummarizedExperiment)
+  library(dplyr)
+})
 ```
 
 
 
 #load data
 ```{r}
-se <- readRDS("../data/SE.dea.TX.salmon.raw.rds")
-se2 <- readRDS("../data/SE.dea.Gene.salmon.raw.rds")
-sites1229 <- readRDS("../../pLNA_experiment/Target_Analysis/miR1229/target_data/Screen_mir-1229-3p_sites_agg.rds")
+se <- readRDS("../../data/SE.dea.TX.salmon.raw.rds")
+se2 <- readRDS("../../data/SE.dea.Gene.salmon.raw.rds")
+sites1229 <- readRDS("../../../03_pLNA_GRCh38.p13_Ens107/pLNA_experiment/Target_Analysis/miR1229/target_data/Screen_mir-1229-3p_sites_agg.rds")
 colnames(sites1229)[colnames(sites1229) == "V3"] <- "gene_id"
 sites1229$gene_id <- sapply(strsplit(sites1229$gene_id,"\\."),"[",1)
 ```
@@ -51,7 +53,7 @@ dea1229g$gene_name <- sapply(strsplit(row.names(dea1229g),"\\."),"[",2)
 sites1229filtered <- sites1229[sites1229$transcript %in% dea1229$transcript,]
 sites1229agg <- sites1229filtered %>%
   group_by(gene_id) %>%
-  dplyr::filter(repression == min(min(repression), na.rm=TRUE))
+  dplyr::filter(repression == min(repression, na.rm=TRUE))
 
 sites1229agg$transcript <- NULL
 sites1229agg <- distinct(sites1229agg)
@@ -91,7 +93,7 @@ dea1229g$gene_name <- sapply(strsplit(row.names(dea1229g),"\\."),"[",2)
 sites1229filtered <- sites1229[sites1229$transcript %in% dea1229$transcript,]
 sites1229agg <- sites1229filtered %>%
   group_by(gene_id) %>%
-  dplyr::filter(repression == min(min(repression), na.rm=TRUE))
+  dplyr::filter(repression == min(repression, na.rm=TRUE))
 
 sites1229agg$transcript <- NULL
 sites1229agg <- distinct(sites1229agg)
@@ -131,7 +133,7 @@ dea1229g$gene_name <- sapply(strsplit(row.names(dea1229g),"\\."),"[",2)
 sites1229filtered <- sites1229[sites1229$transcript %in% dea1229$transcript,]
 sites1229agg <- sites1229filtered %>%
   group_by(gene_id) %>%
-  dplyr::filter(repression == min(min(repression), na.rm=TRUE))
+  dplyr::filter(repression == min(repression, na.rm=TRUE))
 
 sites1229agg$transcript <- NULL
 sites1229agg <- distinct(sites1229agg)

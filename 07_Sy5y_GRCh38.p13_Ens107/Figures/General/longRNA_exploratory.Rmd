@@ -107,7 +107,7 @@ p1 <- ggplot(df, aes(x = x, y = y)) +
   theme(text = element_text(size = 14), 
         axis.text.x = element_text(size = rel(1)),
         axis.text.y = element_text(size = rel(1))) +
-  guides(color=guide_legend(title="Condition"),shape=guide_legend(title="Differentiation"))
+  guides(color=guide_legend(title="Condition"),shape=guide_legend(title="Replicate"))
   
 
 ggsave("../Figure_Output/Exploratory/PCA_man.png",p1, width = 6.5,height = 4.5, bg = "white")

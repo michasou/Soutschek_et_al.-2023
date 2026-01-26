@@ -38,17 +38,17 @@ se <- se[,se$condition != "pLNA-3943"]
 
 # Violine Figures:
 ```{r}
-# example to get genes:
-
-g1 <- row.names(se)[rowData(se)$gene_name %in% c("PINK1")]
-
-ggplot(meltSE(se, g1, assayName = "logcpm"), aes(condition, logcpm)) + geom_violin() + geom_point(aes(color = diff)) +  facet_wrap(~feature, scale="free") + theme_classic()
-
-ggplot(meltSE(se, g1, assayName = "counts"), aes(condition, counts)) + geom_violin() + geom_point(aes(color = diff)) +  facet_wrap(~feature, scale="free")
-
-png("../Figure_Output/SingleGenes/Pink1.png", width=10, height=6, units="in", res=300)
-ggplot(meltSE(se, g1, assayName = "counts"), aes(condition, counts)) + geom_point(aes(color = diff)) + geom_violin() + facet_wrap(~feature, scale="free")
-dev.off()
+# # example to get genes:
+# 
+# g1 <- row.names(se)[rowData(se)$gene_name %in% c("PINK1")]
+# 
+# ggplot(meltSE(se, g1, assayName = "logcpm"), aes(condition, logcpm)) + geom_violin() + geom_point(aes(color = diff)) +  facet_wrap(~feature, scale="free") + theme_classic()
+# 
+# ggplot(meltSE(se, g1, assayName = "counts"), aes(condition, counts)) + geom_violin() + geom_point(aes(color = diff)) +  facet_wrap(~feature, scale="free")
+# 
+# png("../Figure_Output/SingleGenes/Pink1.png", width=10, height=6, units="in", res=300)
+# ggplot(meltSE(se, g1, assayName = "counts"), aes(condition, counts)) + geom_point(aes(color = diff)) + geom_violin() + facet_wrap(~feature, scale="free")
+# dev.off()
 ```
 
 
@@ -57,7 +57,7 @@ dev.off()
 man <- c("IFNAR1","IFNAR2")  
 g1 <- row.names(se)[rowData(se)$gene_name %in% man]
 
-png("../Figure_Output/SingleGenes/Inflammation.png", width=12, height=6, units="in", res=300)
+png("../Figure_Output/SingleGenes/Inflammation.png", width=9, height=4, units="in", res=300)
 ggplot(meltSE(se, g1, assayName = "logcpm"), aes(condition, logcpm)) + geom_violin() + geom_point(aes(color = diff)) +
       theme_classic() + xlab("") +
       theme_classic(base_size = 12)+

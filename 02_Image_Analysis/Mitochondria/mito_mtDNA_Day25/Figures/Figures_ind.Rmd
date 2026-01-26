@@ -57,7 +57,7 @@ s1 <- emmeans(mod_s1, trt.vs.ctrl ~ Condition , ref="Ctrl")
 s1_df <- as.data.frame(s1$contrasts)
 s1_df$group1 <- "Ctrl"
 s1_df$group2 <- s1_df$contrast
-s1_df$group2 <- gsub("Ctrl - ","",s1_df$group2)
+s1_df$group2 <- gsub(" - Ctrl","",s1_df$group2)
 s1_df <- add_significance(s1_df,p.col = "p.value")
 s1_df$p.value.num <- round(s1_df$p.value,3)
 s1_df$p.value.signif[s1_df$p.value.signif == "ns"] <- NA
@@ -134,7 +134,7 @@ s2 <- emmeans(mod_s2, trt.vs.ctrl ~ Condition , ref="Ctrl")
 s2_df <- as.data.frame(s2$contrasts)
 s2_df$group1 <- "Ctrl"
 s2_df$group2 <- s2_df$contrast
-s2_df$group2 <- gsub("Ctrl - ","",s2_df$group2)
+s2_df$group2 <- gsub(" - Ctrl","",s2_df$group2)
 s2_df <- add_significance(s2_df,p.col = "p.value")
 s2_df$p.value.num <- round(s2_df$p.value,3)
 s2_df$p.value.signif[s2_df$p.value.signif == "ns"] <- NA
@@ -248,7 +248,7 @@ overdisp_fun(mod_s4)
 s4_df <- as.data.frame(s4$contrasts)
 s4_df$group1 <- "Ctrl"
 s4_df$group2 <- s4_df$contrast
-s4_df$group2 <- gsub("Ctrl - ","",s4_df$group2)
+s4_df$group2 <- gsub(" - Ctrl","",s4_df$group2)
 s4_df <- add_significance(s4_df,p.col = "p.value")
 s4_df$p.value.num <- round(s4_df$p.value,3)
 s4_df$p.value.signif[s4_df$p.value.signif == "ns"] <- NA

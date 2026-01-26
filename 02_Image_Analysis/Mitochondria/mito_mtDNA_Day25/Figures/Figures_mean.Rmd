@@ -53,7 +53,7 @@ s1 <- emmeans(mod_s1, trt.vs.ctrl ~ Condition , ref="Ctrl")
 s1_df <- as.data.frame(s1$contrasts)
 s1_df$group1 <- "Ctrl"
 s1_df$group2 <- s1_df$contrast
-s1_df$group2 <- gsub("Ctrl - ","",s1_df$group2)
+s1_df$group2 <- gsub(" - Ctrl","",s1_df$group2)
 s1_df <- add_significance(s1_df,p.col = "p.value")
 s1_df$p.value.num <- round(s1_df$p.value,3)
 s1_df$p.value.signif[s1_df$p.value.signif == "ns"] <- NA
