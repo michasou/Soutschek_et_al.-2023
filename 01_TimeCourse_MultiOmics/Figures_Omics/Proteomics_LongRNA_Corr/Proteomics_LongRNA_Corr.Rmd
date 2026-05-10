@@ -328,7 +328,7 @@ dev.off()
 
 
 ```{r}
-pdf("./Figure_Output/RNA_Prot_heat_all_top1000.pdf", width=11.5, height=6)
+pdf("./Figure_Output/RNA_Prot_heat_all_top1000.pdf", width=10, height=5)
 a
 dev.off()
 ```

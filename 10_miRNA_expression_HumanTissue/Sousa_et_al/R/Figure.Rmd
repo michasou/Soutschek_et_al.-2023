@@ -87,6 +87,11 @@ saveRDS(dfl,"./TableS6_filt.rds")
 dfl <- readRDS("./TableS6_filt.rds")
 ```
 
+```{r}
+dfl$miRNA <- gsub("hsa-mir","hsa-miR",dfl$miRNA)
+```
+
+
 #plot
 ```{r}
 p1 <- ggplot(dfl,aes(x = miRNA,y = Expression,fill = species)) +
@@ -124,6 +129,11 @@ dfl_filt$region <- factor(dfl_filt$region,levels = c("HIP","VFC","MFC","OFC"))
 ```
 
 ```{r}
+dfl_filt$miRNA <- gsub("hsa-miR","hsa-\nmiR",dfl_filt$miRNA)
+```
+
+
+```{r}
 p2 <- ggplot(dfl_filt,aes(x = miRNA,y = Expression)) +
   geom_bar_pattern(aes(pattern = species), show.legend = TRUE,
     position = position_dodge(preserve = "single"),
@@ -141,17 +151,18 @@ p2 <- ggplot(dfl_filt,aes(x = miRNA,y = Expression)) +
     x = "miRNA",
     y = "Expression"
   ) +
-  theme_classic(base_size = 14) +
-  theme(strip.text.x = element_text(size = rel(1.1)),
+  theme_classic() +
+  theme(text = element_text(size = 16),
+        strip.text.x = element_text(size = 16),
         strip.placement = "inside",
-        text = element_text(size = 14),
         axis.title.x=element_blank(),
-        axis.title.y = element_text(size = rel(1.2)),
-        axis.text.y = element_text(size = rel(1.1)),
-        axis.text.x = element_text(size = rel(1.1)))
+        axis.title.y=element_text(size = 20),
+        axis.text.y = element_text(size = 16),
+        axis.text.x = element_text(size = 16),
+        legend.position = "bottom")
 
 ggsave("../FigureOutput/FilteredRegions.png",p2, width = 9,height = 6, bg = "white")
-ggsave("../FigureOutput/FilteredRegions.pdf",p2, width = 9,height = 6, bg = "white")
+ggsave("../FigureOutput/FilteredRegions.pdf",p2, width = 8,height = 5.5, bg = "white")
 ```
 
 

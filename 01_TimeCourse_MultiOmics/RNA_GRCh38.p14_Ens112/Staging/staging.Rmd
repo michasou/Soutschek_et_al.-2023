@@ -276,12 +276,12 @@ Heatmap(ccsr2,col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name=
 
 ### Paper main figure
 ```{r}
-h1 <- Heatmap(ccsr_li, col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=10), row_title="Lin et al., Stem Cell Rep. 2021", heatmap_legend_param = list(direction = "horizontal"),
+h1 <- Heatmap(ccsr_li, col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=12), column_title_gp = gpar(fontsize = 14), row_title="Lin et al., Stem Cell Rep. 2021", heatmap_legend_param = list(direction = "horizontal"),
               show_column_names = TRUE, column_labels = se_sal$space)
 ```
 
 ```{r}
-h2 <- Heatmap(ccsr_tre,col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=10), row_title= "Trevino et al., Cell, 2021", heatmap_legend_param = list(direction = "horizontal"),
+h2 <- Heatmap(ccsr_tre,col = colors, cluster_rows = FALSE, cluster_columns = FALSE, name="Spearman rank", column_title="Spearman correlation rank", row_names_gp=gpar(fontsize=12),column_title_gp = gpar(fontsize = 14), row_title= "Trevino et al., Cell, 2021", heatmap_legend_param = list(direction = "horizontal"),
               show_column_names = TRUE, column_labels = se_sal$space)
 ```
 
@@ -292,7 +292,7 @@ draw(h1,heatmap_legend_side = "bottom"
 )
 dev.off()
 
-pdf("./FigureOutput/Main_Lin.pdf", width=4, height=6)
+pdf("./FigureOutput/Main_Lin.pdf", width=4, height=6.25)
 draw(h1,heatmap_legend_side = "bottom"
 )
 dev.off()
@@ -301,7 +301,7 @@ png("./FigureOutput/Main_Trevino.png", width=4.5, height=6, units = "in", res=30
 draw(h2,heatmap_legend_side = "bottom")
 dev.off()
 
-pdf("./FigureOutput/Main_Trevino.pdf", width=4.5, height=6)
+pdf("./FigureOutput/Main_Trevino.pdf", width=4.5, height=6.25)
 draw(h2,heatmap_legend_side = "bottom")
 dev.off()
 ```

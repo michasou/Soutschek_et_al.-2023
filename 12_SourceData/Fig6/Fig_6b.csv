@@ -1,6 +1,7 @@
 "","props","members","overlap","sites.overlap","enrichment","pvalue","FDR"
 "UCUCACC",1.92,"hsa-miR-1229-3p",104,163,0.871,4.9e-12,1.59e-09
-"CUCACCA",5.25,"hsa-miR-6511a-3p;hsa-miR-6511b-3p",93,139,0.765,1.35e-08,2.19e-06
+"CUCACCA",5.25,"hsa-miR-6511a-3p;
+hsa-miR-6511b-3p",93,139,0.765,1.35e-08,2.19e-06
 "UCACCAC",6.44,"hsa-miR-197-3p",103,160,0.432,0.00027,0.0293
 "CUGCCCU",2.79,"hsa-miR-18a-3p",83,177,0.395,0.000413,0.0335
 "CUCACAC",9.86,"hsa-miR-342-3p",97,147,0.411,0.000825,0.0447

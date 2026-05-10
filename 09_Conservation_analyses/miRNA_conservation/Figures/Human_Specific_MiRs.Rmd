@@ -142,7 +142,7 @@ png("./Figure_Output/Human_Specific_miRs.png", width=7, height=6, units="in", re
 pp
 dev.off()
 
-pdf("./Figure_Output/Human_Specific_miRs.pdf", width=7, height=6)
+pdf("./Figure_Output/Human_Specific_miRs.pdf", width=6.5, height=5)
 pp
 dev.off()
 ```

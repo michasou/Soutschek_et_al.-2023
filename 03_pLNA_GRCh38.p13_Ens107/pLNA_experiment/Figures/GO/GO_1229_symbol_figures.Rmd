@@ -12,6 +12,7 @@ suppressPackageStartupMessages({
   library(plyr)
   library(data.table)
   library(SummarizedExperiment)
+  library(scales)
 })
 ```
 
@@ -74,10 +75,10 @@ CC_Top$label1 <- 1.1e-05
 CC_Top$label2 <- 1.11
 
 MF_Top$label1 <- 1.1e-05
-MF_Top$label2 <- 101.11
+MF_Top$label2 <- 1.11
 
 BP_Top$label1 <- 1.1e-05
-BP_Top$label2 <- 101.11
+BP_Top$label2 <- 1.11
 ```
 
 
@@ -160,7 +161,7 @@ p2 <- ggplot(data = BP_Top, aes(x = as.factor(BP_Top$GO.ID))) +
   geom_bar(aes(y = BP_Top$down * (-1),fill = "Down"), stat = "identity") +
   scale_fill_manual(values=color.fill) +
   geom_label(aes(label = BP_Top$label1, y = 0),colour = NA, fill = "#636363") +
-  geom_text(aes(label = BP_Top$Fisher.elim, y = 0), colour = "white") +
+  geom_text(aes(label = label_scientific(digits = 2)(BP_Top$Fisher.elim), y = 0), colour = "white") +
   geom_label(label = BP_Top$label2, y = 7,label.size = 5, colour = NA, fill = "#636363") +
   geom_text(aes(label = round(BP_Top$Fold_Enrichment,2), y = 7), colour = "white") +
   scale_y_continuous(limits = c(-22,8), name = "Number of Genes")+ 
@@ -180,7 +181,7 @@ p2 <- ggplot(data = BP_Top, aes(x = as.factor(BP_Top$GO.ID))) +
 p2
 
 # ggsave("../Figure_Output/GO-Terms/GO_1229_BP_symbol_FDR05.png",p2, width=13, height=6, units="in", dpi=300)
-ggsave("../Figure_Output/GO-Terms/GO_1229_BP_symbol_FDR05.pdf",p2, width=13, height=6)
+ggsave("../Figure_Output/GO-Terms/GO_1229_BP_symbol_FDR05.pdf",p2, width=11.5, height=6)
 ```
 
 

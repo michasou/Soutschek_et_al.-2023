@@ -84,13 +84,13 @@ sig_mi_neu <- row.names(res_mi_neu)[res_mi_neu$FDR < 0.05]
 ```
 
 ```{r}
-a <- sechm(se_mi, sig_mi, top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, anno_colors = ancols, show_colnames = FALSE, column_title = "miRNA", annocol_title_side=NA, name = "logFC")
+a <- sechm(se_mi, sig_mi, top_annotation =c("day"), assayName = "log2FC.neur", gaps_at = "day", breaks=TRUE, show_rownames = FALSE, hmcols = heatcol, anno_colors = ancols, show_colnames = FALSE, column_title = "miRNA", annocol_title_side=NA, name = "logFC",column_title_gp = gpar(fontsize = 14))
 
 png("Figure_Output/Heat/smallRNA_Heat_miRNAs_alldays_normDay9.png", width=7, height=6, units="in", res=300)
 a
 dev.off()
 
-pdf("Figure_Output/Heat/smallRNA_Heat_miRNAs_alldays_normDay9.pdf", width=7, height=6)
+pdf("Figure_Output/Heat/smallRNA_Heat_miRNAs_alldays_normDay9.pdf", width=6.5, height=4.5)
 a
 dev.off()
 

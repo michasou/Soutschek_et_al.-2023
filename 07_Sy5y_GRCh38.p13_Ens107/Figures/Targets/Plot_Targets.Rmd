@@ -247,16 +247,16 @@ for(j in gg){
   
   pa <- ggplot(dd, aes(cond_name, logcpm)) + geom_violin() + geom_point(aes(color = experiment)) +
       theme_classic() + xlab("") +
-      theme_classic(base_size = 12)+
       scale_color_manual(values = col_vec) +
       facet_wrap(~gene_name, scale = "free") +
       scale_x_discrete(labels=c("Ctrl.","miR-1229\n(10nM)","miR-1229\n(20nM)")) +
       coord_cartesian(ylim = c(ymin - 0.25,ymax + 0.25)) +
-      theme(strip.text.x = element_text(size = rel(1.1)),
+      theme(text = element_text(size = 16), 
             strip.placement = "inside",
-            text = element_text(size = 14), 
+            strip.text.x = element_text(size = rel(1)),
             axis.title.x=element_blank(),
-            axis.text.x = element_text(size = rel(1)))
+            axis.text.x = element_text(size = rel(0.875)),
+            axis.text.y = element_text(size = rel(0.875)))
   
   paa <- plot_grid(NULL,pa + theme(legend.position = "none"),NULL,ncol = 1,rel_heights = c(0.1,1,0.2))
   
@@ -275,18 +275,20 @@ for(j in gg){
       scale_x_continuous(expand=expansion(mult = c(.033,.033))) + theme(strip.text=element_text(face="bold") ) +
       scale_color_manual(values = colvec_sc) +
       theme_classic() +
-      theme(strip.text.x = element_text(size = rel(1.1)),
-            strip.placement = "inside",
-            text = element_text(size = 16), 
-            axis.text.x = element_text(size = rel(1)),
-            plot.margin = unit(c(1,1,0,1),"lines"),
-            plot.title = element_text(size = rel(0.9)),
-            legend) 
+      coord_cartesian(clip = "off") +
+      theme(text = element_text(size = 16), 
+            axis.title = element_text(size = rel(1)), 
+            axis.text.x = element_text(size = rel(0.875)),
+            axis.text.y = element_text(size = rel(0.875)),
+            plot.margin = unit(c(1,2,0,1),"lines"),
+            legend.position = "bottom") 
   
   
   pab <- plot_grid(paa,
                    pb + theme(legend.position = "none"),
-                   nrow = 1, rel_widths = c(1,2.25))
+                   nrow = 1, rel_widths = c(1.1,2))
+  
+  pab <- pab + theme(plot.margin = margin(t = -5, r = 0, b = -10, l = 0, unit = "pt"))
   
   ll[[j]] <- pab
 }
@@ -298,11 +300,11 @@ l1 <- get_plot_component(p1, 'guide-box-bottom', return_all = TRUE)
 l2 <- get_plot_component(p2, 'guide-box-bottom', return_all = TRUE)
 
 pp <- plot_grid(plotlist = ll,ncol = 1)
-ppl <- plot_grid(NULL,l1,NULL,l2,NULL,nrow = 1,rel_heights = c(0.25,1,0.25,1,0.25))
+ppl <- plot_grid(NULL,l1,NULL,l2,NULL,nrow = 1)
 
-pp <- plot_grid(pp,ppl,ncol = 1,rel_heights = c(1,0.1))
+pp <- plot_grid(pp,NULL,ppl,NULL,ncol = 1,rel_heights = c(1,-0.025,0.1,-0.025))
 
-ggsave2("../Figure_Output/Targets/Targets_with_BS.pdf",pp, width = 12,height = 13, bg = "white")
+ggsave2("../Figure_Output/Targets/Targets_with_BS.pdf",pp, width = 9.5,height = 10.5, bg = "white")
 ```
 
 

@@ -12,6 +12,8 @@ suppressPackageStartupMessages({
   library(plyr)
   library(data.table)
   library(SummarizedExperiment)
+  library(scales)
+  library(stringr)
 })
 ```
 
@@ -110,8 +112,8 @@ factor_BP <- factor(BP_Top$rank, levels = BP_Top$rank, labels = BP_Top$GO.ID)
 
 Define Plot components
 ```{r}
-txt <- element_text(family = "sans", size = 14, colour = "black")
-txt2 <- element_text(family = "sans", size = 12, colour = "black")
+txt <- element_text(family = "sans", size = 16, colour = "black")
+txt2 <- element_text(family = "sans", size = 14, colour = "black")
 tick <- element_line(linewidth = 1)
 color.fill <- c("Down" = "#BC3C29","Up" = "#E18727")
 ```
@@ -121,11 +123,12 @@ color.fill <- c("Down" = "#BC3C29","Up" = "#E18727")
 Figure CC
 ```{r}
 p1 <- ggplot(data = CC_Top, aes(x = as.factor(CC_Top$GO.ID))) +
-  scale_x_discrete(labels = rev(CC_Top$Term), limits = rev(levels(factor_CC)), name = "")+
+  scale_x_discrete(labels = str_pad(str_trunc(rev(CC_Top$Term), 40), width = 40, side = "left"), 
+                   limits = rev(levels(factor_CC)), name = "")+
   geom_bar(aes(y = CC_Top$down,fill = "Down"), stat = "identity") +
   scale_fill_manual(values=color.fill) +
   geom_label(aes(label = CC_Top$label1, y = 0),colour = NA, fill = "#636363") +
-  geom_text(aes(label = CC_Top$Fisher.elim, y = 0), colour = "white") +
+  geom_text(aes(label = label_scientific(digits = 2)(CC_Top$Fisher.elim), y = 0), colour = "white") +
   geom_label(label = CC_Top$label2, y = 13.5,label.size = 5, colour = NA, fill = "#636363") +
   geom_text(aes(label = round(CC_Top$Fold_Enrichment,2), y = 13.5), colour = "white") +
   scale_y_continuous(limits = c(-2.25,15), name = "Number of Genes")+
@@ -137,13 +140,16 @@ p1 <- ggplot(data = CC_Top, aes(x = as.factor(CC_Top$GO.ID))) +
   ggtitle("Genes with miR-1229 sites - Cellular Component") +
   theme_classic() +
   theme(text = element_text(size = 16),
-        axis.title = txt, axis.text = txt,  axis.ticks = tick,
-        legend.position = c(0.9,-0.13), legend.direction = "horizontal", legend.text = txt2, legend.title = element_blank(),
-        plot.margin = unit(c(3,1,3,1),"lines"),
+        axis.title = txt, axis.ticks = tick,
+        axis.text = txt,
+        legend.position = "bottom", legend.justification = "right", legend.box.spacing = unit(0.1, "lines"),
+        legend.margin = margin(t = 0, r = 0, b = 0, l = 0),
+        legend.direction = "horizontal", legend.text = txt2, legend.title = element_blank(),
+        plot.margin = unit(c(3,1,1,3.68),"lines"),
         plot.title = element_text(vjust = 7.5))
 
 
-ggsave("../Figure_Output/Targets/GO_CC_10nM_expr_Targets.pdf",p1, width=12, height=5, units="in", dpi=300)
+ggsave("../Figure_Output/Targets/GO_CC_10nM_expr_Targets.pdf",p1, width=12, height=4.75, units="in", dpi=300)
 ```
 
 

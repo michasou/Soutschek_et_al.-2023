@@ -110,7 +110,7 @@ MT_genes1 <- row.names(se2)[grep(pattern = "MT-",row.names(se2))]
 MT_genes2 <- row.names(se2)[grep(pattern = "NDU",row.names(se2))]
 
 
-pdf("../Figure_Output/Heatmaps/Mitochondrial_Genes.pdf", width=9, height=7)
+pdf("../Figure_Output/Heatmaps/Mitochondrial_Genes.pdf", width=7, height=5)
 sechm::sechm(se2, MT_genes1, assayName ="corrected", top_annotation="diff", gaps_at="condition", breaks=FALSE, do.scale = TRUE, show_rownames = TRUE, anno_colors = ancols, hmcols = heatcol, annocol_title_side=NA, , name = "scaled\nexpression")
 dev.off()
 ```

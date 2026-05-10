@@ -50,7 +50,7 @@ ggplot(d, aes(x = Day, z)) + geom_smooth(method = "loess")
 
 # image analysis
 ```{r}
-res <- readRDS("Y:/Michael/07-_Workflow/02-_Human specific miRNAs project/Soutschek_et_al_PaperScripts/02_Image_Analysis/NeuronMorphology/TimeCourse/Synapse_Quantification/R/Synapsecluster_Result_with_anno.rds")
+res <- readRDS("../../../02_Image_Analysis/NeuronMorphology/TimeCourse/Synapse_Quantification/R/Synapsecluster_Result_with_anno.rds")
 #res <- readRDS("../../../02_Image_Analysis/NeuronMorphology/TimeCourse/Synapse_Quantification/R/Synapsecluster_Result_with_anno.rds")
 res$log.Clus_area <- sqrt(res$Co_Cluster_perArea_um)
 res2 <- res[is.finite(res$log.Clus_area),]
@@ -98,12 +98,12 @@ p4 <- ggplot(Over2, aes(x = Day, z)) +
         text = element_text(size = 16), 
         axis.text.x = element_text(size = rel(1)),
         axis.text.y = element_text(size = rel(1)),
-        legend.text = element_text(size = 13),
-        legend.title = element_text(size = 13))
+        legend.text = element_text(size = 14),
+        legend.title = element_text(size = 14))
   
   
 ggsave("Overlap_Cluster9_area.png",p4,width = 6.5,height = 4.5)
-ggsave("Overlap_Cluster9_area.pdf",p4,width = 6.5,height = 4.5)
+ggsave("Overlap_Cluster9_area.pdf",p4,width = 7,height = 5.5)
 ```
 
 

@@ -121,7 +121,6 @@ colors <- c(ramp1, ramp2)
 
 
 #Plot
-
 ```{r}
 e <- clust_matrix_id_expressed
 
@@ -136,9 +135,9 @@ draw(
 dev.off()
 
 
-pdf("./Figure_Output/sequence_identity_expMiRs_transpose_ComplexHeatmap.pdf", width=7, height=5)
+pdf("./Figure_Output/sequence_identity_expMiRs_transpose_ComplexHeatmap.pdf", width=6.5, height=4.5)
 draw(
-  Heatmap(t(e), col = colors, column_title  = "Homology to Human microRNA precursors",name = "% homology", show_column_dend = FALSE, heatmap_legend_param = list(
+  Heatmap(t(e), col = colors, column_title  = "Homology to Human microRNA precursors",column_title_gp = gpar(fontsize = 14),name = "% homology", show_column_dend = FALSE, heatmap_legend_param = list(
         at = c(0,30,60,80,100), 
         labels = c("","not conserved", "60%", "80%","100%")
     )))

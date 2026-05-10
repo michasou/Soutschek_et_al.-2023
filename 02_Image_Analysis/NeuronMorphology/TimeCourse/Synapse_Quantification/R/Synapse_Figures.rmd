@@ -188,15 +188,16 @@ ggplot(res,aes(x = as.factor(Day),y = sqrt(Co_Cluster_perArea_um))) +
   scale_x_discrete(labels=c("Day 15","Day 21","Day 27","Day 33","Day 40")) +
   #coord_cartesian(ylim = c(NA,10)) +
   guides(color = guide_legend(title = "Differentiation")) +
-  theme(strip.text.x = element_text(size = rel(1.1)),
-        strip.placement = "inside",
-        text = element_text(size = 14), 
+  theme(legend.position = "bottom",
+        text = element_text(size = 16), 
         axis.title.x=element_blank(),
         axis.text.x = element_text(size = rel(1)),
-        axis.text.y = element_text(size = rel(1)))
+        axis.text.y = element_text(size = rel(1)),
+        legend.text = element_text(size = 14),
+        legend.title = element_text(size = 14))
 
 ggsave("../Figures/Co_Cluster_overlay_mean_paper.png", width = 7, height = 5)
-ggsave("../Figures/Co_Cluster_overlay_mean_paper.pdf", width = 7, height = 5)
+ggsave("../Figures/Co_Cluster_overlay_mean_paper.pdf", width = 7, height = 5.5)
 #ggsave("../Figures/Co_Cluster_overlay_mean_paper_defense.png", width = 7, height = 4)
 ```
 
